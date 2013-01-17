@@ -1,0 +1,25 @@
+#This is the standard set of data files created for python73
+atomic/atomic73/elem_ions_ver_73.py
+atomic/atomic73/topbase_levels_h.py
+atomic/atomic73/topbase_levels_he.py
+atomic/atomic73/topbase_levels_cno.py
+atomic/atomic73/topbase_levels_fe.py
+atomic/atomic73/levels_ver_2.py
+atomic/atomic73/lines_linked_ver_2.py
+atomic/atomic73/excited.py
+atomic/atomic73/recomb.data
+atomic/atomic73/topbase_h1_phot.py
+atomic/atomic73/topbase_he1_phot.py
+atomic/atomic73/topbase_he2_phot.py
+atomic/atomic73/topbase_cno_phot.py
+atomic/atomic73/topbase_fe_phot.py
+atomic/atomic73/photo_fkvy.data
+atomic/atomic73/coll.data
+#Next is dielectronic recombination data from chianti.
+atomic/atomic73/chianti_dr.dat
+#Next is badnell style total radiative recombinaion rate
+atomic/atomic73/chianti_rr.dat
+#Next is badnell style ground state radiative recombinaion rate
+atomic/atomic73/Badnell_GS_RR.txt
+#Necxt if gaunt factor data from sutherland (1997)
+atomic/atomic73/gffint.dat
