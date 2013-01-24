@@ -1,0 +1,22 @@
+This directory contains the programs and procedures need to recreate 
+the binary directories for the Kurucz files.   It is needed in situations
+in which the binary format of a computer differs from that of my primary system,
+e.g. a SUN.  I used it when I began using PC-based linux in 1999  I did test
+this and it did seem to work (ksl)
+
+My programs assume that the kurucz directory will have a structure
+kurucz/ascii  : the repository for the ascii files which were the original data
+ Tar this from the kurucz/ascii directory on pisces.
+kurucz/data.91: the repository for the binary files
+
+To create the binary files one needs to recompile kuruczwrite after having
+modify the directory names appropriately.
+
+The one should be able to execute the command runit which will cause 
+kuruczwrite to create the individual binary files.
+
+Copy the file kurucz_index (in this directory) data.91 (or recreate it from 
+the awkscript kindex.  (Note I have no tried to determine exactly how this
+awkscript was run since I had the file kindex already.
+
+

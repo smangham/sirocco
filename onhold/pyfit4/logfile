@@ -1,0 +1,7 @@
+model_locate 0
+Creating disk
+ascii_read: read 9731 from sscyg_kgrid/models.ls
+get_python_models: Assuming sscyg_kgrid/models.ls is a specidal Python file
+Allocating new wavelength array for sscyg_kgrid/sscyg_00_00_00_00_00_00_00.spec.Ang15
+frac_weight 0 0.500000
+frac_weight 1 0.500000

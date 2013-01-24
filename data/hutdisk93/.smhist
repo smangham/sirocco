@@ -1,0 +1,37 @@
+:q!
+quit
+input sm.simple
+do_one t30g5nc.0920.11
+add_one "../ghrsdisk99/t30g5lt.0920.11
+add_one "../ghrsdisk99/t30g5lt.0920.11"
+erase
+do_one "../ghrsdisk99/ap00t15000g30k2.tlt.11"
+erase
+do_one "/pisces/data1/long/stars/kurucz/hut/ap00t9000g30k2.0510.11"
+add_one t10g3nc.0920.11
+erase
+do_one "/pisces/data1/long/stars/kurucz/hut/ap00t9000g30k2.0510.11"
+add_one "../ghrsdisk99/ap00t9000g30k2.cool.11"
+quit
+data t50g4nc.0920.11
+read w 1
+read f 2
+limits w f
+connect w f
+box
+limits 800 1200 f
+erase
+connect w f
+box
+data t95.0920.11
+read w 1
+read f 2
+limits 800 1200 f
+connect w f
+erase
+connect w f
+box
+erase
+connect w f
+box
+quit

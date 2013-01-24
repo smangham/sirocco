@@ -1,0 +1,15 @@
+rm kur*
+ln -s WFfp00t5000g40k2c125.dat   kur05g4
+ln -s WFfp00t6000g40k2c125.dat   kur06g4
+ln -s WFfp00t7000g40k2c125.dat   kur07g4
+ln -s WFfp00t8000g40k2c125.dat   kur08g4
+ln -s WFfp00t9000g40k2.dat       kur09g4
+ln -s WFfp00t9000g50k2.dat       kur09g5
+ln -s WFfp00t10000g40k2.dat      kur10g4
+ln -s WFfp00t10000g50k2.dat      kur10g5
+ln -s WFfp00t15000g40k2.dat      kur15g4
+ln -s WFfp00t15000g50k2.dat      kur15g5
+ln -s WFfp00t20000g50k2.dat      kur20g5
+ln -s WFfp00t30000g50k2.dat      kur30g5
+ln -s WFfp00t40000g50k2.dat      kur40g5
+ln -s WFfp00t4000g40k2c125.dat   kur04g4

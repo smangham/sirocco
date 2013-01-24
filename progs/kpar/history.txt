@@ -1,0 +1,3 @@
+352 Mon Aug 31 09:20:01 EDT 2009 sierra.stsci.edu
+Archive of kpar on 091027 from /home/long/current/Python64/progs by long
+Archive of kpar on 121216 from /Users/nsh1u09/python/progs by nsh1u09

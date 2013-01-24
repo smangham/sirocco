@@ -1,0 +1,3 @@
+atom_ion_infile(none=oldstyle)          orig.data
+atom_ion_level_outfile                  vlevels.out
+line_outfile                            vlines.data

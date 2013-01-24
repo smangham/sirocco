@@ -1,0 +1,9 @@
+First_model                             polar.spec
+First_spectrum                                   1
+Second_model                            polar.spec
+Second_spectrum                                  2
+number.of.independent.regions                    2
+wavelengths.to.fit                        1220-1250
+chi2.renorm                                       1
+wavelengths.to.fit                        1525-1575
+chi2.renorm                                       2

@@ -1,0 +1,5 @@
+#lambda_min                                    10000
+#lambda_max                                    45000
+lambda_min                                    10
+lambda_max                                   10000
+t                                             10000

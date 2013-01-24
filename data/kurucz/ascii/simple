@@ -1,0 +1,29 @@
+define getdata
+data &1
+xcol 1
+ycol 2
+ylog
+end
+
+define getkur
+data &1
+xcol 1
+ycol 2
+ylog
+end
+
+define doit
+getdata &1
+limits
+set y1 y2 - 5
+limits 850 2550 y1 y2
+box
+connect
+xlab &1
+end
+
+define do_pr
+printer 8
+doit &1
+hardcopy
+end

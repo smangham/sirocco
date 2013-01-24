@@ -1,0 +1,36 @@
+macro doit
+macro doit 1 {
+data $1
+read x 1
+read y 2
+read z 3
+limits x y
+box
+connect x y
+ctype red
+connect x z
+ctype black
+}
+ctype black
+doit fp00k2t18000g4.0.dat
+cd ../Test
+doit fp00k2t18000g4.0.dat
+erase
+doit fp00k2t18000g4.0.dat
+input sm.test
+erase
+doit fp00k2t18000g4.0.dat
+input sm.test
+erase
+doit fp00k2t18000g4.0.dat
+quit
+input sm.test
+doit p00k2t15000g4.5.dat
+doit fp00k2t15000g4.5.dat
+doit fp00k2t25000g5.0.dat
+erase
+doit fp00k2t25000g5.0.dat
+doit fp00k2t20000g5.0.dat
+erase
+doit fp00k2t20000g5.0.dat
+quit

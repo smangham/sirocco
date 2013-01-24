@@ -1,0 +1,213 @@
+# This is a data file which can be used to input atomic data
+# The first word defines the type of record.  The data which follows
+# Element and Ion refers to that element and ion until the next element
+# or ion is begun.  Continuation lines may be indicated by * in the first
+# word in the line. 
+
+# Lines beginning with # will be regarded as comments.
+
+# If a line is blank it will be ignored.
+# The order of the inputs can sometimes be important. In particular, A
+# should be the first line for any element and Ion should be the first line
+# for any ion
+# 
+
+# For elements, the format is
+#Element  z   name  log abun (by number)
+Element 1	H	12.00
+Element	2	He	10.93
+Element	6	C	8.52
+Element	7	N	7.96
+Element	8	0	8.82
+
+Element	10	Ne	7.92
+Element 11  Na  6.25
+Element 12  Mg  7.42
+Element	13	Al	6.39
+Element	14	Si	7.52
+# Element	15	P	5.52
+Element	16	S	7.20
+Element 18  Ar  6.8
+Element 20  Ca  6.30
+Element	26	Fe	7.60
+Element 28  Ni  6.30
+
+#For ions, the format is
+# Ion  Element   z ionization State  g IP(in eV)
+# However, the element name is not saved, indexing is based on z and istate
+# Levels if they exist have the format
+# Level Principle q #  g  excitation energy
+
+Ion	H	1	1	2	13.598
+Ion	H	1	2	1	1.e20
+
+Ion	He	2	1	1	24.587
+Ion	He	2	2	2	54.416
+Ion	He	2	3	1	1.e20
+
+#Ion	C	6	1	3	11.26
+Ion	C	6	2	2	24.382
+Ion	C	6	3	1	47.883
+Ion	C	6	4	2	64.492
+Ion	C	6	5	1	392.08
+Ion	C	6	6	2	489.98
+Ion	C	6	7	2	1.e20
+
+#Ion	N	7	1	4	14.534
+#Ion	N	7	2	3	29.601
+Ion	N	7	3	2	47.448
+Ion	N	7	4	1	77.472
+Ion	N	7	5	2	97.89
+Ion	N	7	6	1	552.06
+Ion	N	7	7	2	667.03
+Ion	N	7	8	2	1.e20
+
+#Ion	O	8	1	3	13.618
+#Ion	O	8	2	4	35.117
+Ion	O	8	3	3	54.900
+Ion	O	8	4	2	77.412
+Ion	O	8	5	1	113.896
+Ion	O	8	6	2	138.115
+Ion	O	8	7	1	739.30
+#Ion	O	8	8	2	871.39
+Ion	O	8	9	2	1.e20
+
+Ion Ne  10  1   1   21.564
+Ion Ne  10  2   6   40.962
+Ion Ne  10  3   9   63.45 
+Ion Ne  10  4   4   97.11  
+Ion Ne  10  5   9   126.21 
+Ion Ne  10  6   6   157.93
+Ion Ne  10  7   1   207.26
+Ion Ne  10  8   2   239.09
+#Ion Ne  10  9   1   1195.8
+#Ion Ne  10  10  2   1362.2
+#Ion Ne  10  11  1   1.e20 
+
+#Ion Na  11  1    2  5.139
+Ion Na  11  2    1  47.286
+Ion Na  11  3    6  71.64
+Ion Na  11  4    9  98.91
+Ion Na  11  5    4  138.40
+Ion Na  11  6    9  172.15
+Ion Na  11  7    6  208.48
+Ion Na  11  8    1  264.19
+Ion Na  11  9    2  299.9
+#Ion Na  11  10   1  1.e20
+
+#Ion Mg  12  1    1  7.646
+Ion Mg  12  2    2  15.035
+Ion Mg  12  3    1  80.143
+Ion Mg  12  4    6  109.31
+Ion Mg  12  5    9  141.27
+Ion Mg  12  6    4  186.51
+Ion Mg  12  7    9  224.95
+Ion Mg  12  8    6  265.92
+#Ion Mg  12  9    1  328.0
+#Ion Mg  12  10   2  367.5
+Ion Mg  12  11   1  1.e20
+
+#Ion Al  13  1    6  5.986
+Ion Al  13  2    1  18.826
+Ion Al  13  3    2  28.448
+Ion Al  13  4    1  119.99
+Ion Al  13  5    6  153.75
+Ion Al  13  6    9  190.47
+Ion Al  13  7    4  241.44
+Ion Al  13  8    9  284.59
+#Ion Al  13  9    6  330.2
+#Ion Al  13  10   1  398.6
+#Ion Al  13  11   2  442.0
+#Ion Al  13  12   1  1.e20
+
+
+
+#Ion	Si	14	1	3	8.151
+Ion	Si	14	2	2	16.346
+Ion	Si	14	3	1	33.492
+Ion	Si	14	4	2	45.141
+Ion	Si	14	5	1	166.77
+Ion	Si	14	6	2	205.16
+Ion	Si	14	7	3	246.5
+#Ion	Si	14	8	4	303.15
+#Ion	Si	14	9	3	351.05
+#Ion	Si	14	10	2	401.38
+#Ion	Si	14	11	1	476.15
+#Ion	Si	14	12	2	523.38
+#Ion	Si	14	13	2	2673.1
+#Ion	Si	14	14	2	1.e20
+
+#Ion	S	16	1	3	10.360
+Ion	S	16	2	4	23.411
+Ion	S	16	3	3	35.06
+Ion	S	16	4	2	47.304
+Ion	S	16	5	1	72.49
+Ion	S	16	6	2	88.051
+Ion	S	16	7	1	281.06
+#Ion	S	16	8	2	328.89
+#Ion	S	16	9	3	379.05
+#Ion	S	16	10	4	447.1
+#Ion	S	16	11	2	3494.10
+#Ion	S	16	12	2	1.e20
+
+Ion Ar  18  1   1   15.759
+Ion Ar  18  2   6   27.629
+Ion Ar  18  3   9   40.74
+Ion Ar  18  4   4   59.81
+Ion Ar  18  5   9   75.04
+Ion Ar  18  6   6   91.01
+Ion Ar  18  7   1   124.4
+Ion Ar  18  8   2   143.45
+Ion Ar  18  9   1   422.6
+Ion Ar  18  10  6   1.e20
+
+
+Ion Ca  20  1   1   6.113
+Ion Ca  20  2   2   11.871
+Ion Ca  20  3   1   50.91
+Ion Ca  20  4   6   67.15
+Ion Ca  20  5   9   84.43
+Ion Ca  20  6   4   108.78
+Ion Ca  20  7   9   127.7
+Ion Ca  20  8   6   147.4
+Ion Ca  20  9   1   188.7
+#Ion Ca  20  10  2   211.3
+#Ion Ca  20  11  1   1.e20
+
+
+# Ground state multiplicities are not all correct for Iron or ni
+#Ion Fe  26 1   25   7.870
+Ion Fe  26 2   30   16.16
+Ion Fe  26 3   25   30.651
+Ion Fe  26 4   25   54.8 
+Ion Fe  26 5   25   75.5
+Ion Fe  26 6   25   100.0
+Ion Fe  26 7   25   128.3
+Ion Fe  26 8   25   151.12
+Ion Fe  26 9   25   235.0
+Ion Fe  26 10  25   262.1
+Ion Fe  26 11  25   290.4
+Ion Fe  26 12  25   331.0
+#Ion Fe  26 13  25   361.0
+#Ion Fe  26 14  25   392.0
+#Ion Fe  26 15  25   457.0
+#Ion Fe  26 16  25   459.0
+#Ion Fe  26 17  25   1.e20
+
+#Ion Ni  28 1   21   7.635
+#Ion Ni  28 2   21   18.168
+#Ion Ni  28 3   21   35.17
+#Ion Ni  28 4   21   54.9
+#Ion Ni  28 5   21   75.5
+#Ion Ni  28 6   21   108.
+#Ion Ni  28 7   21   134.
+#Ion Ni  28 8   21   164.
+#Ion Ni  28 9   21   193.
+#Ion Ni  28 10  21   224.6
+#Ion Ni  28 11  21   321.
+#Ion Ni  28 12  21   352.
+#Ion Ni  28 13  21   384.
+#Ion Ni  28 14  21   430.
+#Ion Ni  28 15  21   464.
+#Ion Ni  28 16  21   1.e20
+

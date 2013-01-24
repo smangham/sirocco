@@ -1,0 +1,41 @@
+data foo
+read x 1
+read y 2
+limits x y
+ctype black
+connect x y
+box
+erase
+connect x y
+box
+erase
+data foo
+read x 1
+read y 2
+limits x y
+connect x y
+box
+limits x 0 13
+connect x y
+erase
+box
+connect x y
+read x 1
+read y 2
+erase
+connect x y
+box
+limits x y
+connect x y
+erase
+connect x y
+box
+erase
+box
+connect x y
+set yy=(lg(y))
+limits x yy
+erase
+connect x yy
+box
+quit

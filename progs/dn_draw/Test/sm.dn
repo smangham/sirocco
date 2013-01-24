@@ -1,0 +1,40 @@
+macro doit 2 {
+     ctype black
+     limits -1e11 1e11 -1e11 1e11
+     box
+     ctype blue
+     lweight 5
+     input $1.$2.disk
+     data python.roche
+     read x 1
+     read y 2
+     ctype green
+     points x y
+     data $1.$2.out
+     read x 1
+     read y 2
+     ctype red
+     lweight 1
+     points x y 
+     }
+     
+
+macro plotit 2  {
+     dev postportfile $1.$2.ps
+     doit $1 $2
+     }
+
+macro doall 0  {
+      plotit toast 00
+      plotit toast 01
+      plotit toast 02
+      plotit toast 03
+      plotit toast 04
+      plotit toast 05
+      plotit toast 06
+      plotit toast 07
+      plotit toast 08
+      plotit toast 09
+      plotit toast 10
+      dev x11
+      }

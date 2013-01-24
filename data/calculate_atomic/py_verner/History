@@ -1,0 +1,26 @@
+2184 Fri Nov 16 17:25:19 EST 2001 muskie.stsci.edu
+This directory contains awk scripts required to create atomic data for python from the 
+data retrieved from Dina Verner's web site.  Some of the programs, notable py_read_verner
+and py_link associated with this are in the directory py_atomic.  
+
+Normally the procedure is to run the awkscript Awk.verner.  This creates from
+abun.dat and ions.dat the file elem_ions_ver.py.  As written the file is
+commented so that elements and ions with abundances > 5 are marked for use
+
+Then one would run py_read_verner and py_link on atom1.dat to produce a line list.
+4120 Mon Nov 26 08:37:25 EST 2001 shad.stsci.edu
+4120 Thu Dec 13 13:47:49 EST 2001 muskie.stsci.edu
+4120 Wed Mar 26 13:02:36 EST 2003 muskie.stsci.edu
+4120 Fri Feb 13 16:17:55 EST 2004 muskie.stsci.edu
+4120 Sun Feb 15 12:41:11 EST 2004 muskie.stsci.edu
+4120 Mon Feb 16 08:41:01 EST 2004 muskie.stsci.edu
+4120 Mon Mar 15 10:36:59 EST 2004 perch.stsci.edu
+4120 Tue Jun 15 16:49:50 EDT 2004 sierra.stsci.edu
+4120 Sat Jul 24 18:24:15 EDT 2004 sierra.stsci.edu
+4120 Mon Aug 2 11:13:24 EDT 2004 perch.stsci.edu
+4120 Mon Aug 2 12:09:28 EDT 2004 perch.stsci.edu
+4120 Mon Aug 2 12:11:31 EDT 2004 perch.stsci.edu
+4120 Mon Nov 22 07:35:32 EST 2004 perch.stsci.edu
+8104 Thu May 17 17:46:42 EDT 2007 bluegill.local
+8104 Wed Jul 25 16:47:16 EDT 2007 bluegill.local
+8104 Sat Jul 28 12:16:11 EDT 2007 bluegill.local

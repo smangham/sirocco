@@ -1,0 +1,190 @@
+/usr/include/sys/resource.h:240: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/resource.h:246: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/wait.h:255: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/wait.h:256: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/wait.h:258: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:178: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:179: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:193: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:222: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:226: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:232: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:234: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:247: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:283: syntax error at token '__asm'
+Expected: {
+/usr/include/stdio.h:260: syntax error at token '__asm'
+Expected: {
+/usr/include/stdio.h:263: syntax error at token '__asm'
+Expected: {
+/usr/include/stdio.h:268: syntax error at token '__asm'
+Expected: {
+/usr/include/stdio.h:342: syntax error at token '__asm'
+Expected: {
+/usr/include/string.h:96: syntax error at token '__asm'
+Expected: {
+/usr/include/stdio.h:260: syntax error at token '__asm'
+Expected: {
+/usr/include/stdio.h:263: syntax error at token '__asm'
+Expected: {
+/usr/include/stdio.h:268: syntax error at token '__asm'
+Expected: {
+/usr/include/stdio.h:342: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/resource.h:240: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/resource.h:246: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/wait.h:255: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/wait.h:256: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/wait.h:258: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:178: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:179: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:193: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:222: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:226: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:232: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:234: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:247: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:283: syntax error at token '__asm'
+Expected: {
+/usr/include/string.h:96: syntax error at token '__asm'
+Expected: {
+/usr/include/stdio.h:260: syntax error at token '__asm'
+Expected: {
+/usr/include/stdio.h:263: syntax error at token '__asm'
+Expected: {
+/usr/include/stdio.h:268: syntax error at token '__asm'
+Expected: {
+/usr/include/stdio.h:342: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/resource.h:240: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/resource.h:246: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/wait.h:255: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/wait.h:256: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/wait.h:258: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:178: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:179: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:193: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:222: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:226: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:232: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:234: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:247: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:283: syntax error at token '__asm'
+Expected: {
+/usr/include/string.h:96: syntax error at token '__asm'
+Expected: {
+/usr/include/stdio.h:260: syntax error at token '__asm'
+Expected: {
+/usr/include/stdio.h:263: syntax error at token '__asm'
+Expected: {
+/usr/include/stdio.h:268: syntax error at token '__asm'
+Expected: {
+/usr/include/stdio.h:342: syntax error at token '__asm'
+Expected: {
+/usr/include/string.h:96: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/resource.h:240: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/resource.h:246: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/wait.h:255: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/wait.h:256: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/wait.h:258: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:178: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:179: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:193: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:222: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:226: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:232: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:234: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:247: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:283: syntax error at token '__asm'
+Expected: {
+/usr/include/stdio.h:260: syntax error at token '__asm'
+Expected: {
+/usr/include/stdio.h:263: syntax error at token '__asm'
+Expected: {
+/usr/include/stdio.h:268: syntax error at token '__asm'
+Expected: {
+/usr/include/stdio.h:342: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/resource.h:240: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/resource.h:246: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/wait.h:255: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/wait.h:256: syntax error at token '__asm'
+Expected: {
+/usr/include/sys/wait.h:258: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:178: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:179: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:193: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:222: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:226: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:232: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:234: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:247: syntax error at token '__asm'
+Expected: {
+/usr/include/stdlib.h:283: syntax error at token '__asm'
+Expected: {
+/usr/include/string.h:96: syntax error at token '__asm'
+Expected: {

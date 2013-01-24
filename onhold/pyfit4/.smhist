@@ -1,0 +1,18 @@
+input sm.simple
+do_one foo.dat
+add_one foo.dat
+do_one foo.dat
+add_one foo.dat
+erase
+do_one foo.dat
+quit
+input sm.simple
+do_one foo.dat
+erase
+do_one foo.dat
+quit
+input sm.simple
+do_one foo.dat
+erase
+do_one foo.dat
+quit

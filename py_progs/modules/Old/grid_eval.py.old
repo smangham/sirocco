@@ -1,0 +1,422 @@
+#!/usr/bin/env python 
+
+'''
+                    Space Telescope Science Institute
+
+
+Synopsis:   grid_eval isa package of python routines intended to
+	aid in the understanding how models in a grid vary
+
+Notes:
+	At present there are two sets of routines, neither of which
+	is really finished.  
+	
+	The first set is intended to help to 
+	locate models and allow one to select models that are
+	"close" to one another to display.  This portion of the routines
+	here are not finished.
+
+	The second set of routines displays an individual model which
+	must first have been run through py_wind with the -s option
+	in order to produce the data files one needs.  It works, but
+	could still be improved.
+History:
+
+	090404	Bagan with the current version of carlo.py
+
+'''
+
+import sys
+import os
+import glob
+import numpy
+import math
+import sqlite3
+
+
+# These are the global variables
+python_version='unknown'
+current_inclination=0.0
+
+
+
+def get_filenames(dirname='.',descriptor='*.pf'):
+	'''
+	get_filename(dirname,descriptor) locates and returns all 
+	the filenames of the type specified by descriptor
+	'''
+	searchlist=dirname+'/'+descriptor
+	names=glob.glob(searchlist)
+	return names
+
+def split_filename(name='test/test/foo.dat'):
+	'''
+	split a filene into a path, filename, a rootname, and an extension.
+
+	In short get every possible thing one could want to know about a filename
+	(except of course whether it exists)
+
+
+	'''
+
+	try:
+		i=name.rindex('/')
+		dirname=name[0:i+1]
+		name=name[i+1:len(name)]
+	except ValueError:
+		dirname='./'
+	
+	try:
+		i=name.rindex('.')
+		root=name[0:i]
+		ext=name[i:len(name)]
+	except ValueError:
+		root=name
+		ext=''
+	return dirname,name,root,ext
+	
+
+def read_pf(filename='test'):
+	'''
+	read and parse a parameter file.  Note that
+	this routine can handle the extension or not,
+	but it will always try to read the .pf file
+
+	In this version, the a record is returned for
+	each angle of of a python model, and the  root
+	of the filename is encoded into returned records.   
+
+	The purpose of this is to make it possible to
+	treat the angles as variables, even though
+	they are calculated in the same grid.
+
+	090403	ksl	Made this modification
+	'''
+
+	# Check whether .pf has been added
+	try:
+		n=filename.rindex('.')
+		name=filename[0:n]+'.pf'
+		root=filename[0:n]
+	except ValueError:
+		name=filename+'.pf'
+		root=filename
+
+	x=[]
+	nangles=0
+	angles=[]
+	phases=[]
+
+
+	f=open(name,'r')
+	lines=f.readlines()
+	f.close()
+	i=0
+	while i<len(lines):
+		q=lines[i].strip()
+		if q[0]!='#' and len(q)>1:
+			q=q.split()
+			words=q[0].split('(')
+			try:
+				value=eval(q[1])
+			except NameError:
+				value=q[1]
+			if words[0]=='no_observers':
+				nangles=value
+			elif words[0]=='angle':
+				angles=angles+[value]
+			elif words[0]=='phase':
+				phases=phases+[value]
+			else:
+				keyword=words[0].replace('.','_')
+				x=x+[[keyword,value]]
+				# x=x+[[words[0],value]]
+		i=i+1
+	
+	if len(angles)!=nangles:
+		print 'Error: %d observers but only %d angles' % (nangles,len(angles))
+	if len(phases)!=nangles:
+		print 'Error: %d observers but only %d phases' % (nangles,len(phases))
+
+	# This section is to handle non python .pf files 
+	if nangles==0:
+		print 'nangles ',nangles
+		xx==[['filename',root],['nspec',-1]]+x
+		return xx
+
+	# This section is to handle python .pf files with multiple angles
+	xx=[]
+	i=0
+	while i<nangles:
+		zz=[['filename',root],['nspec',i+1]]+x+[['angle',angles[i]]]
+		xx=xx+ [zz]
+		i=i+1
+	print 'nangles ',nangles
+	return xx
+
+def make_table(filelist):
+	'''
+	Make the main table containing all of the pf files in a list. 
+	
+	filelist should be a list of names, e.g ['test1', 'test2' of
+	parameter file names.  This routine reads all of the parameter
+	files in a list and returns them as a single list
+
+	090405	ksl	Modified to make sure multiple rows from read_pf
+			do not increase the dimensionality of the list
+	'''
+	table=[]
+	i=0
+	while i<len(filelist):
+		print filelist[i]
+		table=table+read_pf(filelist[i])
+		i=i+1
+	return table
+
+def make_db_table(dbtable,table):
+	conn=sqlite3.connect('summary.db')
+	c=conn.cursor()
+
+	row=table[0]
+	string='create table %s ( %s' % (dbtable,row[0][0])
+	string2='insert into %s values ( ?' % (dbtable)
+	i=1
+	while i<len(row):
+		string=string + ' , %s ' % row[i][0]
+		string2=string2+',?'
+		i=i+1
+	string=string+')'
+	string2=string2+')'
+
+
+	print 'Command1: ',string
+	
+	c.execute('drop table %s' % dbtable)
+	c.execute(string)
+
+	i=0
+
+	print 'Command2: ',string2
+	while i<len(table):
+		row=table[i]
+		t=[]
+		j=0
+		while j<len(row):
+			t=t+[row[j][1]]
+			j=j+1
+		print tuple(t)
+		c.execute(string2,tuple(t))
+		i=i+1
+
+	conn.commit()
+
+	c.execute('SELECT * FROM %s'% dbtable)
+	for row in c:
+		print row
+
+	c.execute('select distinct angle from %s'% dbtable)
+
+	print 'new test'
+	for row in c:
+		print row
+	
+
+
+
+	
+
+def get_choices(table):
+	'''
+	get_choices determine what variables are changed in a set of parameter files
+	and values of the variables.
+
+	Note: There is no guarantee that all possible combinations exist,
+	since typically a complete grid would contain some non-physical
+	choices, such as a mass lost rate exceeding the disk accretion 
+	rate
+
+	090405	ksl	Modified to not worry about first two columns, which 
+			now contain the filename (or root of it), and 
+			a column (for a spectrum
+	'''
+
+	unique=[]
+	
+	i=2
+	while i<len(table[0]):
+		j=0
+		values=[]
+		while j<len(table):
+			record=table[j]
+			values=values+[record[i][1]]
+			j=j+1
+		values.sort()
+		v=[record[i][0],values[0]]
+		j=1
+		while j<len(values):
+			if v[len(v)-1]!=values[j]:
+				v=v+[values[j]]
+			j=j+1
+		if len(v)>2:
+			unique=unique+[v]
+
+		i=i+1
+	
+	return unique
+
+def compare_pf(pf1,pf2):
+	'''
+	Compare two parameter files to identify which variables are different in them.  A summary
+	is printed out, and a list containing the differences is returned.
+
+	This will likely fail if the variables that are different are strings
+	'''
+	filelist=[pf1,pf2] # It does not matter here whether the extensions are attached or not
+	table=make_table(filelist)
+	unique=get_choices(table)  # In this case is should be true that the first value corresponds to the first file
+
+	i=0
+	print '\n Summary: \n'
+	print 'file1:  %40s' % pf1
+	print 'file2:  %40s\n' % pf2
+	while i<len(unique):
+		print '%30s %8.2g %8.2g' % (unique[i][0],unique[i][1],unique[i][2])
+		i=i+1
+	return unique
+
+def compare_pfs(dirname='.',descriptor='*.pf'):
+	'''
+	Compare many pfs in a directory and summarize what variables are
+	changing.  This is the routine that is used to summarize the various
+	grids on my web pages.
+
+	This is almost identical to compare_pf, and they should probably
+	be combined
+	'''
+	filelist=get_filenames(dirname,descriptor)
+	table=make_table(filelist)
+	unique=get_choices(table)
+
+
+	i=0
+	print '\n Summary of variables that are changing in the various pf files: \n'
+	while i<len(unique):
+		printstring='%30s ' %  (unique[i][0])
+		j=1
+		while j<len(unique[i]):
+			try:
+				printstring=printstring+' %8.2g' % (unique[i][j])
+			except TypeError:
+				print 'Error: compare_pfs: problem with unique[%d][%d]' % (i,j)
+				print 'line was: ',unique[i]
+			j=j+1
+		print printstring
+		i=i+1
+	return unique
+
+def table_select_rows(table,select=[['angle',30]]):
+	'''
+	table_select_rows returns those portions of a table which have the values set by select.  
+
+	This could easily be expanded to limits if that were desirable.
+	'''
+
+	i=0
+	tmp_table=table
+	while i<len(select):
+		new_table=[]
+
+		# locate the column to compare in the tabel
+		desired=select[i]
+		col=2
+		while col<len(table[0]):
+			name_value=table[0][col]
+			if desired[0]==name_value[0]:
+				break
+			col=col+1
+		if col==len(table[0]):
+			print 'Error: col %s not found' % desired[0]
+			return []
+
+		j=0
+		while j<len(tmp_table):
+			name_value=tmp_table[j][col]
+			if desired[1]==name_value[1]:
+				new_table=new_table+[tmp_table[j]]
+			j=j+1
+		tmp_table=new_table
+		i=i+1
+	return(new_table)
+
+
+def table_select_columns(table,cols=['angle','wind.mdot']):
+	'''
+	table select columns reduces a table to the first two columns plust the selected columns
+	'''
+	i=0
+	new_table=[]
+	while i<len(table):
+		record=table[i]
+		new_record=[record[0],record[1]]
+		j=2
+		while j<len(record):
+			k=0
+			while k<len(cols):
+				if record[j][0]==cols[k]:
+					new_record=new_record+[record[j]]
+				k=k+1
+			j=j+1
+
+		new_table=new_table+[new_record]
+		i=i+1
+	return new_table
+
+def test():
+	filelist=get_filenames()
+	table=make_table(filelist)
+	unique=get_choices(table)
+	print unique
+
+	z=table_select_rows(table,[['wind.mdot', 7.8475997035100003e-09],['angle', 60]])
+
+	k=0
+	while k<len(z):
+		print z[k]
+		k=k+1
+
+	print 'Found ',len(z)
+
+	table=table_select_columns(table,cols=['angle','wind.mdot'])
+
+	print 'After reduction',table[1]
+
+	k=0
+	while k<len(table):
+		record=table[k]
+
+		# Need to construct the select 
+		select=[]
+		j=0
+		while j<len(unique):
+			desired=unique[j]
+			kk=0
+			while kk<len(record):
+				if record[kk][0]!=desired[0]:
+					select=select+[record[kk]]
+				kk=kk+1
+			j=j+1
+		
+		print 'select ', select
+#		z=table_select_rows(table,select)
+
+#		print 'Gotcha', z
+
+
+		k=k+1
+
+def test2():
+	filelist=get_filenames()
+	table=make_table(filelist)
+
+	table=table_select_columns(table,cols=['angle','wind_mdot'])
+	make_db_table('test',table)

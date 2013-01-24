@@ -1,0 +1,23 @@
+This directory contains Kurucz models from the new Kurucz model tape.
+The files are indexed in kurucz_index
+
+The index file can be created from the data files as follows
+
+ls f*.dat >foo
+awk -f kindex.awk <foo >foo1
+sort -n +1 < foo1 > kurucz_index
+rm foo foo1
+
+This will produce a file with the filenames and the temperatures and gravities.
+There are a few extraneous files so one has to look at the produced file
+and remove them.
+
+
+Note: The Kurucz models as read from the tape do not all have the same
+number of wavelengths.  Red stars do not have the most ultraviolet wavelengths.OIt looks as if blue stars have the most wavelengths.  The wavelengths that
+they do have are the same.
+
+********************
+
+12/02/91  WF models are versions of the log g = 5 kurucz models.
+WF500 stands for this model with temp of 50,000

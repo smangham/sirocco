@@ -1,0 +1,50 @@
+# This is a data file which can be used to input atomic data
+# The first word defines the type of record.  The data which follows
+# Element and Ion refers to that element and ion until the next element
+# or ion is begun.  Continuation lines may be indicated by * in the first
+# word in the line. 
+
+# Lines beginning with # will be regarded as comments.
+
+# If a line is blank it will be ignored.
+# The order of the inputs can sometimes be important. In particular, A
+# should be the first line for any element and Ion should be the first line
+# for any ion
+# 
+
+# For elements, the format is
+#Element  z   name  log abun (by number)
+Element 1	H	12.00
+Element	2	He	10.93
+Element	6	C	8.52
+Element	7	N	7.96
+Element	8	0	8.82
+
+Element	10	Ne	7.92
+Element 11  Na  6.25
+Element 12  Mg  7.42
+Element	13	Al	6.39
+Element	14	Si	7.52
+# Element	15	P	5.52
+Element	16	S	7.20
+Element 18  Ar  6.8
+Element 20  Ca  6.30
+Element	26	Fe	7.60
+Element 28  Ni  6.30
+
+#For ions, the format is
+# Ion  Element   z ionization State  g IP(in eV)
+# However, the element name is not saved, indexing is based on z and istate
+# Levels if they exist have the format
+# Level Principle q #  g  excitation energy
+
+Ion	H	1	1	2	13.598   6  6
+
+Ion	H	1	2	1	1.e20   0  0
+
+Ion	He	2	1	1	24.587  10  10
+
+Ion	He	2	2	2	54.416  11 11
+
+Ion	He	2	3	1	1.e20   0  0
+

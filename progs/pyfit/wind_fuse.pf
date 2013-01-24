@@ -1,0 +1,16 @@
+source_file                    /home/long/cv/qucar/data/Obs2.rnorm0.1.rescale
+source_file                    ../data/Obs2.rnorm.rescale
+model_list                     sscyg_kgrid/models.ls
+absorption_file(none=no_abs)                   stis_abs_ebv11_nh206.out
+minimum.inclination.angle                         0
+maximum.inclination.angle                        90
+number.of.independent.regions                    4
+wavelengths.to.fit                         920-960
+chi2.renorm                                       1
+wavelengths.to.fit                         960-1000
+chi2.renorm                                       1
+wavelengths.to.fit             1000-1025,1026-1050
+chi2.renorm                                       1
+wavelengths.to.fit                        1140-1185
+chi2.renorm                                       1
+output_file_root                            fuse2

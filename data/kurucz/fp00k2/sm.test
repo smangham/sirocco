@@ -1,0 +1,12 @@
+macro doit 1 {
+  ctype black
+  data $1
+  read x 1
+  read y 2
+  read z 3
+  limits 900 1200 y
+  box
+  connect x y
+  ctype red
+  connect x z
+}

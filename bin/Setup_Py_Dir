@@ -1,0 +1,14 @@
+#! /bin/bash
+# This is a simple routine to set up links so that python can be run in
+# a directory
+# 05aug   ksl   Coded
+# 0603	ksl	Modified so others could use this as well
+  top=$PYTHON
+# top=~/Python/
+xdata=data
+
+ln -s -f $top/$xdata/atomic
+ln -s -f $top/$xdata/kurucz91
+ln -s -f $top/$xdata/hutdisk93
+ln -s -f $top/$xdata/disk06
+

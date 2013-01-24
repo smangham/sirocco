@@ -1,0 +1,18 @@
+macro do_one 1 {
+	data $1
+	ctype black
+	read x 1
+	read y 2
+	limits x y
+	box
+	ctype red
+	connect x y
+	}
+
+macro add_one 1 {
+	ctype blue
+	data $1
+	read x 1
+	read y 2
+	connect x y
+	}

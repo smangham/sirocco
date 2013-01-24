@@ -1,0 +1,51 @@
+input simple
+printer 6
+# do_pr t10g3nc.0920.11
+do_pr t10g5nc.0920.11
+# do_pr t12.5g3nc.0920.11
+# do_pr t12.5g5nc.0920.11
+do_pr t15g3nc.0920.11
+do_pr t15g5nc.0920.11
+# do_pr t15g7nc.0920.11
+# do_pr t20g3nc.hot.11
+do_pr t20g5nc.0920.11
+# do_pr t20g7nc.0920.11
+# do_pr t25g3nc.0920.11
+# do_pr t25g5nc.0920.11
+# do_pr t25g7nc.0920.11
+# do_pr t30g3nc.0920.11
+do_pr t30g5nc.0920.11
+# do_pr t30g7nc.0920.11
+# do_pr t35g4nc.0920.11
+# do_pr t35g5nc.0920.11
+# do_pr t35g7nc.0920.11
+# do_pr t40g4nc.0920.11
+do_pr t40g5nc.0920.11
+# do_pr t40g7nc.0920.11
+# do_pr t45g4nc.0920.11
+# do_pr t45g5nc.0920.11
+# do_pr t45g7lt.0920.11
+# do_pr t45g7nc.0920.11
+# do_pr t50g4nc.0920.11
+# do_pr t50g5nc.0920.11
+# do_pr t50g7lt.0920.11
+# do_pr t50g7nc.0920.11
+# do_pr t55g4nc.0920.11
+# do_pr t55g5nc.0920.11
+# do_pr t55g7lt.0920.11
+# do_pr t55g7nc.0920.11
+# do_pr t60g4nc.0920.11
+do_pr t60g5nc.0920.11
+# do_pr t60g7lt.0920.11
+# do_pr t60g7nc.0920.11
+# do_pr t65.0920.11
+# do_pr t65g5lt.0920.11
+# do_pr t65g7lt.0920.11
+# do_pr t65g7nc.0920.11
+# do_pr t70g7lt.0920.11
+# do_pr t70g7nc.0920.11
+# do_pr t75.0920.11
+# do_pr t85.0920.11
+# do_pr t95.0920.11
+# do_pr t105.0920.11
+# do_pr t115.0920.11

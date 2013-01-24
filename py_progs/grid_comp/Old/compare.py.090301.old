@@ -1,0 +1,432 @@
+#!/usr/bin/env python
+'''
+090301	ksl	The main routine is apparently explore, which allows
+one to compare models to data.  
+
+Bugs - The problem aborst when one selects and inclination that is not
+there.  It's also not obvious from the what the inputs are and particularly
+how columns and inclinations are numbered.  
+
+There is some evident overlap with monte.
+
+090301	ksl	Made some cosmetic changes to make easier to use.
+
+'''
+
+import numpy
+import pylab 
+from kslio import *
+
+
+
+def read_python_spec(filename,column):
+	"""Read the a spectrum file created with python"""
+	try: 
+		specfile=open(filename,'r')
+	except  IOError:
+		print filename, " does not exist"
+		return(-1)
+	w=[]
+	f=[]
+	line=specfile.readline()
+	while line!='':
+		z=line.split()
+		word1=z[0]
+		if word1[0]!='#':
+			w=w+[float(z[1])]
+			f=f+[float(z[column+1])]
+		line=specfile.readline()
+	w=numpy.array(w)
+	f=numpy.array(f)
+	return w, f
+	
+	
+def read_data_spec(filename):
+	"""
+	Read the ascie data spectrum file with two
+	or three columns.  If there are three columnts
+	it is assumed that the third column is the
+	error.
+	
+	"""
+	try: 
+		specfile=open(filename,'r')
+	except  IOError:
+		print filename," does not exist"
+		return(-1)
+	wave=[]
+	flux=[]
+	error=[]
+	line=specfile.readline()
+	while line != "":
+		z=line.split()
+		word1=z[0]
+		if word1[0] != '#':
+			wave=wave+[float(z[0])]
+			flux=flux+[float(z[1])]
+			if len(z) > 2:
+				error=error+[float(z[2])]
+			else:
+				error=error([1.0])
+		line=specfile.readline()
+	wave=numpy.array(wave)
+	flux=numpy.array(flux)
+	error=numpy.array(error)
+	return wave, flux, error
+	
+	
+def reduce_xy(x,y,xmin,xmax):
+	''' 
+	Get the portions of the array that are within xmin and xmax
+	'''
+	condition= (xmin < x) & (x < xmax)
+	xout=numpy.compress(condition,x)
+	yout=numpy.compress(condition,y)
+	return xout,yout
+
+
+def ave (x,y,xmin,xmax):
+	"""average a restricted portion of y between xmin and xmax"""
+	xout,yout=reduce_xy(x,y,xmin,xmax)
+	a=numpy.average(yout)
+	return a
+
+def rescale (zin,zout,scale):
+	"""rescale a list by a scalefactor"""
+	lin=len(zin)
+	i=0
+	while i < lin:
+		zout.extend([scale*zin[i]])
+		i=i+1
+#        print 'len zout', len(zout)
+	return len(zout)
+
+
+def scale_model (wdat,fdat,wmod,fmod,wmin,wmax):
+	"""Produce a rescaled model"""
+	data_ave=ave(wdat,fdat,wmin,wmax)
+	mod_ave=ave(wmod,fmod,wmin,wmax);
+	scale=data_ave/mod_ave
+	return scale*fmod
+
+
+
+def get_data_model (data,model,column):
+	w,f,e=read_data_spec(data)
+	wmod,fmod=read_python_spec(model,column)
+	return w,f,wmod,fmod
+
+def plot_data_model(data,model,column,wmin,wmax):
+	"""
+	plot a rescaled model against the data
+	"""
+
+
+	w,f,wmod,fmod=get_data_model(data,model,column)
+
+	ww,ff=reduce_xy(w,f,wmin,wmax)
+	wwmod,ffmod=reduce_xy(wmod,fmod,wmin,wmax)
+
+
+	fscale=scale_model (ww,ff,wwmod,ffmod,wmin,wmax)
+
+	pylab.plot(wwmod,fscale,'r')
+	pylab.plot(ww,ff,'b')
+
+	reset=pylab.axis()
+	xreset=list(reset)
+	xreset[0]=wmin
+	xreset[1]=wmax
+	xreset[2]=0
+	pylab.axis(xreset)
+	pylab.draw()
+
+
+	return w,f,wmod,fmod
+
+def add_plot(w,f,wmod,fmod,wmin,wmax):
+	ww,ff=reduce_xy(w,f,wmin,wmax)
+	wwmod,ffmod=reduce_xy(wmod,fmod,wmin,wmax)
+
+
+	fscale=scale_model (ww,ff,wwmod,ffmod,wmin,wmax)
+
+	pylab.plot(wwmod,fscale,'r')
+	pylab.plot(ww,ff,'b')
+
+	reset=pylab.axis()
+	xreset=list(reset)
+	xreset[0]=wmin
+	xreset[1]=wmax
+	xreset[2]=0
+	pylab.axis(xreset)
+	pylab.draw()
+
+
+	
+
+def hst(data,model,column):
+	"""
+	plot a rescale model against hst data
+
+	Note that the wavelengths to be plotted are
+	hardcoded
+	"""
+	pylab.figure(2)
+	pylab.draw()
+	pylab.ioff()
+	pylab.clf()
+	pylab.subplot(241)
+	w,f,wmod,fmod=plot_data_model(data,model,column,1170,1210)
+	pylab.xticks([1180,1200])
+	pylab.subplot(242)
+	add_plot(w,f,wmod,fmod,1220,1260)
+#	plot_data_model(data,model,column,1220,1260)
+	pylab.xticks([1230,1250])
+	pylab.subplot(243)
+	add_plot(w,f,wmod,fmod,1370,1410)
+#	plot_data_model(data,model,column,1370,1410)
+	pylab.xticks([1380,1400])
+	pylab.subplot(244)
+	add_plot(w,f,wmod,fmod,1530,1570)
+#	plot_data_model(data,model,column,1530,1570)
+	pylab.xticks([1540,1560])
+
+	pylab.subplot(212)
+	add_plot(w,f,wmod,fmod,1170,1650)
+#	plot_data_model(data,model,column,1170,1650)
+	pylab.ion()
+	pylab.draw()
+	pylab.close()
+
+def fuse(data,model,column):
+	"""
+	plot a rescale model against FUSE    data
+	
+	Note that the wavelengths are hard coded.
+	"""
+	pylab.figure(1)
+	pylab.draw()
+	pylab.ioff()
+	pylab.clf()
+	pylab.subplot(241)
+	w,f,wmod,fmod=plot_data_model(data,model,column,920, 960 )
+	pylab.xticks([930,950])
+	pylab.subplot(242)
+	add_plot(w,f,wmod,fmod,960,1000)
+	# plot_data_model(data,model,column,960,1000)
+	pylab.xticks([970,990])
+	pylab.subplot(243)
+	add_plot(w,f,wmod,fmod,1000,1060)
+	# plot_data_model(data,model,column,1000,1050)
+	pylab.xticks([1020,1040])
+	pylab.subplot(244)
+	add_plot(w,f,wmod,fmod,1130,1185)
+	# plot_data_model(data,model,column,1130,1185)
+	pylab.xticks([1145,1165])
+
+	pylab.subplot(212)
+	add_plot(w,f,wmod,fmod, 905,1185)
+	# plot_data_model(data,model,column,905,1185 )
+	pylab.ion()
+	pylab.draw()
+	pylab.close()
+
+def get_grid(filename):
+	'''
+	filenae is the list of files produced by gen_grid.py which is also read by pyfit3
+
+	columns is the list of columns
+	files is the list of all the files, with their associated values
+	'''
+
+	f=open(filename,'r')
+	line=f.readline()
+	columns=[]
+	files=[]
+	n=0
+	while line!='':
+		#debug print line
+		z=line.split()
+		if z[0]=='#':
+			if z[1]=='Variable':
+				columns=columns+[z[2]]
+		else:
+			nvar=len(columns)
+			zz=[z[0]]
+			m=1
+			while m<len(z):
+				zz=zz+[float(z[m])]
+				m=m+1
+			files=files+[zz]
+
+		line=f.readline()
+	return columns,files
+	
+
+# Return a unique set of values in a list
+def get_unique(mylist):
+	#DEBUG print 'Go for it'
+	#DEBUG print mylist
+	myset=set(mylist)
+	#DEBUG print 'myset',myset
+	xlist=list(myset)
+	#DEBUG print 'xlist', xlist
+	xlist.sort()
+	finallist=xlist
+	#DEBUG print 'finallist',finallist
+	return finallist
+	
+def get_chosen_model(files,xchoices):
+	'''
+	get the name of a model that has the specific
+	values of mdot, etc. that were requested.
+
+	files is the list of all of the models with the
+		variables that change in the grid.
+
+	xchoices is an array contining the specific
+	values of the variables that have been chosen.
+
+	090301	ksl	Added better documentation and
+			slightly modified routine
+	'''
+	m=0;
+	chosen='none'
+	while m<len(files):
+		n=0
+		good=1
+		#DEBUG print files[m]
+		while n<len(xchoices):
+			x=xchoices[n]
+			if files[m][n+1]!=x:
+				#DEBUG print "compare",files[m][n+1],x
+				good=0
+			n=n+1
+		if good==1: 
+			# Have found the model
+			chosen=files[m][0]
+			break
+		m=m+1
+
+	print 'get_chosen: ',chosen
+	return chosen
+
+
+
+def look(modellist):
+	columns,files=get_grid(modellist)
+	#DEBUG print columns
+	#DEBUG print files
+	ncols=len(columns)
+	#DEBUG print 'ncols',ncols
+	n=1
+	possible=[]
+	while n<=ncols:
+		m=0
+		mylist=[]
+		while m<len(files):
+			#DEBUG print 'gotcha ',m,n,files[m][n]
+			mylist=mylist+[float(files[m][n])]
+			m=m+1
+		newlist=get_unique(mylist)
+		row=[columns[n-1]]+newlist
+		#DEBUG print 'row ',row
+		possible=possible+[row]
+		n=n+1
+	#DEBUG print "final",possible
+
+	#DEBUG print 'len possible',len(possible)
+
+	n=0
+
+	wholestring=[]
+	while n<len(possible):
+		row=possible[n]
+		#DEBUG print 'row',row
+		string='%15s'% row[0]
+		m=1
+		while m<len(row):
+			#DEBUG print 'hello',row[m]
+			string=string+ "%8.2g " % row[m]
+			m=m+1
+		#DEBUG print string
+		wholestring=wholestring+[string]
+		n=n+1
+
+	return wholestring,possible,files
+	
+def explore(modellist='py_ixvel/models.ls',spectrum='ixvel_stis2',obs='hst'):
+	''' 
+
+	The imputs are a list of files produced by the .py routine that can be used
+	to generate a grid of models.  This is the same file that is read by
+	pyfit3 (in the new format).  
+
+	A spectrum in a format similar to that produced by pyfit.3
+
+	and the type of observation 'fuse' or 'hst'
+
+	Bug - 090301 - Although the program runs, it currently produces so many diagnostics
+	that one cannot easily see where one was.  
+
+	The routine fails if the inclination is not in the inclination range.
+
+	090301	ksl	Added defaults for names, in attempt to recover what these
+			routines were supposed to do.
+	'''
+
+	wholestring,possible,files=look(modellist)
+
+	# At this point we have everything we need and so can start plotting
+	choices=len(possible)*[1]
+	xchoices=len(possible)*[99.99]
+	ispec=11
+
+	go_on='yes'
+
+	while go_on=='yes':
+		n=0
+		while n<len(wholestring):
+			print wholestring[n]
+			jj=len(wholestring[n].split())
+			i=int(get_input(("Choice (1 to %s)" % (jj-1)),str(choices[n])))
+			choices[n]=i
+			#debug print possible[n]
+			xchoices[n]=possible[n][choices[n]]
+			n=n+1
+	
+		print ' Choices: ',choices
+		print 'Xchoices: ',xchoices
+
+		modelname=get_chosen_model(files,xchoices)
+
+		print modelname
+
+
+		if modelname!='none':
+			ispec=int(get_input("column with inclination",str(ispec)))
+
+			print spectrum,modelname,ispec
+			if obs=='fuse':
+				fuse(spectrum,modelname,ispec)
+			else:
+				hst(spectrum,modelname,ispec)
+		else:
+			print 'Model with these values not calculated'
+
+		go_on=get_input("Continue",go_on)
+
+def test():
+	pylab.figure(1)
+
+	pylab.plot([1,2,3]) 
+	pylab.figure(2)                # a second figure 
+	pylab.plot([4,5,6])
+
+	pylab.figure(1)                # figure 1 current
+	pylab.title('Easy as 1,2,3')   # figure 1 title
+	pylab.draw()
+	pylab.close('all')
+
+
