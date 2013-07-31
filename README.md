@@ -1,11 +1,9 @@
 #Python
 
 README, structure branch
-
-***
 =========
 
-#Directory Structure
+###Directory Structure
 
 This is a directory structure for Python, the radiative transfer code
 developed by Knox Long, Christian Knigge, Nick Higginbottom and Stuart Sim.  This
@@ -30,10 +28,9 @@ Consult the [wiki](https://github.com/agnwinds/python/wiki/_pages "Wiki") for ho
 You will also have to install cfitsio and gsl- instructions on doing this are also in the wiki.
 
 
-***
 ===========
 
-# Basic Git Instructions
+### Basic Git Instructions
 
 clone this repository:
 $ git clone https://github.com/agnwinds/python.git 
@@ -53,10 +50,9 @@ $ git status
 commit all changes to local repo with commit message:
 $ git commit -am 'Changed something in file.c'
 
-***
 ============
 
-# Contact / Usage
+### Contact / Usage
 
 This code is in the development stages and should not yet be used. If you are interested in using Python please contact long@stsci.edu.
 
