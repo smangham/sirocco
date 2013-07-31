@@ -1,3 +1,0 @@
-awk '
-970<$4&&$4<990 { print}
-' lines.data

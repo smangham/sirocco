@@ -1,8 +1,0 @@
-#This is the kurucz set of data files created for python39
-atomic/elem_ions_ver_little.py
-atomic/topbase_levels_hhe_little.py
-atomic/levels_kur_little.py
-atomic/lines_linked_kur_little.py
-atomic/recomb.data
-atomic/topbase_h1_phot_little.py
-atomic/coll.data

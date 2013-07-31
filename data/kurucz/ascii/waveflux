@@ -1,6 +1,0 @@
-awk '
-NR>3 && $3 < 260. {
-	lambda=$3*10.
-	printf("%f %e\n",$3*10.,$5*(3e18/(lambda*lambda)))}
-NR>3 && $3 > 260. {exit(0)}
-' $1 > WF$1

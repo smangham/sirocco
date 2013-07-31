@@ -1,9 +1,0 @@
-rstar(cm)                                      1e9
-disk.radmax(cm)                               2.4e10
-inclination(deg)                               $
-points.file                                python.xyz2
-inclination_min(deg)                             0
-inclination_max(deg)                            90
-num_inclinations                                10
-points.file                            python.xyz2
-size                                          1e11

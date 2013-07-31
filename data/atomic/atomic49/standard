@@ -1,6 +1,0 @@
-#This is the set of data files used for all calculations between 1998 & 1999
-atomic/atomic.data
-atomic/lines.data
-atomic/recomb.data
-atomic/photo.data
-atomic/coll.data

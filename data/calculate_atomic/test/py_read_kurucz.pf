@@ -1,4 +1,0 @@
-atom_ion_infile                    ../py_verner/elem_ions_ver.py
-atom_ion_level_outfile                levels_kur.py
-line_outfile                    lines_simple_kur.py
-Temperature                                  100000

@@ -1,8 +1,0 @@
-awk '
-BEGIN {
-print "# Elemental abundances from Verner (mean atomic weight not used in python up through version 36)"
-print "# Output format: Name z  Relative_abun atomic_weight"
-}
-$1=="#" {print}
-$1!="#" {printf("Element   %2d   %2s   %5.2f   %10f\n",$2,$1,$4,$3)}
-' abun.dat > element_vbd.py
