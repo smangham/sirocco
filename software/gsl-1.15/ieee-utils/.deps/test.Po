@@ -1,4 +1,4 @@
-test.o test.o: test.c ../config.h /usr/include/stdlib.h \
+test.o: test.c ../config.h /usr/include/stdlib.h \
   /usr/include/Availability.h /usr/include/AvailabilityInternal.h \
   /usr/include/_types.h /usr/include/sys/_types.h \
   /usr/include/sys/cdefs.h /usr/include/sys/_symbol_aliasing.h \
@@ -13,9 +13,7 @@ test.o test.o: test.c ../config.h /usr/include/stdlib.h \
   /usr/include/libkern/_OSByteOrder.h \
   /usr/include/libkern/i386/_OSByteOrder.h /usr/include/alloca.h \
   /usr/include/machine/types.h /usr/include/i386/types.h \
-  /usr/include/i386/_types.h /usr/include/math.h \
-  /usr/include/architecture/i386/math.h \
-  /usr/llvm-gcc-4.2/bin/../lib/gcc/i686-apple-darwin11/4.2.1/include/float.h \
+  /usr/include/math.h /usr/bin/../lib/clang/4.1/include/float.h \
   /usr/include/string.h /usr/include/strings.h \
   /usr/include/secure/_string.h /usr/include/secure/_common.h \
   ../gsl/gsl_ieee_utils.h /usr/include/stdio.h \
@@ -79,13 +77,9 @@ test.o test.o: test.c ../config.h /usr/include/stdlib.h \
 
 /usr/include/i386/types.h:
 
-/usr/include/i386/_types.h:
-
 /usr/include/math.h:
 
-/usr/include/architecture/i386/math.h:
-
-/usr/llvm-gcc-4.2/bin/../lib/gcc/i686-apple-darwin11/4.2.1/include/float.h:
+/usr/bin/../lib/clang/4.1/include/float.h:
 
 /usr/include/string.h:
 

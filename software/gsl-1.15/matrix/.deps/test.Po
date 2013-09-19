@@ -1,4 +1,4 @@
-test.o test.o: test.c ../config.h /usr/include/stdlib.h \
+test.o: test.c ../config.h /usr/include/stdlib.h \
   /usr/include/Availability.h /usr/include/AvailabilityInternal.h \
   /usr/include/_types.h /usr/include/sys/_types.h \
   /usr/include/sys/cdefs.h /usr/include/sys/_symbol_aliasing.h \
@@ -13,21 +13,15 @@ test.o test.o: test.c ../config.h /usr/include/stdlib.h \
   /usr/include/libkern/_OSByteOrder.h \
   /usr/include/libkern/i386/_OSByteOrder.h /usr/include/alloca.h \
   /usr/include/machine/types.h /usr/include/i386/types.h \
-  /usr/include/i386/_types.h /usr/include/stdio.h \
-  /usr/include/secure/_stdio.h /usr/include/secure/_common.h \
-  /usr/include/math.h /usr/include/architecture/i386/math.h \
-  ../gsl/gsl_math.h ../gsl/gsl_sys.h ../gsl/gsl_inline.h \
-  ../gsl/gsl_machine.h \
-  /usr/llvm-gcc-4.2/bin/../lib/gcc/i686-apple-darwin11/4.2.1/include/limits.h \
-  /usr/llvm-gcc-4.2/bin/../lib/gcc/i686-apple-darwin11/4.2.1/include/syslimits.h \
-  /Developer/usr/llvm-gcc-4.2/lib/gcc/i686-apple-darwin11/4.2.1/include/limits.h \
-  /Developer/usr/llvm-gcc-4.2/lib/gcc/i686-apple-darwin11/4.2.1/include/syslimits.h \
-  /usr/include/limits.h /usr/include/machine/limits.h \
-  /usr/include/i386/limits.h /usr/include/i386/_limits.h \
-  /usr/include/sys/syslimits.h \
-  /usr/llvm-gcc-4.2/bin/../lib/gcc/i686-apple-darwin11/4.2.1/include/float.h \
-  ../gsl/gsl_precision.h ../gsl/gsl_types.h ../gsl/gsl_nan.h \
-  ../gsl/gsl_pow_int.h ../gsl/gsl_minmax.h ../gsl/gsl_matrix.h \
+  /usr/include/stdio.h /usr/include/secure/_stdio.h \
+  /usr/include/secure/_common.h /usr/include/math.h ../gsl/gsl_math.h \
+  ../gsl/gsl_sys.h ../gsl/gsl_inline.h ../gsl/gsl_machine.h \
+  /usr/bin/../lib/clang/4.1/include/limits.h /usr/include/limits.h \
+  /usr/include/machine/limits.h /usr/include/i386/limits.h \
+  /usr/include/i386/_limits.h /usr/include/sys/syslimits.h \
+  /usr/bin/../lib/clang/4.1/include/float.h ../gsl/gsl_precision.h \
+  ../gsl/gsl_types.h ../gsl/gsl_nan.h ../gsl/gsl_pow_int.h \
+  ../gsl/gsl_minmax.h ../gsl/gsl_matrix.h \
   ../gsl/gsl_matrix_complex_long_double.h ../gsl/gsl_errno.h \
   /usr/include/errno.h /usr/include/sys/errno.h ../gsl/gsl_complex.h \
   ../gsl/gsl_check_range.h ../gsl/gsl_vector_complex_long_double.h \
@@ -112,8 +106,6 @@ test.o test.o: test.c ../config.h /usr/include/stdlib.h \
 
 /usr/include/i386/types.h:
 
-/usr/include/i386/_types.h:
-
 /usr/include/stdio.h:
 
 /usr/include/secure/_stdio.h:
@@ -121,8 +113,6 @@ test.o test.o: test.c ../config.h /usr/include/stdlib.h \
 /usr/include/secure/_common.h:
 
 /usr/include/math.h:
-
-/usr/include/architecture/i386/math.h:
 
 ../gsl/gsl_math.h:
 
@@ -132,13 +122,7 @@ test.o test.o: test.c ../config.h /usr/include/stdlib.h \
 
 ../gsl/gsl_machine.h:
 
-/usr/llvm-gcc-4.2/bin/../lib/gcc/i686-apple-darwin11/4.2.1/include/limits.h:
-
-/usr/llvm-gcc-4.2/bin/../lib/gcc/i686-apple-darwin11/4.2.1/include/syslimits.h:
-
-/Developer/usr/llvm-gcc-4.2/lib/gcc/i686-apple-darwin11/4.2.1/include/limits.h:
-
-/Developer/usr/llvm-gcc-4.2/lib/gcc/i686-apple-darwin11/4.2.1/include/syslimits.h:
+/usr/bin/../lib/clang/4.1/include/limits.h:
 
 /usr/include/limits.h:
 
@@ -150,7 +134,7 @@ test.o test.o: test.c ../config.h /usr/include/stdlib.h \
 
 /usr/include/sys/syslimits.h:
 
-/usr/llvm-gcc-4.2/bin/../lib/gcc/i686-apple-darwin11/4.2.1/include/float.h:
+/usr/bin/../lib/clang/4.1/include/float.h:
 
 ../gsl/gsl_precision.h:
 

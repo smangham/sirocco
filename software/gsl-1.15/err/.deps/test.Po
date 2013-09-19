@@ -1,5 +1,5 @@
-test.o test.o: test.c ../config.h /usr/include/stdio.h \
-  /usr/include/sys/cdefs.h /usr/include/sys/_symbol_aliasing.h \
+test.o: test.c ../config.h /usr/include/stdio.h /usr/include/sys/cdefs.h \
+  /usr/include/sys/_symbol_aliasing.h \
   /usr/include/sys/_posix_availability.h /usr/include/Availability.h \
   /usr/include/AvailabilityInternal.h /usr/include/_types.h \
   /usr/include/sys/_types.h /usr/include/machine/_types.h \
@@ -14,8 +14,8 @@ test.o test.o: test.c ../config.h /usr/include/stdio.h \
   /usr/include/sys/_endian.h /usr/include/libkern/_OSByteOrder.h \
   /usr/include/libkern/i386/_OSByteOrder.h /usr/include/alloca.h \
   /usr/include/machine/types.h /usr/include/i386/types.h \
-  /usr/include/i386/_types.h ../gsl/gsl_errno.h /usr/include/errno.h \
-  /usr/include/sys/errno.h ../gsl/gsl_types.h ../gsl/gsl_test.h
+  ../gsl/gsl_errno.h /usr/include/errno.h /usr/include/sys/errno.h \
+  ../gsl/gsl_types.h ../gsl/gsl_test.h
 
 ../config.h:
 
@@ -80,8 +80,6 @@ test.o test.o: test.c ../config.h /usr/include/stdio.h \
 /usr/include/machine/types.h:
 
 /usr/include/i386/types.h:
-
-/usr/include/i386/_types.h:
 
 ../gsl/gsl_errno.h:
 

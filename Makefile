@@ -15,7 +15,7 @@ GSL = $(PYTHON)/software/gsl-1.15
 GIT = True
 
 ifeq (True, $(GIT))
-	CLONE_RELEASE = cd $(PYTHON)/progs; git clone https://github.com/agnwinds/python.git; make python
+	CLONE_RELEASE = cd $(PYTHON)/progs; git clone https://github.com/agnwinds/python.git; cd python; make python
 	PRINT CLONE = 'Cloning Git Release'
 else
 	CLONE_RELEASE = 
