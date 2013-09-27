@@ -1,0 +1,4 @@
+[submodule "progs"]
+	path = progs
+	url = git://github.com/agnwinds/python.git
+	branch = progs
