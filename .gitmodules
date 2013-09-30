@@ -2,3 +2,4 @@
 	path = progs
 	url = git://github.com/agnwinds/python.git
 	branch = progs
+	progs = progs
