@@ -1,5 +1,7 @@
-[submodule "progs"]
+[submodule "python"]
 	path = progs
-	url = git://github.com/agnwinds/python.git
+	url = https://github.com/agnwinds/python.git
 	branch = progs
-	progs = progs
+[submodule "kpar"]
+	path = kpar
+	url = https://github.com/jhmatthews/kpar
