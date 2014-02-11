@@ -10,12 +10,14 @@
 
 CFITSIO = $(PYTHON)/software/cfitsio3040
 
+CMAKE = mpicc
+
 GSL = $(PYTHON)/software/gsl-1.15
 
 GIT = True
 
 ifeq (True, $(GIT))
-	CLONE_RELEASE = mkdir $(PYTHON)/progs; cd $(PYTHON)/progs; git clone https://github.com/agnwinds/python.git; cd python; make python
+	CLONE_RELEASE = mkdir $(PYTHON)/progs; cd $(PYTHON)/progs; git clone https://github.com/agnwinds/python.git; cd python; make CC=$(CMAKE) python
 	PRINT CLONE = 'Cloning Git Release'
 else
 	CLONE_RELEASE = 
