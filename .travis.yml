@@ -27,5 +27,5 @@ branches:
       structure
 script:
     # clone the structure branch into a sub directory
-	- export PYTHON=$PWD
-	- make CMAKE=gcc install
+    - export PYTHON=$PWD
+    - make CMAKE=gcc install
