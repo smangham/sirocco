@@ -15,7 +15,7 @@ GSL = $(PYTHON)/software/gsl-1.15
 GIT = True
 
 ifeq (True, $(GIT))
-	CLONE_RELEASE = cd $(PYTHON)/progs; git clone https://github.com/agnwinds/python.git; cd python; make python
+	CLONE_RELEASE = mkdir $(PYTHON)/progs; cd $(PYTHON)/progs; git clone https://github.com/agnwinds/python.git; cd python; make python
 	PRINT CLONE = 'Cloning Git Release'
 else
 	CLONE_RELEASE = 
@@ -42,3 +42,4 @@ clean:
 	rm -f *.o *~
 	cd $(CFITSIO); make clean
 	cd $(GSL); make clean 
+	cd $(PYTHON)/progs/python; make clean
