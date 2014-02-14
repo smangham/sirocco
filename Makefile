@@ -18,7 +18,7 @@ GIT = True
 
 ifeq (True, $(GIT))
 	CLONE_RELEASE = mkdir $(PYTHON)/progs; cd $(PYTHON)/progs; git clone https://github.com/agnwinds/python.git; cd python; make CC=$(CMAKE) python
-	PRINT CLONE = 'Cloning Git Release'
+	PRINT_CLONE = 'Cloning Git Release'
 else
 	CLONE_RELEASE = 
 	PRINT_CLONE = 'No git installed- have to obtain release manually from releases page on github. Exiting.'
