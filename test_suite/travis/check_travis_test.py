@@ -27,7 +27,7 @@ for line in f:
 
 if nerror > 0:
 	print "Errors when running"
-	exit(0)
+	exit(-1)
 
 else:
 	print "Ran python OK"
