@@ -2,9 +2,6 @@
 run simple test of python- check it runs and read sin atomic data
 '''
 
-import os
-import numpy as np 
-
 
 f = open("test2.out")
 
