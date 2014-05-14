@@ -3,7 +3,7 @@ run simple test of python- check it runs and read sin atomic data
 '''
 
 
-f = open("test2.out")
+f = open("test1.out")
 
 nerror = 0
 
