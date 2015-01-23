@@ -108,7 +108,7 @@ double wind_keplerian_velocity(double x[], double v[])
 	v[0] = 0.;																						//Zero R, Phi components
 	v[2] = 0.;
 	if (r > w_keplerian->d_rad_min && r < w_keplerian->d_rad_max 
-			&& abs(x[2]) < (w_keplerian->d_height + DFUDGE) )						//If point is within the wind 
+			&& fabs(x[2]) <= (w_keplerian->d_height + DFUDGE) )						//If point is within the wind 
 		v[1] = sqrt(G * geo.mstar / r);											//Simple keplerian Theta component
 	else
 		v[1] = 0;																						//Or it's zero
@@ -139,7 +139,7 @@ double wind_keplerian_rho(double x[])
 {
 	double r = sqrt(x[0] * x[0] + x[1] * x[1]);			//Convert position into radius
 	if (r < w_keplerian->d_rad_min || r > w_keplerian->d_rad_max 
-		|| abs(x[2]) > (w_keplerian->d_height) )
+		|| fabs(x[2]) > (w_keplerian->d_height) )
 		return (0.0);																	//If the radius lies outside the wind, zero
 	else
 		return (w_keplerian->d_density);							//Else return flat value

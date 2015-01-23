@@ -193,7 +193,7 @@ double calculate_ds(WindPtr w, PhotPtr p, double tau_scat, double *tau, int *nre
 	   one has to worry about */
 
 
-	if (fabs(dfreq) < EPSILON*.001) //SWM tenthing
+	if (fabs(dfreq) < EPSILON*.0000001 || p->nrscat>0) //SWM
 	{
 		// Error
 		// ("translate: v same at both sides of cell %d\n",one->nwind); /*NSH 130724 shortened error statement, was causing issues
@@ -260,17 +260,11 @@ double calculate_ds(WindPtr w, PhotPtr p, double tau_scat, double *tau, int *nre
 		nn = nstart + n * ndelt;	/* So if the frequency of resonance increases as we travel through the grid cell, we go up in
 									   the array, otherwise down */
 		x = (lin_ptr[nn]->freq - freq_inner) / dfreq;
-		if(nn==0){
-			//printf("Pos Inner: %e %e %e\n",	p->x[0],	p->x[1],	p->x[2]);	
-			printf("x %6.1f - Line Freq: %e, range across cell: %15.10e -> %15.10e\n",x,nn,lin_ptr[nn]->freq,freq_inner,freq_outer); //SWM TEMP
-			//printf("Pos Outer: %e %e %e\n",	phot.x[0], 	phot.x[1], 	phot.x[2]);
-		}
-
-		if (0. < x && x < 1.)
-		//if(lin_ptr[nn]->freq < 2.e15)	//SWM TEMP
+		//if (0. < x && x < 1.) SWM
+		if(lin_ptr[nn]->freq<2.e15)
 		{						/* this particular line is in resonance */
-			ds = x * smax;
-			printf("Checking for cont scatter: tau=%e tau-scat=%e\n",ttau + (kap_cont) * (ds - ds_current),tau_scat);
+			ds = 0.; //x * smax; SWM
+			//printf("Checking for cont scatter: tau=%e tau-scat=%e\n",ttau + (kap_cont) * (ds - ds_current),tau_scat);
 
 			/* Before checking for a resonant scatter, need to check for scattering due to a continuum process. */
 			if (ttau + (kap_cont) * (ds - ds_current) > tau_scat)
@@ -308,7 +302,9 @@ double calculate_ds(WindPtr w, PhotPtr p, double tau_scat, double *tau, int *nre
 				// ?? This seems like an incredibly small number; how can anything this small affect anything ??
 
 				dd = get_ion_density(&p_now, kkk);
-				printf("Checking ion density at %6.1e %6.1e %6.1e=%e\n",p_now.x[0],p_now.x[1],p_now.x[2],dd);
+				if(dd==0) dd = get_ion_density(&phot, kkk); //SWM
+				
+				//printf("Checking ion density at %6.1e %6.1e %6.1e=%e\n",p_now.x[0],p_now.x[1],p_now.x[2],dd);
 				if (dd > LDEN_MIN)
 				{
 					/* If we have reached this point then we have to initalize dvds1 and dvds2. Otherwise there is no need to do
@@ -328,7 +324,7 @@ double calculate_ds(WindPtr w, PhotPtr p, double tau_scat, double *tau, int *nre
 
 
 					tau_sobolev = sobolev(one, p, dd, lin_ptr[nn], dvds);
-					printf("Checking tau sobolev: %e\n",tau_sobolev,p->np); //SWM
+					//printf("Checking tau sobolev: %e\n",tau_sobolev,p->np); //SWM
 
 					/* tau_sobolev now stores the optical depth. This is fed into the next statement for the bb estimator
 					   calculation. SS March 2004 */
@@ -399,7 +395,7 @@ double calculate_ds(WindPtr w, PhotPtr p, double tau_scat, double *tau, int *nre
 					*tau = ttau;
 
 
-					printf("Successfully scattered!\n");
+					//printf("Successfully scattered!\n");
 
 					return (ds_current);
 				}
