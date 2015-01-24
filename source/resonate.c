@@ -193,7 +193,8 @@ double calculate_ds(WindPtr w, PhotPtr p, double tau_scat, double *tau, int *nre
 	   one has to worry about */
 
 
-	if (fabs(dfreq) < EPSILON*.0000001 || p->nrscat>0) //SWM
+	if (fabs(dfreq) < EPSILON*.00000000001 || p->nrscat>0) //SWM
+	if (fabs(dfreq) == 0 || p->nrscat>0) //SWM
 	{
 		// Error
 		// ("translate: v same at both sides of cell %d\n",one->nwind); /*NSH 130724 shortened error statement, was causing issues
