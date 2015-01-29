@@ -118,8 +118,7 @@ double wind_keplerian_velocity(double x[], double v[])
 		project_from_cyl_xyz(x, v, xtest);
 		stuff_v(xtest, v);
 	}
-	speed = (sqrt(v[0] * v[0] + v[1] * v[1]));
-	return (speed);
+	return (v[1]);
 }
 
 /***********************************************************
@@ -140,9 +139,9 @@ double wind_keplerian_rho(double x[])
 	double r = sqrt(x[0] * x[0] + x[1] * x[1]);			//Convert position into radius
 	if (r < w_keplerian->d_rad_min || r > w_keplerian->d_rad_max 
 		|| fabs(x[2]) > (w_keplerian->d_height) )
-		return (0.0);																	//If the radius lies outside the wind, zero
+		return (0.0);										//If the radius lies outside the wind, zero
 	else
-		return (w_keplerian->d_density);							//Else return flat value
+		return (w_keplerian->d_density);					//Else return flat value
 }
 
 /***********************************************************

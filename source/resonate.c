@@ -160,6 +160,7 @@ double calculate_ds(WindPtr w, PhotPtr p, double tau_scat, double *tau, int *nre
 	/* Check to see that the velocity is monotonic across the cell by calculating the velocity at the midpoint of the path If it
 	   is, then reduce smax */
 	vc = C;
+	DFUDGE=1e3; //swm
 	while (vc > VCHECK && smax > DFUDGE)
 	{
 		stuff_phot(p, &p_now);
@@ -192,19 +193,23 @@ double calculate_ds(WindPtr w, PhotPtr p, double tau_scat, double *tau, int *nre
 	/* The next section checks to see if the frequency difference on the two sides is very small and if not limits the resonances
 	   one has to worry about */
 
-
-	if (fabs(dfreq) < EPSILON*.00000000001 || p->nrscat>0) //SWM
-	if (fabs(dfreq) == 0 || p->nrscat>0) //SWM
+	if (fabs(dfreq) <= 0. || p->nscat>0) //SWM
 	{
-		// Error
-		// ("translate: v same at both sides of cell %d\n",one->nwind); /*NSH 130724 shortened error statement, was causing issues
-		// with formatting */
-
 		/* so dfreq is %2g,\n v_inner %.2g %.2g %.2g v_outer %.2g %.2g %.2g \n", one->nwind, dfreq, v_inner[0], v_inner[1],
 		   v_inner[2], v_outer[0], v_outer[1], v_outer[2]); This is the part of the above error statement cut out */
 		x = -1;
 		return (smax);			// This is not really the best thing to do, but it avoids disaster below
 
+	}
+	else if( p->x[2]<1e4 && p->x[0]>0 && p->lmn[2]>0)
+	{
+		printf("Found inner thing UP\n");
+		return (smax);
+	}
+		else if( p->x[2]>-1e4 && p->x[0]<0 && p->lmn[2]<0)
+	{
+		printf("Found inner thing DOWN\n");
+		return (smax);
 	}
 	else if (dfreq > 0)
 	{
@@ -219,29 +224,6 @@ double calculate_ds(WindPtr w, PhotPtr p, double tau_scat, double *tau, int *nre
 		ndelt = (-1);
 	}
 
-	// nline_min, nline_max, and nline_delt are found in atomic.h and are set by limit_lines()
-
-
-	/* Next part deals with computation of bf opacity. In the macro atom method this is needed. In the old method it is not. This
-	   section activates if geo.rt_mode==2 (switch for macro atom method). If the macro atom method is not used just get kap_bf to
-	   0 and move on). SS */
-
-	kap_bf_tot = 0;
-	kap_ff = 0;
-
-
-	if (geo.rt_mode == 2)
-	{
-		/* Potentially several continuum may contribute in a given frequency range so the kap_bf is an array. Also need to store
-		   the total - kap_bf_tot. */
-		freq_av = freq_inner;	// (freq_inner + freq_outer) * 0.5; //need to do better than this perhaps but okay for star -
-								// comoving frequency (SS)
-
-		kap_bf_tot = kappa_bf(xplasma, freq_av, 0);
-		kap_ff = kappa_ff(xplasma, freq_av);
-		/* Okay the bound free contribution to the opacity is now sorted out (SS) */
-	}
-
 	if (one->vol == 0)
 	{
 		kap_bf_tot = kap_ff = 0.0;
@@ -251,6 +233,8 @@ double calculate_ds(WindPtr w, PhotPtr p, double tau_scat, double *tau, int *nre
 		   edge of the wind. Possibly requires more accurate volume calculation. */
 	}
 
+	kap_bf_tot = 0.;
+	kap_ff = 0.;
 	kap_cont = kap_es + kap_bf_tot + kap_ff;	// total continuum opacity 
 	kap_cont *= 1e-20;	//SWM TEMP
 	kap_es	 *= 1e-20;	//SWM TEMP
@@ -267,142 +251,65 @@ double calculate_ds(WindPtr w, PhotPtr p, double tau_scat, double *tau, int *nre
 			ds = 0.; //x * smax; SWM
 			//printf("Checking for cont scatter: tau=%e tau-scat=%e\n",ttau + (kap_cont) * (ds - ds_current),tau_scat);
 
-			/* Before checking for a resonant scatter, need to check for scattering due to a continuum process. */
-			if (ttau + (kap_cont) * (ds - ds_current) > tau_scat)
-			{
-				/* then the photon was scattered by the continuum before reaching the resonance Need to randomly select the
-				   continumm process which caused the photon to scatter.  The variable threshold is used for this. */
+			/* increment tau by the continuum optical depth to this point */
+			ttau += kap_cont * (ds - ds_current);	/* kap_cont used here rather than kap_es */
 
-				*nres = select_continuum_scattering_process(kap_cont, kap_es, kap_ff, xplasma);
-				*istat = P_SCAT;	// flag as scattering
-				ds_current += (tau_scat - ttau) / (kap_cont);	// distance travelled
-				ttau = tau_scat;
+			ds_current = ds;	/* At this point ds_current is exactly the position of the resonance */
+			kkk = lin_ptr[nn]->nion;
+
+
+			/* The density is calculated in the wind array at the center of a cell.  We use that as the first estimate of the
+			   density.  So don't delete the next line.  However, we can do better except at the edges of the grid.  01apr07
+			   ksl.  ??? One could still do better than this since even if we can usually interpolate in one direction if not
+			   two ??? */
+			stuff_phot(p, &p_now);
+			move_phot(&p_now, ds_current);	// So p_now contains the current position of the photon
+
+
+			// ?? It looks like this if statement could be moved up higher, possibly above the xrho line if willing to accept
+			// cruder dd estimate
+			// If the density of the ion is very small we shouldn't have to worry about a resonance, but otherwise
+			// ?? This seems like an incredibly small number; how can anything this small affect anything ??
+
+			dd = get_ion_density(&p_now, kkk);
+			if(dd==0) dd = get_ion_density(&phot, kkk); //SWM
+				
+			//printf("Checking ion density at %6.1e %6.1e %6.1e=%e\n",p_now.x[0],p_now.x[1],p_now.x[2],dd);
+			if (dd > LDEN_MIN)
+			{
+				/* If we have reached this point then we have to initalize dvds1 and dvds2. Otherwise there is no need to do
+				   this, especially as dvwind_ds is an expensive calculation time wise */
+
+				if (init_dvds == 0)
+				{
+					dvds1 = dvwind_ds(p);
+					dvds2 = dvwind_ds(&phot);
+					init_dvds = 1;
+				}
+				dvds = (1. - x) * dvds1 + x * dvds2;
+
+				/* Add the line optical depth Note that one really should translate the photon to this point before doing this 
+				   (?? What is "this"??)as p-> x is being used to calculate direction of the wind */
+				tau_sobolev = sobolev(one, p, dd, lin_ptr[nn], dvds);
+
+				/* 140903 Increment ttau allowing for filling factor */
+				ttau += tau_sobolev * geo.fill;
+			}
+
+			/* Check to see whether the photon should scatter at this point */
+			if (ttau > tau_scat)
+			{
+				*istat = P_SCAT;
+				*nres = nn;
 				*tau = ttau;
+
+
+				//printf("Successfully scattered!\n");
 				return (ds_current);
 			}
-			else
-			{
-				/* increment tau by the continuum optical depth to this point */
-				ttau += kap_cont * (ds - ds_current);	/* kap_cont used here rather than kap_es */
 
-				ds_current = ds;	/* At this point ds_current is exactly the position of the resonance */
-				kkk = lin_ptr[nn]->nion;
-
-
-				/* The density is calculated in the wind array at the center of a cell.  We use that as the first estimate of the
-				   density.  So don't delete the next line.  However, we can do better except at the edges of the grid.  01apr07
-				   ksl.  ??? One could still do better than this since even if we can usually interpolate in one direction if not
-				   two ??? */
-				stuff_phot(p, &p_now);
-				move_phot(&p_now, ds_current);	// So p_now contains the current position of the photon
-
-
-				// ?? It looks like this if statement could be moved up higher, possibly above the xrho line if willing to accept
-				// cruder dd estimate
-				// If the density of the ion is very small we shouldn't have to worry about a resonance, but otherwise
-				// ?? This seems like an incredibly small number; how can anything this small affect anything ??
-
-				dd = get_ion_density(&p_now, kkk);
-				if(dd==0) dd = get_ion_density(&phot, kkk); //SWM
-				
-				//printf("Checking ion density at %6.1e %6.1e %6.1e=%e\n",p_now.x[0],p_now.x[1],p_now.x[2],dd);
-				if (dd > LDEN_MIN)
-				{
-					/* If we have reached this point then we have to initalize dvds1 and dvds2. Otherwise there is no need to do
-					   this, especially as dvwind_ds is an expensive calculation time wise */
-
-					if (init_dvds == 0)
-					{
-						dvds1 = dvwind_ds(p);
-						dvds2 = dvwind_ds(&phot);
-						init_dvds = 1;
-					}
-
-					dvds = (1. - x) * dvds1 + x * dvds2;
-
-					/* Add the line optical depth Note that one really should translate the photon to this point before doing this 
-					   (?? What is "this"??)as p-> x is being used to calculate direction of the wind */
-
-
-					tau_sobolev = sobolev(one, p, dd, lin_ptr[nn], dvds);
-					//printf("Checking tau sobolev: %e\n",tau_sobolev,p->np); //SWM
-
-					/* tau_sobolev now stores the optical depth. This is fed into the next statement for the bb estimator
-					   calculation. SS March 2004 */
-
-					/* 140903 Increment ttau allowing for filling factor */
-					ttau += tau_sobolev * geo.fill;
-
-					/* ksl - ??? 0902 - Stuart it looks to mee as if this is being run in the Macro case even during the
-					   extraction cycles.  Could you check. It shouldn't be necessary.  ??? */
-
-					if (geo.rt_mode == 2)	// Macro Atom case (SS)
-					{
-
-						/* 
-						   Because push through distance may take us out of the cell we want, need to make sure that the cell is
-						   correct before incrementing the heating rate/estimators. So 1st check if it's still in the wind and
-						   second get a pointer to the grid cell where the resonance really happens. */
-
-						check_in_grid = walls(&p_now, p);
-
-						if (check_in_grid != P_HIT_STAR && check_in_grid != P_HIT_DISK && check_in_grid != P_ESCAPE)
-						{
-							two = &w[where_in_grid(p_now.x)];
-							xplasma2 = &plasmamain[two->nplasma];
-
-							if (lin_ptr[nn]->macro_info == 1 && geo.macro_simple == 0)
-							{
-								/* The line is part of a macro atom so increment the estimator if desired (SS July 04). */
-								if (geo.ioniz_or_extract == 1)
-								{
-									bb_estimators_increment(two, p, tau_sobolev, dvds, nn);
-								}
-							}
-							else
-							{
-								/* The line is from a simple ion. Record the heating contribution and move on. */
-
-								bb_simple_heat(xplasma2, p, tau_sobolev, dvds, nn);
-
-							}
-						}
-					}
-					/* Completed special calculations for the Macro Atom case */
-
-					/* 68b - 0902 - The next section is to track where absorption is taking place along the line of sight to the
-					   observer.  It is probably possibly to simplify some of what is happening here, as we have various photons
-					   real and imaginary in this subroutine.  p, the orginal photon, phot the photon at the opposide edge of the
-					   cell and p_now hte photon at its current position.  Some of these could be used to store information needed
-					   in phot_hist. */
-
-					if (phot_hist_on)
-					{
-						p_now.tau = ttau;
-						p_now.nres = nn;
-						phot_hist(&p_now, 1);
-					}
-
-
-				}
-
-
-
-				/* Check to see whether the photon should scatter at this point */
-				if (ttau > tau_scat)
-				{
-					*istat = P_SCAT;
-					*nres = nn;
-					*tau = ttau;
-
-
-					//printf("Successfully scattered!\n");
-
-					return (ds_current);
-				}
-
-				/* End of loop to process an individual resonance */
-			}
+			/* End of loop to process an individual resonance */
+			
 			*tau = ttau;
 		}
 	}
@@ -416,29 +323,14 @@ double calculate_ds(WindPtr w, PhotPtr p, double tau_scat, double *tau, int *nre
 	   continuum scattering event occurred.  04 apr
 
 	 */
-
-	if (ttau + kap_cont * (smax - ds_current) > tau_scat)
-	{
-		*nres = select_continuum_scattering_process(kap_cont, kap_es, kap_ff, xplasma);
-
-		/* A scattering event has occurred in the shell and we remain in the same shell */
-		ds_current += (tau_scat - ttau) / (kap_cont);
-		*istat = P_SCAT;		/* Flag for scattering (SS) */
-		ttau = tau_scat;
-	}
-	else
-	{							/* Then we did hit the other side of the shell (or possibly the another wall of the same shell) */
-		*istat = P_INWIND;
-		ttau += kap_cont * (smax - ds_current);	/* kap_es replaced with kap_cont (SS) */
-		ds_current = smax;
-
-	}
+	/* Then we did hit the other side of the shell (or possibly the another wall of the same shell) */
+	*istat = P_INWIND;
+	ttau += kap_cont * (smax - ds_current);	/* kap_es replaced with kap_cont (SS) */
+	ds_current = smax;
 
 	*tau = ttau;
-
 	stuff_phot(&phot, &cds_phot_old);	// Store the final photon position
 	cds_v2_old = v2;			// and the velocity along the line of sight
-
 	return (ds_current);
 
 }

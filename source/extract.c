@@ -342,6 +342,7 @@ the same resonance again */
 		}
 	}
 
+
 	if (istat == P_ESCAPE)
 	{
 		/* This seems very defensive.  Is tau ever less than 0? */
@@ -350,9 +351,7 @@ the same resonance again */
 		{
 			stuff_v(x_inwind,pp->x);
 			pp->path = path_inwind;
-			printf("DELAY DUMP SINGLE\n");
 			delay_dump_single(pp, 1); //SWM
-			//printf("Reverb photon extracted: %g %g %g\n",pp->freq,delay_to_observer(pp),pp->w);
 		}
 
 		if (!(0 <= tau && tau < 1.e4))

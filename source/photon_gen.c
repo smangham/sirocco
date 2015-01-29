@@ -699,7 +699,8 @@ int photo_gen_star(PhotPtr p, double r, double t, double weight, double f1, doub
 		}
 		if (geo.wind_type == 10) 
     	{
-      		wind_keplerian_randvec(&p[i], r); //SWM
+			randvec(p[i].x, r);
+      	//	wind_keplerian_randvec(&p[i], r); //SWM
     	}		
     	else
 			randvec(p[i].x, r);
