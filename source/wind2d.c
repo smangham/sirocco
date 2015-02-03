@@ -123,7 +123,8 @@ int define_wind(void)
 	}
 	else if (geo.coord_type == CYLIND)
 	{
-		cylind_make_grid(w);
+		//	wind_keplerian_make_grid(w);
+		cylind_make_grid(w);	
 	}
 	else if (geo.coord_type == RTHETA)
 	{
@@ -198,14 +199,8 @@ int define_wind(void)
 	}
 	else if (geo.coord_type == CYLVAR)
 	{
-		if (geo.wind_type == 10)
-		{
-			wind_keplerian_cylvar_volumes(w, W_ALL_INWIND);
-		}
-		else
-		{
-			cylvar_volumes(w, W_ALL_INWIND);
-		}
+		cylvar_volumes(w, W_ALL_INWIND);
+
 	}
 	else
 	{

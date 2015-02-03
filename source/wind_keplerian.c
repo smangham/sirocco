@@ -55,13 +55,12 @@ int get_wind_keplerian_params(void)
 	Log("wind_keplerian: Creating wind for simple Keplerian disk\n");
 	w_keplerian->d_theta_min = 0.;
 	w_keplerian->d_theta_max = 0.; //If both zero, set to maximum
-	windmin = 2.8e9 / geo.rstar;
-	windmax = 8.4e9 / geo.rstar;
 	rddoub("wind_keplerian.diskmin(units_of_rstar)", &windmin);
 	rddoub("wind_keplerian.diskmax(units_of_rstar)", &windmax);
 	w_keplerian->d_rad_min = windmin * geo.rstar;
 	w_keplerian->d_rad_max = windmax * geo.rstar;
-
+	printf("wind_keplerian: Disk extent from %g to %g.\n", 
+			w_keplerian->d_rad_min,w_keplerian->d_rad_max);
 	rddoub("wind_keplerian.density()", &w_keplerian->d_density);
 	rddoub("wind_keplerian.height()", &w_keplerian->d_height);
 	rddoub("wind_keplerian.photon_bias()", &w_keplerian->d_photon_bias);
@@ -70,9 +69,8 @@ int get_wind_keplerian_params(void)
 	w_keplerian->d_photon_bias_const = w_keplerian->d_photon_bias /
 		(exp(w_keplerian->d_photon_bias)-exp(-w_keplerian->d_photon_bias));
 	
-
-	geo.wind_rmin = geo.rstar;
-	geo.wind_rmax = geo.rmax;
+	geo.wind_rmin = w_keplerian->d_rad_min;
+	geo.wind_rmax = w_keplerian->d_rad_max;
 	geo.wind_rho_min = w_keplerian->d_rad_min;
 	geo.wind_rho_max = w_keplerian->d_rad_max;
 	geo.wind_thetamin = w_keplerian->d_theta_min;
@@ -148,6 +146,72 @@ double wind_keplerian_rho(double x[])
                                        Space Telescope Science Institute
 
  Synopsis:
+	cylind_make_grid defines the cells in a cylindrical grid              
+
+Arguments:		
+	WindPtr w;	The structure which defines the wind in Python
+ 
+Returns:
+ 
+Description:
+
+
+History:
+	04aug	ksl	52a -- moved from define wind, and modeified so
+			that calculates midpoints (xcen) as well as vertex
+			points for cell.
+	04dec	ksl	54a -- Minor mod to eliminate warnings when compiled
+			with 03
+	05jun	ksl	56d -- Fixed minor problem with linear grid for 
+			w[n].xcen[2]
+
+**************************************************************/
+
+int wind_keplerian_make_grid(WindPtr w)
+{
+	double dr, dz, dlogr, dlogz;
+	int i, j, n;
+
+	for (i = 0; i < NDIM; i++)
+	{
+		for (j = 0; j < MDIM; j++)
+		{
+			wind_ij_to_n(i, j, &n);
+			w[n].x[1] = w[n].xcen[1] = 0;	// The cells are all defined in the xz plane
+
+			dz = geo.rmax / (MDIM - 3);
+			dr = geo.rmax / (NDIM - 3);
+			w[n].x[2] = j * dz;
+			w[n].xcen[2] = w[n].x[2] + 0.5 * dz;
+
+			if(i==0)
+			{
+				w[n].x[0] 		= 0.;
+				w[n].xcen[0] 	= w_keplerian->d_rad_min/2.;
+
+			} 
+			else if(i==1)
+			{
+				w[n].x[0]		= w_keplerian->d_rad_min;
+				w[n].xcen[0]	= (w_keplerian->d_rad_min + (i*dr)) * 0.5;
+			}
+			else
+			{
+				w[n].x[0] = i * dr;	/* The first zone is at the inner radius of the wind */
+				w[n].xcen[0] = w[n].x[0] + 0.5 * dr;
+			}
+
+
+		}
+	}
+
+	return (0);
+}
+
+/***********************************************************
+                                       Space Telescope Science Institute
+
+ Synopsis:
  	cylind_volume(w) calculates the wind volume of a cylindrical cell
 	allowing for the fact that some cells 
 
@@ -200,114 +264,6 @@ int wind_keplerian_cyl_volumes(WindPtr w, int icomp)
 	}
 	return (0);
 }
-
-int wind_keplerian_cylvar_volumes(WindPtr w, int icomp)	// The component for which we want the volume
-{
-	int i, j, n;
-	int jj, kk;
-	double r, z;
-	double rmax, rmin;
-	double zmin, zmax;
-	double dr, dz, x[3];
-	double volume;
-	double f, g;
-	int bilin();
-
-
-	/* Initialize all the volumes to 0 */
-	for (n = 0; n < NDIM2; n++)
-	{
-		w[n].vol = 0;
-		w[n].inwind = W_NOT_INWIND;
-	}
-
-	for (i = 0; i < NDIM - 1; i++)
-	{
-		for (j = 0; j < MDIM - 1; j++)
-		{
-			wind_ij_to_n(i, j, &n);
-
-			/* Encapsulate the grid cell with a rectangle for integrating */
-			rmin = w[n].x[0];
-			if (rmin > w[n + 1].x[0])
-				rmin = w[n + 1].x[0];
-			if (rmin > w[n + MDIM].x[0])
-				rmin = w[n + MDIM].x[0];
-			if (rmin > w[n + MDIM + 1].x[0])
-				rmin = w[n + MDIM + 1].x[0];
-
-			rmax = w[n].x[0];
-			if (rmax < w[n + 1].x[0])
-				rmax = w[n + 1].x[0];
-			if (rmax < w[n + MDIM].x[0])
-				rmax = w[n + MDIM].x[0];
-			if (rmax < w[n + MDIM + 1].x[0])
-				rmax = w[n + MDIM + 1].x[0];
-
-			zmin = w[n].x[2];
-			if (zmin > w[n + 1].x[2])
-				zmin = w[n + 1].x[2];
-			if (zmin > w[n + MDIM].x[2])
-				zmin = w[n + MDIM].x[2];
-			if (zmin > w[n + MDIM + 1].x[2])
-				zmin = w[n + MDIM + 1].x[2];
-
-			zmax = w[n].x[2];
-			if (zmax < w[n + 1].x[2])
-				zmax = w[n + 1].x[2];
-			if (zmax < w[n + MDIM].x[2])
-				zmax = w[n + MDIM].x[2];
-			if (zmax < w[n + MDIM + 1].x[2])
-				zmax = w[n + MDIM + 1].x[2];
-
-
-			volume = 0;
-			jj = kk = 0;
-			dr = (rmax - rmin) / RESOLUTION;
-			dz = (zmax - zmin) / RESOLUTION;
-			for (r = rmin + dr / 2; r < rmax; r += dr)
-			{
-				for (z = zmin + dz / 2; z < zmax; z += dz)
-				{
-					x[0] = r;
-					x[1] = 0;
-					x[2] = z;
-					if (bilin
-							(x, w[i * MDIM + j].x, w[i * MDIM + j + 1].x, w[(i + 1) * MDIM + j].x, w[(i + 1) * MDIM + j + 1].x, &f, &g) == 0)
-					{
-						kk++;
-						if (where_in_wind(x) == W_ALL_INWIND)
-						{
-							volume += r;
-							jj++;
-						}
-					}
-
-				}
-
-			}
-			w[n].vol = 4. * PI * dr * dz * volume;
-			/* OK now make the final assignement of nwind and fix the volumes */
-			if (jj == 0)
-			{
-				w[n].inwind = W_NOT_INWIND;	// The cell is not in the wind
-			}
-			else if (jj == kk)
-			{
-				// OLD 70b w[n].inwind = W_ALL_INWIND; // All of cell is inwind
-				w[n].inwind = icomp;		// All of cell is inwind
-			}
-			else
-			{
-				// OLD 70b w[n].inwind = W_PART_INWIND; // Some of cell is inwind
-				w[n].inwind = icomp + 1;	// Some of cell is inwind
-			}
-		}
-	}
-
-	return (0);
-}
-
 
 int 	//http://www.nucleonica.net/wiki/images/8/89/MCNPvolI.pdf
 wind_keplerian_randvec(

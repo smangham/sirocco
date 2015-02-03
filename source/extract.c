@@ -234,7 +234,6 @@ int extract_one(WindPtr w, PhotPtr pp, int itype, int nspec)
 
 	/* Preserve the original position of the photon so one can use this to determine whether the photon encountered the disk or
 	   star as it tried to exist the wind. */
-
 	stuff_phot(pp, &pstart);
 
 	/* Reweight the photons. Note that photons have already been frequency shifted prior to entering extract */
@@ -308,10 +307,7 @@ the same resonance again */
 
 	double x_inwind[3], path_inwind = 0.;	//SWM - Tracks last photon position in wind	
 	while (istat == P_INWIND)
-	{
-		stuff_v(pp->x,x_inwind);				//SWM -Track last photon position and path length
-		path_inwind=pp->path;
-		
+	{		
 		istat = translate(w, pp, 20., &tau, &nres);
 		icell++;
 		
@@ -347,10 +343,10 @@ the same resonance again */
 	{
 		/* This seems very defensive.  Is tau ever less than 0? */
 		
-		if(pp->nrscat>0)	//SWM - Records total distance travelled by extract photon
-		{
-			stuff_v(x_inwind,pp->x);
-			pp->path = path_inwind;
+		if(pp->nrscat>0)	//SWM - Records total distance travelled by extract photon. 
+		{					//SWM - Weight reduced by extract, but we calc path from original position
+			stuff_v(pstart.x,pp->x);
+			pp->path = pstart.path;
 			delay_dump_single(pp, 1); //SWM
 		}
 

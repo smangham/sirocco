@@ -31,8 +31,7 @@ History:
  
 **************************************************************/
 
-double 
-cylind_ds_in_cell (PhotPtr p)
+double cylind_ds_in_cell(PhotPtr p)
 {
 	int n, ix, iz, iroot;
 	double a, b, c, root[2];
@@ -46,12 +45,12 @@ cylind_ds_in_cell (PhotPtr p)
 	if ((p->grid = n = where_in_grid(p->x)) < 0)
 	{
 		Error("translate_in_wind: Photon not in grid when routine entered\n");
-		return (n);									/* Photon was not in wind */
+		return (n);				/* Photon was not in wind */
 	}
 
-	wind_n_to_ij(n, &ix, &iz);		/* Convert the index n to two dimensions */
+	wind_n_to_ij(n, &ix, &iz);	/* Convert the index n to two dimensions */
 
-	smax = VERY_BIG;							// initialize smax to a large number
+	smax = VERY_BIG;			// initialize smax to a large number
 
 	/* Set up the quadratic equations in the radial rho direction */
 
@@ -60,7 +59,7 @@ cylind_ds_in_cell (PhotPtr p)
 	c = p->x[0] * p->x[0] + p->x[1] * p->x[1];
 
 	iroot = quadratic(a, b, c - wind_x[ix] * wind_x[ix], root);	/* iroot will be the smallest positive root if one exists or
-																															   negative otherwise */
+																   negative otherwise */
 
 	if (iroot >= 0 && root[iroot] < smax)
 		smax = root[iroot];
@@ -70,13 +69,13 @@ cylind_ds_in_cell (PhotPtr p)
 	if (iroot >= 0 && root[iroot] < smax)
 		smax = root[iroot];
 
-	/* At this point we have found how far the photon can travel in rho in its current direction.  Now we must worry about motion 
+	/* At this point we have found how far the photon can travel in rho in its current direction.  Now we must worry about motion
 	   in the z direction */
 
 	z1 = wind_z[iz];
 	z2 = wind_z[iz + 1];
 	if (p->x[2] < 0)
-	{															/* We need to worry about which side of the plane the photon is on! */
+	{							/* We need to worry about which side of the plane the photon is on! */
 		z1 *= (-1.);
 		z2 *= (-1.);
 	}
@@ -122,15 +121,13 @@ History:
 **************************************************************/
 
 
-int 
-cylind_make_grid (WindPtr w)
+int cylind_make_grid(WindPtr w)
 {
 	double dr, dz, dlogr, dlogz;
 	int i, j, n;
 
-	/* In order to interpolate the velocity (and other) vectors out to geo.rmax, we need to define the wind at least one grid
-	   cell outside the region in which we want photons to propagate.  This is the reason we divide by NDIM-2 here, rather than
-	   NDIM-1 */
+	/* In order to interpolate the velocity (and other) vectors out to geo.rmax, we need to define the wind at least one grid cell
+	   outside the region in which we want photons to propagate.  This is the reason we divide by NDIM-2 here, rather than NDIM-1 */
 
 
 	/* First calculate parameters that are to be calculated at the edge of the grid cell.  This is mainly the positions and the
@@ -144,17 +141,17 @@ cylind_make_grid (WindPtr w)
 
 			/* Define the grid points */
 			if (geo.log_linear == 1)
-			{													// linear intervals
+			{					// linear intervals
 
 				dr = geo.rmax / (NDIM - 3);
 				dz = geo.rmax / (MDIM - 3);
-				w[n].x[0] = i * dr;			/* The first zone is at the inner radius of the wind */
+				w[n].x[0] = i * dr;	/* The first zone is at the inner radius of the wind */
 				w[n].x[2] = j * dz;
 				w[n].xcen[0] = w[n].x[0] + 0.5 * dr;
 				w[n].xcen[2] = w[n].x[2] + 0.5 * dz;
 			}
 			else
-			{													// logarithmic intervals
+			{					// logarithmic intervals
 
 				dlogr = (log10(geo.rmax / geo.xlog_scale)) / (NDIM - 3);
 				dlogz = (log10(geo.rmax / geo.zlog_scale)) / (MDIM - 3);
@@ -189,13 +186,12 @@ cylind_make_grid (WindPtr w)
 }
 
 
-/* This simple little routine just populates two one dimensional arrays that are used for interpolation. It could be part of
-   the routine above, except that the arrays are not tranferred to py_wind in wind_save It's left that way for now, but when
-   one cleans up the program, it might be more sensible to do it the other way History 04aug ksl Routine was removed from
-   windsave, wind_complete is now just a driver. */
+/* This simple little routine just populates two one dimensional arrays that are used for interpolation. It could be part of the
+   routine above, except that the arrays are not tranferred to py_wind in wind_save It's left that way for now, but when one cleans 
+   up the program, it might be more sensible to do it the other way History 04aug ksl Routine was removed from windsave,
+   wind_complete is now just a driver. */
 
-int 
-cylind_wind_complete (WindPtr w)
+int cylind_wind_complete(WindPtr w)
 {
 	int i, j;
 
@@ -264,8 +260,7 @@ cylind_wind_complete (WindPtr w)
 #define RESOLUTION   1000
 
 
-int 
-cylind_volumes (WindPtr w, int icomp)									// component number
+int cylind_volumes(WindPtr w, int icomp)	// component number
 {
 	int i, j, n;
 	int jj, kk;
@@ -302,17 +297,17 @@ cylind_volumes (WindPtr w, int icomp)									// component number
 
 				if (n_inwind == W_NOT_INWIND)
 				{
-					fraction = 0.0;				/* Force outside edge volues to zero */
+					fraction = 0.0;	/* Force outside edge volues to zero */
 					jj = 0;
 					kk = RESOLUTION * RESOLUTION;
 				}
 				else if (n_inwind == W_ALL_INWIND)
 				{
-					fraction = 1.0;				/* Force outside edge volues to zero */
+					fraction = 1.0;	/* Force outside edge volues to zero */
 					jj = kk = RESOLUTION * RESOLUTION;
 				}
 				else
-				{												/* Determine whether the grid cell is in the wind */
+				{				/* Determine whether the grid cell is in the wind */
 					num = denom = 0;
 					jj = kk = 0;
 					dr = (rmax - rmin) / RESOLUTION;
@@ -328,7 +323,7 @@ cylind_volumes (WindPtr w, int icomp)									// component number
 							x[2] = z;
 							if (where_in_wind(x) == icomp)
 							{
-								num += r * r;		/* 0 implies in wind */
+								num += r * r;	/* 0 implies in wind */
 								jj++;
 							}
 						}
@@ -398,22 +393,21 @@ cylind_volumes (WindPtr w, int icomp)									// component number
 
 
 
-int 
-cylind_where_in_grid (double x[])
+int cylind_where_in_grid(double x[])
 {
 	int i, j, n;
 	double z;
 	double rho;
 	double f;
 
-	z = fabs(x[2]);								/* This is necessary to get correct answer above and below plane */
+	z = fabs(x[2]);				/* This is necessary to get correct answer above and below plane */
 	if (z == 0)
-		z = 1.e4;										// Force z to be positive 02feb ksl
+		z = 1.e4;				// Force z to be positive 02feb ksl
 	rho = sqrt(x[0] * x[0] + x[1] * x[1]);	/* This is distance from z axis */
 	/* Check to see if x is outside the region of the calculation */
 	if (rho > wind_x[NDIM - 1] || z > wind_z[MDIM - 1])
 	{
-		return (-2);								/* x is outside grid */
+		return (-2);			/* x is outside grid */
 	}
 
 	if (rho < wind_x[0])
@@ -456,8 +450,7 @@ cylind_where_in_grid (double x[])
  
 **************************************************************/
 
-int 
-cylind_get_random_location (int n, int icomp, double x[])
+int cylind_get_random_location(int n, int icomp, double x[])
 {
 	int i, j;
 	int inwind;
@@ -490,7 +483,7 @@ cylind_get_random_location (int n, int icomp, double x[])
 	zz = rand() / MAXRAND - 0.5;	// positions above are all at +z distances
 
 	if (zz < 0)
-		x[2] *= -1;									/* The photon is in the bottom half of the wind */
+		x[2] *= -1;				/* The photon is in the bottom half of the wind */
 
 	return (inwind);
 }
@@ -523,8 +516,7 @@ cylind_get_random_location (int n, int icomp, double x[])
 **************************************************************/
 
 
-int 
-cylind_extend_density (WindPtr w)
+int cylind_extend_density(WindPtr w)
 {
 
 	int i, j, n, m;
@@ -547,11 +539,11 @@ cylind_extend_density (WindPtr w)
 			wind_ij_to_n(i, j, &n);
 			if (w[n].vol == 0)
 
-			{													// Then this grid point is not in the wind 
+			{					// Then this grid point is not in the wind 
 
 				wind_ij_to_n(i + 1, j, &m);
 				if (w[m].vol > 0)
-				{												// Then the windcell in the +x direction is in the wind and
+				{				// Then the windcell in the +x direction is in the wind and
 					// we can copy the densities to the grid cell n
 					w[n].nplasma = w[m].nplasma;
 
@@ -560,7 +552,7 @@ cylind_extend_density (WindPtr w)
 				{
 					wind_ij_to_n(i - 1, j, &m);
 					if (w[m].vol > 0)
-					{											// Then the grid cell in the -x direction is in the wind and
+					{			// Then the grid cell in the -x direction is in the wind and
 						// we can copy the densities to the grid cell n
 						w[n].nplasma = w[m].nplasma;
 
@@ -578,19 +570,17 @@ cylind_extend_density (WindPtr w)
 
    cylind_is_cell_in_wind (n)
 
-   This routine performs is a robust check of whether a cell is in the wind or not. It was created to speed up the evaluation
-   of the volumes for the wind.  It checks each of the four boundaries of the wind to see whether any portions of these are in
-   the wind
+   This routine performs is a robust check of whether a cell is in the wind or not. It was created to speed up the evaluation of
+   the volumes for the wind.  It checks each of the four boundaries of the wind to see whether any portions of these are in the
+   wind
 
    Note that it simply calls where_in_wind multiple times.
 
-   History: 11Aug ksl 70b - Modified to incoporate torus See python.h for more complete explanation of how PART and ALL are
-   related
+   History: 11Aug ksl 70b - Modified to incoporate torus See python.h for more complete explanation of how PART and ALL are related
 
  */
 
-int 
-cylind_is_cell_in_wind (int n, int icomp)									// component number
+int cylind_is_cell_in_wind(int n, int icomp)	// component number
 {
 	int i, j;
 	double r, z, dr, dz;
