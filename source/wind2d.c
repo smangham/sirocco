@@ -123,8 +123,14 @@ int define_wind(void)
 	}
 	else if (geo.coord_type == CYLIND)
 	{
-		//	wind_keplerian_make_grid(w);
-		cylind_make_grid(w);	
+		if(geo.wind_type == 10)
+		{
+			wind_keplerian_make_grid(w);
+		}
+		else
+		{
+			cylind_make_grid(w);	
+		}	
 	}
 	else if (geo.coord_type == RTHETA)
 	{

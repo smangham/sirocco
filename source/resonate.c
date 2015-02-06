@@ -201,11 +201,6 @@ double calculate_ds(WindPtr w, PhotPtr p, double tau_scat, double *tau, int *nre
 		return (smax);			// This is not really the best thing to do, but it avoids disaster below
 
 	}
-	else if (p->x[2] <1.e3 && p->x[2] > -1.e3 && sqrt(p->x[0]*p->x[0] + p->x[1]*p->x[1]) < 1.295e15)
-	{
-		printf("Found photon in cell %g %g\n",one->x[0],one->x[1]);
-		return (smax);
-	}
 	else if (dfreq > 0)
 	{
 		limit_lines(freq_inner, freq_outer);

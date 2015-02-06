@@ -172,6 +172,12 @@ int wind_keplerian_make_grid(WindPtr w)
 	double dr, dz, dlogr, dlogz;
 	int i, j, n;
 
+	/* In order to interpolate the velocity (and other) vectors out to geo.rmax, we need to define the wind at least one grid cell
+	   outside the region in which we want photons to propagate.  This is the reason we divide by NDIM-2 here, rather than NDIM-1 */
+
+
+	/* First calculate parameters that are to be calculated at the edge of the grid cell.  This is mainly the positions and the
+	   velocity */
 	for (i = 0; i < NDIM; i++)
 	{
 		for (j = 0; j < MDIM; j++)
@@ -179,30 +185,46 @@ int wind_keplerian_make_grid(WindPtr w)
 			wind_ij_to_n(i, j, &n);
 			w[n].x[1] = w[n].xcen[1] = 0;	// The cells are all defined in the xz plane
 
-			dz = geo.rmax / (MDIM - 3);
-			dr = geo.rmax / (NDIM - 3);
-			w[n].x[2] = j * dz;
-			w[n].xcen[2] = w[n].x[2] + 0.5 * dz;
-
-			if(i==0)
-			{
-				w[n].x[0] 		= 0.;
-				w[n].xcen[0] 	= w_keplerian->d_rad_min/2.;
-
-			} 
-			else if(i==1)
-			{
-				w[n].x[0]		= w_keplerian->d_rad_min;
-				w[n].xcen[0]	= (w_keplerian->d_rad_min + (i*dr)) * 0.5;
+			/* Define the grid points */
+			if (geo.log_linear == 1)
+			{					// linear intervals
+				dr = geo.rmax / (NDIM - 3);
+				dz = geo.rmax / (MDIM - 3);
+				w[n].x[0] = i * dr;	/* The first zone is at the inner radius of the wind */
+				w[n].x[2] = j * dz;
+				w[n].xcen[0] = w[n].x[0] + 0.5 * dr;
+				w[n].xcen[2] = w[n].x[2] + 0.5 * dz;
 			}
 			else
-			{
-				w[n].x[0] = i * dr;	/* The first zone is at the inner radius of the wind */
-				w[n].xcen[0] = w[n].x[0] + 0.5 * dr;
+			{					// logarithmic intervals
+				dlogr = (log10(geo.rmax / geo.xlog_scale)) / (NDIM - 3);
+				dlogz = (log10(geo.rmax / geo.zlog_scale)) / (MDIM - 3);
+				if (i == 0)
+				{
+					w[n].x[0] = 0.0;
+					w[n].xcen[0] = 0.5 * geo.xlog_scale;
+				}
+				else
+				{
+					w[n].x[0] = geo.xlog_scale * pow(10., dlogr * (i - 1));
+					w[n].xcen[0] = 0.5 * geo.xlog_scale * (pow(10., dlogr * (i - 1)) + pow(10., dlogr * (i)));
+				}
+
+				if (j == 0)
+				{
+					w[n].x[2] = 0.0;
+					w[n].xcen[2] = 0.5 * geo.zlog_scale;
+				}
+				else
+				{
+					w[n].x[2] = geo.zlog_scale * pow(10, dlogz * (j - 1));
+					w[n].xcen[2] = 0.5 * geo.zlog_scale * (pow(10., dlogz * (j - 1)) + pow(10., dlogz * (j)));
+				}
 			}
 
 
 		}
+		printf("wind_keplerian: %d - %g %g\n",i,w[n].x[0],w[n].xcen[0]);
 	}
 
 	return (0);

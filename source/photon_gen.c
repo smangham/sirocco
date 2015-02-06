@@ -78,6 +78,8 @@ double f1_old = 0;
 double f2_old = 0;
 int iwind_old = 0;
 
+double f_init=0; //SWM
+
 int define_phot(PhotPtr p, double f1, double f2, long nphot_tot, int ioniz_or_final, int iwind, int freq_sampling)	// 0 --> old uniform
 																													// approach, 1 -->
 																													// mininimum fractions
@@ -128,10 +130,10 @@ int define_phot(PhotPtr p, double f1, double f2, long nphot_tot, int ioniz_or_fi
 		}
 	}
 
-
 	for (n = 0; n < NPHOT; n++)
 	{
 		p[n].w_orig = p[n].w;
+		p[n].freq = (f1+f2)/2;
 		p[n].freq_orig = p[n].freq;
 	}
 	return (0);
