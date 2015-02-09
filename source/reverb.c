@@ -290,7 +290,7 @@ delay_dump (PhotPtr p, int np, int nspec, int iExtracted)
 				if (xxspec[nspec].mmin < zangle 
 					&& zangle < xxspec[nspec].mmax)
 				{	/* SWM 15/8/14 - Added path delay in comparison to photon heading straight from origin to rmax*/
-					fprintf(fptr, "%10.5g %10.5g %10.5g %+10.5e %+10.5e %+10.5e %+10.5g %+10.5g %+10.5g %3d     %3d     %10.5g %i\n", 
+					fprintf(fptr, "%10.5g %10.7f %10.5g %+10.5e %+10.5e %+10.5e %+10.5g %+10.5g %+10.5g %3d     %3d     %10.5g %i\n", 
 						p[nphot].freq, C * 1e8 / p[nphot].freq, p[nphot].w, 
 						p[nphot].x[0], p[nphot].x[1], p[nphot].x[2], 
 						p[nphot].lmn[0], p[nphot].lmn[1], p[nphot].lmn[2], 
