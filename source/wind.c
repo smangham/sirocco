@@ -302,6 +302,10 @@ model_velocity (x, v)
     {
       speed = stellar_velocity (x, v);
     }
+  else if (geo.wind_type == 10) /* SWM - Keplerian wind mode */
+    {
+      speed = wind_keplerian_velocity(x, v);
+    }
   else
     {
       Error ("wind: Unknown windtype %d\n", geo.wind_type);
@@ -415,6 +419,10 @@ model_rho (x)
   else if (geo.wind_type == 9)
     {
       rho = stellar_rho (x);
+    }
+  else if (geo.wind_type == 10) /* SWM - Keplerian wind mode */
+    {
+      rho = wind_keplerian_rho(x);
     }
   else
     {

@@ -374,6 +374,10 @@ struct geometry
 // The next set of parameters describe the input datafiles that are read
   char atomic_filename[132];	/* 54e -- The masterfile for the atomic data */
   char fixed_con_file[132];	/* 54e -- For fixed concentrations, the file specifying concentrations */
+
+  /* SWM - Keplerian wind params (also uses rhomin, rhomax) */
+  double wind_keplerian_density, wind_keplerian_height;
+  double wind_keplerian_photon_bias, wind_keplerian_photon_bias_const;
 }
 geo;
 
