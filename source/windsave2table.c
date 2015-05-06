@@ -120,26 +120,69 @@ I did not change this now.  Though it could be done.  02apr ksl */
   create_ion_table (root, 6);
   create_ion_table (root, 7);
   create_ion_table (root, 8);
-  create_ion_table (root,14);
- create_ion_table (root, 26); 
+  create_ion_table (root, 14);
+  create_ion_table (root, 26);
   return (0);
 }
 
 
 
+
+/***********************************************************
+                                       Space Telescope Science Institute
+
+Synopsis:
+
+	create_master_table writes a selected variables of in the windsaave
+	file to an astropy table
+
+	It is intended to be easily modifible.
+
+Arguments:		
+
+	rootname of the file that will be written out
+
+
+Returns:
+ 
+Description:	
+
+	The routine reads data directly from wmain, and then calls 
+	get_one or get_ion multiple times to read info from the Plasma
+	structure.  
+	
+	It then writes the data to an  astropy file
+Notes:
+
+	To add a variable one just needs to define the column_name
+	and send the appropriate call to either get_one or get_ion.
+
+	There is some duplicated code in the routine that pertains
+	to whether one is dealing with a spherecial or a 2d coordinate
+	system.  It should be possible to delete this
+
+
+
+History:
+	150428	ksl	Adpated from routines in py_wind.c
+	150501	ksl	Cleaned this routine up, and added a few more variables
+
+**************************************************************/
+
 int
 create_master_table (rootname)
      char rootname[];
 {
-  double xdoub;
-  double *xne, *xt_e, *xt_r;
-  double *c4;
   char filename[132];
   double *get_one ();
   double *get_ion ();
+  double *c[50];
+  char column_name[50][20];
+  char one_line[1024], start[132], one_value[20];
 
 
   int i, ii, jj;
+  int n, ncols;
   FILE *fopen (), *fptr;
 
   strcpy (filename, rootname);
@@ -147,53 +190,127 @@ create_master_table (rootname)
 
   fptr = fopen (filename, "w");
 
-  xne = get_one ("ne");
+  /* Get the variables that one needs */
+
+  c[0] = get_one ("ne");
+  strcpy (column_name[0], "ne");
+
+  c[1] = get_one ("t_e");
+  strcpy (column_name[1], "t_e");
+
+  c[2] = get_one ("t_r");
+  strcpy (column_name[2], "t_r");
+
+  c[3] = get_ion (1, 1, 0);
+  strcpy (column_name[3], "h1");
+
+  c[4] = get_ion (2, 2, 0);
+  strcpy (column_name[4], "he2");
+
+  c[5] = get_ion (6, 4, 0);
+  strcpy (column_name[5], "c4");
+
+  c[6] = get_ion (7, 5, 0);
+  strcpy (column_name[6], "n5");
+
+  c[7] = get_ion (8, 6, 0);
+  strcpy (column_name[7], "o6");
 
 
-  xt_e = get_one ("t_e");
+  ncols = 8;
 
-  xt_r = get_one ("t_r");
+  /* At this point oll of the data has been collected */
 
 
-  c4 = get_ion (6, 4, 0);
 
-  Log ("ndim2 %d\n", NDIM2);
-  Log ("%e\n", xt_r[0]);
+
 
   if (geo.coord_type == SPHERICAL)
     {
 
-      Log ("Processing Spherical\n");
-      /* JM 1411 -- added header for reading with astropy ascii module */
-      fprintf (fptr, "r ne t_e  t_r CIV inwind i\n");
+
+      /* First assemble the heder line
+       */
+
+      sprintf (start, "%8s %4s %6s %8s %8s %8s ", "r", "i", "inwind", "v_x",
+	       "v_y", "v_z");
+      strcpy (one_line, start);
+      n = 0;
+      while (n < ncols)
+	{
+	  sprintf (one_value, "%8s ", column_name[n]);
+	  strcat (one_line, one_value);
+
+	  n++;
+	}
+      fprintf (fptr, "%s\n", one_line);
 
 
 
+
+
+      /* Now assemble the lines of the table */
       for (i = 0; i < NDIM2; i++)
 	{
-	  fprintf (fptr, "%8.2e %8.2e %8.2e %8.2e %8.2e %3d %3d \n",
-		   wmain[i].r, xne[i], xt_e[i], xt_r[i], c4[i],
-		   wmain[i].inwind, i);
+	  // This line is different from the two d case
+	  sprintf (start, "%8.2e %4d %6d %8.2e %8.2e %8.2e ", wmain[i].r, i,
+		   wmain[i].inwind, wmain[i].v[0], wmain[i].v[1],
+		   wmain[i].v[2]);
+	  strcpy (one_line, start);
+	  n = 0;
+	  while (n < ncols)
+	    {
+	      sprintf (one_value, "%8.2e ", c[n][i]);
+	      strcat (one_line, one_value);
+	      n++;
+	    }
+	  fprintf (fptr, "%s\n", one_line);
 	}
     }
   else
     {
 
       Log ("Processing 2d wind\n");
-      /* JM 1411 -- added header for reading with astropy ascii module */
-      fprintf (fptr, "x z ne t_e  t_r  CIV inwind i j\n");
 
+      /* First assemble the heder line
+       */
+
+      sprintf (start, "%8s %8s %4s %4s %6s %8s %8s %8s ", "x", "z", "i", "j",
+	       "inwind", "v_x", "v_y", "v_z");
+      strcpy (one_line, start);
+      n = 0;
+      while (n < ncols)
+	{
+	  sprintf (one_value, "%8s ", column_name[n]);
+	  strcat (one_line, one_value);
+
+	  n++;
+	}
+      printf ("%s\n", one_line);
+      fprintf (fptr, "%s\n", one_line);
+
+
+      /* Now assemble the lines of the table */
       for (i = 0; i < NDIM2; i++)
 	{
 	  wind_n_to_ij (i, &ii, &jj);
-	  fprintf (fptr, "%8.4e %8.4e %8.2e %8.2e %8.2e %8.2e %3d %3d %3d\n",
-		   wmain[i].xcen[0], wmain[i].xcen[2], xt_e[i], xne[i],
-		   xt_r[i], c4[i], wmain[i].inwind, ii, jj);
+	  sprintf (start, "%8.2e %8.2e %4d %4d %6d %8.2e %8.2e %8.2e ",
+		   wmain[i].xcen[0], wmain[i].xcen[2], ii, jj,
+		   wmain[i].inwind, wmain[i].v[0], wmain[i].v[1],
+		   wmain[i].v[2]);
+	  strcpy (one_line, start);
+	  n = 0;
+	  while (n < ncols)
+	    {
+	      sprintf (one_value, "%8.2e ", c[n][i]);
+	      strcat (one_line, one_value);
+	      n++;
+	    }
+	  fprintf (fptr, "%s\n", one_line);
 	}
     }
   return (0);
 }
-
 
 
 
@@ -337,9 +454,9 @@ get_ion (element, istate, iswitch)
 {
   int nion, nelem;
   int n;
-  char choice[LINELENGTH], iname[LINELENGTH];
+  // char choice[LINELENGTH], iname[LINELENGTH];
   char name[LINELENGTH];
-  char filename[LINELENGTH];
+  // char filename[LINELENGTH];
   int nplasma;
   double *x;
 

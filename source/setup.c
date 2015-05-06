@@ -559,6 +559,10 @@ get_wind_params()
 Modified again in python 71b to take account of change in parametrisation of shell wind 
 	  DFUDGE = dfudge; */
     }
+  else if (geo.wind_type == 10) /* SWM - Thin keplerian disk */
+    {
+      get_wind_keplerian_params();
+    }
   else if (geo.wind_type != 2)
     {
       Error ("python: Unknown wind type %d\n", geo.wind_type);

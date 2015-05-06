@@ -484,6 +484,14 @@ int photo_gen_matom(PhotPtr p, double weight, int photstart, int nphot);
 /* macro_gov.c */
 int macro_gov(PhotPtr p, int *nres, int matom_or_kpkt, int *which_out);
 int macro_pops(PlasmaPtr xplasma, double xne);
+/* wind_keplerian.c */
+int get_wind_keplerian_params(void);
+double wind_keplerian_velocity(double x[], double v[]);
+double wind_keplerian_rho(double x[]);
+int wind_keplerian_cyl_volumes(WindPtr w, int icomp);
+int wind_keplerian_cylvar_volumes(WindPtr w, int icomp);
+int wind_keplerian_randvec(PhotPtr pp, double r);
+int rand_sign(void);
 /* py_wind_sub.c */
 int zoom(int direction);
 int overview(WindPtr w, char rootname[]);
@@ -554,4 +562,3 @@ int main(int argc, char *argv[]);
 int one_choice(int choice, char *root, int ochoice);
 int py_wind_help(void);
 /* test_saha.c */
-int main(int argc, char *argv[]);

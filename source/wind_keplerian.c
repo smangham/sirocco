@@ -34,8 +34,11 @@ History:
 int
 get_wind_keplerian_params (void)
 {
- 	geo.wind_theta_min = 0.;
- 	geo.wind_theta_max = 0.;	//If both zero, set to maximum
+	if(geo.coord_type != 1)
+		Error ("wind_keplerian: Unsupported coordinate type %i- not cylindrical (1)\n", geo.coord_type);
+
+ 	geo.wind_thetamin = 0.;
+ 	geo.wind_thetamax = 0.;	//If both zero, set to maximum
  	geo.wind_rho_min = 2.8e9 / geo.rstar;
  	geo.wind_rho_max = 8.4e9 / geo.rstar;
  	rddoub ("wind_keplerian.diskmin(units_of_rstar)", &geo.wind_rho_min);
@@ -90,7 +93,8 @@ wind_keplerian_velocity (double x[], double v[])
 
   v[0] = 0.;			//Zero R, Phi components
   v[2] = 0.;
-  if (r > w_keplerian->d_rad_min && r < w_keplerian->d_rad_max && fabs (x[2]) < (w_keplerian->d_height + DFUDGE))	//If point is within the wind 
+  if (r > geo.wind_rho_min && r < geo.wind_rho_max && 
+  		fabs (x[2]) < (geo.wind_keplerian_height + DFUDGE))	//If point is within the wind 
     v[1] = sqrt (G * geo.mstar / r);	//Simple keplerian Theta component
   else
     v[1] = 0;			//Or it's zero
@@ -121,11 +125,11 @@ double
 wind_keplerian_rho (double x[])
 {
   double r = sqrt (x[0] * x[0] + x[1] * x[1]);	//Convert position into radius
-  if (r < w_keplerian->d_rad_min || r > w_keplerian->d_rad_max
-      || fabs (x[2]) > (w_keplerian->d_height))
+  if (r < geo.wind_rho_min || r > geo.wind_rho_max
+      || fabs (x[2]) > geo.wind_keplerian_height)
     return (0.0);		//If the radius lies outside the wind, zero
   else
-    return (w_keplerian->d_density);	//Else return flat value
+    return (geo.wind_keplerian_density);		//Else return flat value
 }
 
 /***********************************************************
@@ -186,116 +190,6 @@ wind_keplerian_cyl_volumes (WindPtr w, int icomp)
   return (0);
 }
 
-int
-wind_keplerian_cylvar_volumes (WindPtr w, int icomp)	// The component for which we want the volume
-{
-  int i, j, n;
-  int jj, kk;
-  double r, z;
-  double rmax, rmin;
-  double zmin, zmax;
-  double dr, dz, x[3];
-  double volume;
-  double f, g;
-  int bilin ();
-
-
-  /* Initialize all the volumes to 0 */
-  for (n = 0; n < NDIM2; n++)
-    {
-      w[n].vol = 0;
-      w[n].inwind = W_NOT_INWIND;
-    }
-
-  for (i = 0; i < NDIM - 1; i++)
-    {
-      for (j = 0; j < MDIM - 1; j++)
-	{
-	  wind_ij_to_n (i, j, &n);
-
-	  /* Encapsulate the grid cell with a rectangle for integrating */
-	  rmin = w[n].x[0];
-	  if (rmin > w[n + 1].x[0])
-	    rmin = w[n + 1].x[0];
-	  if (rmin > w[n + MDIM].x[0])
-	    rmin = w[n + MDIM].x[0];
-	  if (rmin > w[n + MDIM + 1].x[0])
-	    rmin = w[n + MDIM + 1].x[0];
-
-	  rmax = w[n].x[0];
-	  if (rmax < w[n + 1].x[0])
-	    rmax = w[n + 1].x[0];
-	  if (rmax < w[n + MDIM].x[0])
-	    rmax = w[n + MDIM].x[0];
-	  if (rmax < w[n + MDIM + 1].x[0])
-	    rmax = w[n + MDIM + 1].x[0];
-
-	  zmin = w[n].x[2];
-	  if (zmin > w[n + 1].x[2])
-	    zmin = w[n + 1].x[2];
-	  if (zmin > w[n + MDIM].x[2])
-	    zmin = w[n + MDIM].x[2];
-	  if (zmin > w[n + MDIM + 1].x[2])
-	    zmin = w[n + MDIM + 1].x[2];
-
-	  zmax = w[n].x[2];
-	  if (zmax < w[n + 1].x[2])
-	    zmax = w[n + 1].x[2];
-	  if (zmax < w[n + MDIM].x[2])
-	    zmax = w[n + MDIM].x[2];
-	  if (zmax < w[n + MDIM + 1].x[2])
-	    zmax = w[n + MDIM + 1].x[2];
-
-
-	  volume = 0;
-	  jj = kk = 0;
-	  dr = (rmax - rmin) / RESOLUTION;
-	  dz = (zmax - zmin) / RESOLUTION;
-	  for (r = rmin + dr / 2; r < rmax; r += dr)
-	    {
-	      for (z = zmin + dz / 2; z < zmax; z += dz)
-		{
-		  x[0] = r;
-		  x[1] = 0;
-		  x[2] = z;
-		  if (bilin
-		      (x, w[i * MDIM + j].x, w[i * MDIM + j + 1].x,
-		       w[(i + 1) * MDIM + j].x, w[(i + 1) * MDIM + j + 1].x,
-		       &f, &g) == 0)
-		    {
-		      kk++;
-		      if (where_in_wind (x) == W_ALL_INWIND)
-			{
-			  volume += r;
-			  jj++;
-			}
-		    }
-
-		}
-
-	    }
-	  w[n].vol = 4. * PI * dr * dz * volume;
-	  /* OK now make the final assignement of nwind and fix the volumes */
-	  if (jj == 0)
-	    {
-	      w[n].inwind = W_NOT_INWIND;	// The cell is not in the wind
-	    }
-	  else if (jj == kk)
-	    {
-	      // OLD 70b w[n].inwind = W_ALL_INWIND; // All of cell is inwind
-	      w[n].inwind = icomp;	// All of cell is inwind
-	    }
-	  else
-	    {
-	      // OLD 70b w[n].inwind = W_PART_INWIND; // Some of cell is inwind
-	      w[n].inwind = icomp + 1;	// Some of cell is inwind
-	    }
-	}
-    }
-
-  return (0);
-}
-
 
 int				//http://www.nucleonica.net/wiki/images/8/89/MCNPvolI.pdf
 wind_keplerian_randvec (PhotPtr pp, double r)
@@ -303,7 +197,8 @@ wind_keplerian_randvec (PhotPtr pp, double r)
   double costheta, sintheta, x[3];
   double phi, sinphi, cosphi, d_rot;
   double p_biased;
-  double k = w_keplerian->d_photon_bias, c = w_keplerian->d_photon_bias_const;
+  double k = geo.wind_keplerian_photon_bias, 
+  		 c = geo.wind_keplerian_photon_bias_const;
 
   d_rot = 2. * PI * (rand () / MAXRAND);
   phi = 2. * PI * (rand () / MAXRAND);
@@ -326,10 +221,4 @@ wind_keplerian_randvec (PhotPtr pp, double r)
   //if(pp->np < 100) printf("POS: %g %g %g %g %g %g\n",pp->x[0]/r,pp->x[1]/r,pp->x[2]/r,pp->w,c,k);
   //Adjust weight by relative probality densities (.5 for random, c e^-kt for biased)
   return (0);
-}
-
-int 
-rand_sign (void)
-{
-  return ((rand () % 2) * 2 - 1);
 }
