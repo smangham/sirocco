@@ -68,7 +68,7 @@ stuff_phot (pin, pout)
   pout->nnscat = pin->nnscat;
   pout->np = pin->np;
 
-
+  pout->importance = pin->importance; /* SWM - Copy across importance mapping information */
   return (0);
 }
 

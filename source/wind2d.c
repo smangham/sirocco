@@ -109,6 +109,7 @@ define_wind ()
   for (n = 0; n < NDIM2; n++)
     {
       w[n].inwind = W_NOT_INWIND;
+      w[n].importance = 1.0; /* SWM - Initialise importance map */
     }
 
 
