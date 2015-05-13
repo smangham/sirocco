@@ -943,6 +943,51 @@ int get_compton_torus_params ()
   return (0);
 }
 
+/***********************************************************
+             University of Southampton
+Synopsis: 
+  get_meta_params reads in data pertaining to simulation meta-
+  properties like reverberation mapping settings and variance
+  reduction techniques.
+   
+Arguments:    
+Returns:
+ 
+Description:  
+Notes:
+History:
+  1504  SWM   Added
+**************************************************************/
+
+int 
+get_meta_params (void)
+{
+  int i;
+
+  geo.vr_type = 0;
+  rdint("vr.type", &geo.vr_type);
+  if(vr.type > 0 && geo.coord_type == 0)
+  {
+    geo.vr_sphere_shells = 1;
+    rdint("vr.sphere_shells", &geo.vr_sphere_shells);
+    geo.vr_shell_importance[0] = 1.0;
+
+    if(geo.vr_sphere_shells > 9)
+    {
+      Error
+      ("get_meta_params: Spherical shell importance mapping capped at  10 shells (for now)\n");   
+    }
+
+    for(i=0; i<geo.vr_sphere_shells; i++)
+    {
+      rdint("vr.shell_radius", &geo.vr_shell_radius[i]);
+      rdint("vr.shell_importance", &geo.vr_shell_importance[i+1]);
+    }
+    geo.vr_shell_radius[i+1] = geo.rmax;
+
+  }
+  return (0);
+}
 
 
 /***********************************************************

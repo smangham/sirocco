@@ -981,6 +981,11 @@ main (argc, argv)
   // Do not reinit if you want to use old windfile
 
   w = wmain;
+  
+  /* SWM - Set importance map for wind */
+  if(geo.vr_type > 0)
+	  setup_importance_map(w);
+
 
   if (modes.save_cell_stats)
     {

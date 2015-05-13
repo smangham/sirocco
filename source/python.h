@@ -374,6 +374,11 @@ struct geometry
 // The next set of parameters describe the input datafiles that are read
   char atomic_filename[132];	/* 54e -- The masterfile for the atomic data */
   char fixed_con_file[132];	/* 54e -- For fixed concentrations, the file specifying concentrations */
+
+  /* SWM - Options for variance reduction settings */
+  int vr_type, vr_sphere_shells;
+  double vr_shell_radius[10], vr_shell_importance[10]; 
+  /* 1 = ionisation, 2 = spectrum, 3 = both */
 }
 geo;
 
