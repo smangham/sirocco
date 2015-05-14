@@ -64,13 +64,10 @@ int trans_phot(WindPtr w, PhotPtr p, int iextract	/* 0 means do not extract alon
 	double dot();
 	int translate();
 	int n;
-	struct photon pp, pextract;
+	struct photon pp;
 	double get_ion_density();
 	int nnscat;
-	int disk_illum;
 	int nerr;
-	double p_norm, tau_norm;
-
 
 	n = 0;						// To avoid -O3 warning
 
@@ -127,7 +124,7 @@ int trans_phot(WindPtr w, PhotPtr p, int iextract	/* 0 means do not extract alon
 					{
 						Error("trans_phot:sane_check photon %d has weight %e before scatter\n", nphot, p[nphot].w);
 					}
-					if ((nerr = scatter(&p[nphot], &p[nphot].nres, &nnscat, iextract)) != 0)
+					if ((nerr = scatter(&p[nphot], &p[nphot].nres, &nnscat)) != 0)
 					{
 						Error("trans_phot: Bad return from scatter %d at point 1", nerr);
 					}
@@ -142,6 +139,7 @@ int trans_phot(WindPtr w, PhotPtr p, int iextract	/* 0 means do not extract alon
 		}
 
 		p[nphot].np = nphot;
+		p[nphot].np_parent = nphot;
 		p[nphot].importance = 1.0;
 		stuff_phot(&p[nphot], &pp);
 		trans_phot_single(w, &p[nphot], iextract);
@@ -184,7 +182,7 @@ int trans_phot_single(WindPtr w, PhotPtr p, int iextract)
 	if (iextract)
 	{
 		// SS - for reflecting disk have to make sure disk photons are only extracted once!
-		if (disk_illum == 1 && p[nphot].origin == PTYPE_DISK)
+		if (disk_illum == 1 && p->origin == PTYPE_DISK)
 			geo.disk_illum = 0;
 		stuff_phot(p, &pextract);
 
@@ -210,22 +208,22 @@ int trans_phot_single(WindPtr w, PhotPtr p, int iextract)
 			if (pextract.nnscat != 1)
 				Error
 					("nnscat is %i for photon %i in scatter mode %i! nres %i NLINES %i\n",
-					 pextract.nnscat, nphot, geo.scatter_mode, pextract.nres, NLINES);
+					 pextract.nnscat, pextract.np, geo.scatter_mode, pextract.nres, NLINES);
 		}
 
 		/* We then increase weight to account for number of scatters. This is done because in extract we multiply by the escape
 		   probability along a given direction, but we also need to divide the weight by the mean escape probability, which is
 		   equal to 1/nnscat */
-		pextract.w *= p[nphot].nnscat / p_norm;
+		pextract.w *= p->nnscat / p_norm;
 
 		if (sane_check(pextract.w))
 		{
-			Error("trans_phot: sane_check photon %d has weight %e before extract\n", nphot, pextract.w);
+			Error("trans_phot: sane_check photon %d has weight %e before extract\n", pextract.np, pextract.w);
 		}
 		extract(w, &pextract, pextract.origin);
 
 		// SS if necessary put back the correcy disk illumination
-		if (disk_illum == 1 && p[nphot].origin == PTYPE_DISK)
+		if (disk_illum == 1 && pextract.origin == PTYPE_DISK)
 			geo.disk_illum = 1;
 	}
 
@@ -241,6 +239,8 @@ int trans_phot_single(WindPtr w, PhotPtr p, int iextract)
 		   was a scattering event in the shell, 2 in which case the photon reached the outside edge of the grid and escaped, 3 in
 		   which case it reach the inner edge and was reabsorbed. If the photon escapes then we leave the photon at the position of
 		   it's last scatter.  In most other cases though we store the final position of the photon. */
+
+		//printf("PTRACK %d %g %g %g %g %d %d %d\n",pp.np, pp.x[0], pp.x[1], pp.x[2], pp.w, pp.nscat, pp.np_parent, pp.np);
 
 
 		istat = translate(w, &pp, tau_scat, &tau, &nres);
@@ -360,8 +360,8 @@ int trans_phot_single(WindPtr w, PhotPtr p, int iextract)
 			if(wmain[n].importance > pp.importance)
 			{
 				double rSplit;
-				int iSplit, iSplit_Loop
-				struct p_dummy pSplit;
+				int iSplit, iSplit_Loop;
+				struct photon pSplit;
 
 				rSplit 			= 	wmain[n].importance / pp.importance;
 				pp.importance 	= 	wmain[n].importance;
@@ -373,7 +373,9 @@ int trans_phot_single(WindPtr w, PhotPtr p, int iextract)
 				for(iSplit_Loop = 1; iSplit_Loop < iSplit; iSplit_Loop++)
 				{
 					stuff_phot(&pp, &pSplit);
-					if ((nerr = scatter(&pSplit, ptr_nres, &nnscat, iextract)) != 0)
+					pSplit.np = geo.vr_np--;
+					pSplit.np_parent = pp.np_parent;
+					if ((nerr = scatter(&pSplit, ptr_nres, &nnscat)) != 0)
 					{
 						Error("trans_phot: Bad return from scatter %d on split", nerr);
 					}
@@ -382,7 +384,7 @@ int trans_phot_single(WindPtr w, PhotPtr p, int iextract)
 				}
 			}
 
-			if ((nerr = scatter(&pp, ptr_nres, &nnscat, iextract)) != 0)
+			if ((nerr = scatter(&pp, ptr_nres, &nnscat)) != 0)
 			{
 				Error("trans_phot: Bad return from scatter %d at point 2", nerr);
 			}
@@ -532,12 +534,13 @@ int trans_phot_single(WindPtr w, PhotPtr p, int iextract)
 			break;
 		}
 
+
 		/* This appears partly to be an insurance policy. It is not obvious that for example nscat and nrscat need to be updated */
 		p->istat = istat;
 		p->nscat = pp.nscat;
 		p->nrscat = pp.nrscat;
 		p->w = pp.w;			// Assure that final weight of photon is returned.
-
 	}
+	//printf("PTRACK %d\n",pp.np);
 	return (0);
 }

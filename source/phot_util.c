@@ -69,6 +69,7 @@ stuff_phot (pin, pout)
   pout->np = pin->np;
 
   pout->importance = pin->importance; /* SWM - Copy across importance mapping information */
+  pout->np_parent = pin->np_parent;
   return (0);
 }
 

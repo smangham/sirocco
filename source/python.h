@@ -378,6 +378,7 @@ struct geometry
   /* SWM - Options for variance reduction settings */
   int vr_type, vr_sphere_shells;
   double vr_shell_radius[10], vr_shell_importance[10]; 
+  int vr_np;
   /* 1 = ionisation, 2 = spectrum, 3 = both */
 }
 geo;
@@ -915,6 +916,7 @@ typedef struct photon
   int np;			/*NSH 13/4/11 - an internal pointer to the photon number so 
 				   so we can write out details of where the photon goes */
   double importance; /* SWM - Added for importance mapping */
+  int np_parent; /* SWM - Added for importance mapping. Original parent photon */
 }
 p_dummy, *PhotPtr;
 

@@ -103,6 +103,7 @@ double rtsafe(void (*funcd)(double, double *, double *), double x1, double x2, d
 double golden(double ax, double bx, double cx, double (*f)(double), double tol, double *xmin);
 /* trans_phot.c */
 int trans_phot(WindPtr w, PhotPtr p, int iextract);
+int trans_phot_single(WindPtr w, PhotPtr p, int iextract);
 /* phot_util.c */
 int stuff_phot(PhotPtr pin, PhotPtr pout);
 int move_phot(PhotPtr pp, double ds);
@@ -472,6 +473,7 @@ double get_stellar_params(void);
 int get_disk_params(void);
 int get_bl_and_agn_params(double lstar);
 int get_compton_torus_params(void);
+int get_meta_params(void);
 double setup_dfudge(void);
 int setup_windcone(void);
 int setup_created_files(void);
@@ -484,6 +486,9 @@ int photo_gen_matom(PhotPtr p, double weight, int photstart, int nphot);
 /* macro_gov.c */
 int macro_gov(PhotPtr p, int *nres, int matom_or_kpkt, int *which_out);
 int macro_pops(PlasmaPtr xplasma, double xne);
+/* variance.c */
+int importance_map_sphere(WindPtr w);
+int setup_importance_map(WindPtr w);
 /* py_wind_sub.c */
 int zoom(int direction);
 int overview(WindPtr w, char rootname[]);
@@ -554,4 +559,3 @@ int main(int argc, char *argv[]);
 int one_choice(int choice, char *root, int ochoice);
 int py_wind_help(void);
 /* test_saha.c */
-int main(int argc, char *argv[]);

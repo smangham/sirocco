@@ -944,7 +944,8 @@ main (argc, argv)
           get_extra_diagnostics();
         }
     }
-
+    /* SWM - Get extra non-physics parameters */
+    get_meta_params();
 
 
   /* Wrap up and save all the inputs */
@@ -981,7 +982,7 @@ main (argc, argv)
   // Do not reinit if you want to use old windfile
 
   w = wmain;
-  
+
   /* SWM - Set importance map for wind */
   if(geo.vr_type > 0)
 	  setup_importance_map(w);

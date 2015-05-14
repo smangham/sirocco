@@ -966,7 +966,7 @@ get_meta_params (void)
 
   geo.vr_type = 0;
   rdint("vr.type", &geo.vr_type);
-  if(vr.type > 0 && geo.coord_type == 0)
+  if(geo.vr_type > 0 && geo.coord_type == 0)
   {
     geo.vr_sphere_shells = 1;
     rdint("vr.sphere_shells", &geo.vr_sphere_shells);
@@ -980,10 +980,10 @@ get_meta_params (void)
 
     for(i=0; i<geo.vr_sphere_shells; i++)
     {
-      rdint("vr.shell_radius", &geo.vr_shell_radius[i]);
-      rdint("vr.shell_importance", &geo.vr_shell_importance[i+1]);
+      rddoub("vr.shell_radius", &geo.vr_shell_radius[i]);
+      rddoub("vr.shell_importance", &geo.vr_shell_importance[i+1]);
     }
-    geo.vr_shell_radius[i+1] = geo.rmax;
+    geo.vr_shell_radius[geo.vr_sphere_shells] = geo.rmax*10.0;
 
   }
   return (0);
