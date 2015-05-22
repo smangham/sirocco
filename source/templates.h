@@ -487,6 +487,8 @@ int photo_gen_matom(PhotPtr p, double weight, int photstart, int nphot);
 int macro_gov(PhotPtr p, int *nres, int matom_or_kpkt, int *which_out);
 int macro_pops(PlasmaPtr xplasma, double xne);
 /* variance.c */
+int importance_map_iterate(WindPtr w);
+int importance_map_2d_blank(WindPtr w);
 int importance_map_sphere(WindPtr w);
 int setup_importance_map(WindPtr w);
 /* py_wind_sub.c */

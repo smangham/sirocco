@@ -295,6 +295,8 @@ main (argc, argv)
 
   Log_set_verbosity (verbosity);
 
+  /* SWM - Added enum for current program step */
+  program_step = STEP_GET_PARAMS;
 
   restart_stat = 0;
   time_max = -1;
@@ -662,6 +664,11 @@ main (argc, argv)
 	    }
 	}
     }
+
+
+
+  /* SWM - now we've finished readin */
+  program_step = STEP_SETUP;
 
   /* 121219 NSH Set up DFUDGE to be a value that makes some kind of sense
   given the scale of the wind. Up till py74b2 it was set to be fixed at
@@ -1076,7 +1083,9 @@ main (argc, argv)
 				       */
     }
 
-  
+ 
+  /* SWM - now we've finished readin */
+  program_step = STEP_IONISATION;
 
   while (geo.wcycle < geo.wcycles)
     {				/* This allows you to build up photons in bunches */
@@ -1321,7 +1330,9 @@ main (argc, argv)
 #endif
 
 
-
+      /* SWM - Iterate importance map for wind */
+	  if(rank_global==0 && (geo.vr_type==VR_IONISATION || geo.vr_type==VR_BOTH_CYCLES))
+	  	importance_map_iterate(w);
 
       check_time (files.root);
       Log_flush ();		/*Flush the logfile */
@@ -1411,6 +1422,10 @@ main (argc, argv)
       spectrum_restart_renormalise(nangles);  
     }
 
+
+
+  /* SWM - now we've finished readin */
+  program_step = STEP_SPECTRUM;
 
   while (geo.pcycle < geo.pcycles)
     {				/* This allows you to build up photons in bunches */
@@ -1514,6 +1529,10 @@ main (argc, argv)
 /* XXXX -- END CYCLE TO CALCULATE DETAILED SPECTRUM */
 
   phot_gen_sum (files.phot, "a");
+
+
+  /* SWM - now we've finished spectrum */
+  program_step = STEP_FINISH;
 
 /* 57h - 07jul -- ksl -- Write out the freebound information */
 

@@ -57,98 +57,120 @@ History:
 FILE *pltptr;
 int plinit = 0;
 
-int trans_phot(WindPtr w, PhotPtr p, int iextract	/* 0 means do not extract along specific angles; nonzero implies to extract */
-	)
+int 
+trans_phot (
+    WindPtr w,
+    PhotPtr p,
+    int iextract		/* 0 means do not extract along specific angles; nonzero implies to extract */
+)
+
 {
-	int nphot;
-	double dot();
-	int translate();
-	int n;
-	struct photon pp;
-	double get_ion_density();
-	int nnscat;
-	int nerr;
+  int nphot;
+  double dot ();
+  int translate ();
+  int n;
+  struct photon pp, pextract;
+  double get_ion_density ();
+  int nnscat;
+  int disk_illum;
+  int nerr;
+  double p_norm, tau_norm;
 
-	n = 0;						// To avoid -O3 warning
 
-	/* 05jul -- not clear whether this is needed and why it is different from DEBUG */
-	/* 1411 -- JM -- Debug usage has been altered. See #111, #120 */
+  n = 0;			// To avoid -O3 warning
 
-	if (modes.track_resonant_scatters && plinit == 0)
+  /* 05jul -- not clear whether this is needed and why it is different from DEBUG */
+  /* 1411 -- JM -- Debug usage has been altered. See #111, #120 */
+
+  if (modes.track_resonant_scatters && plinit == 0)
+    {
+      pltptr = fopen ("python.xyz", "w");
+      plinit = 1;
+    }
+
+
+  /* 130624 -- ksl - Chaanged the way the watchdog timeer works, so that it does not continually add to what is printed out, but 
+     overwrites it.  The printf statemen below is just so th we do not overwrite the last line before the routine is entered.
+     Note tha fprintf(stdeerr is required because stderr is flused immediately, whereas printf is normally only flushed by \n.
+     NOte that I also increased the interval where items are bing printed out to 50,000, so this would be a bit less active */
+  /* 130718 -- jm -for the moment I've changed this back, as we agreed that printing to stderr was bad practice. */
+
+
+  Log ("\n");
+
+  for (nphot = 0; nphot < NPHOT; nphot++)
+    {
+
+      // This is just a watchdog method to tell the user the program is still running
+      // 130306 - ksl since we don't really care what the frequencies are any more
+      if (nphot % 50000 == 0)
+	// OLD 130718 fprintf (stderr, "\rPhoton %7d of %7d or %6.3f per cent ", nphot, NPHOT,
+	Log ("Photon %7d of %7d or %6.3f per cent \n", nphot, NPHOT,
+	     nphot * 100. / NPHOT);
+
+      Log_flush ();		/* NSH June 13 Added call to flush logfile */
+
+      /* 74a_ksl Check that the weights are real */
+
+      if (sane_check (p[nphot].w))
 	{
-		pltptr = fopen("python.xyz", "w");
-		plinit = 1;
+	  Error ("trans_phot:sane_check photon %d has weight %e\n", nphot,
+		 p[nphot].w);
+	}
+      /* Next block added by SS Jan 05 - for anisotropic scattering with extract we want to be sure that everything is
+         initialised (by scatter?) before calling extract for macro atom photons. Insert this call to scatter which should do
+         this. */
+
+
+      if (geo.rt_mode == 2 && geo.scatter_mode == 1)
+	{
+	  if (p[nphot].origin == PTYPE_WIND)
+	    {
+	      if (p[nphot].nres > -1 && p[nphot].nres < NLINES)
+		{
+		  geo.rt_mode = 1;
+		  /* 74a_ksl Check to see when a photon weight is becoming unreal */
+		  if (sane_check (p[nphot].w))
+		    {
+		      Error
+			("trans_phot:sane_check photon %d has weight %e before scatter\n",
+			 nphot, p[nphot].w);
+		    }
+		  if ((nerr =
+		       scatter (&p[nphot], &p[nphot].nres, &nnscat)) != 0)
+		    {
+		      Error
+			("trans_phot: Bad return from scatter %d at point 1",
+			 nerr);
+		    }
+		  /* 74a_ksl Check to see when a photon weight is becoming unreal */
+		  if (sane_check (p[nphot].w))
+		    {
+		      Error
+			("trans_phot:sane_check photon %d has weight %e aftger scatter\n",
+			 nphot, p[nphot].w);
+		    }
+		  geo.rt_mode = 2;
+		}
+	    }
 	}
 
 
-	/* 130624 -- ksl - Chaanged the way the watchdog timeer works, so that it does not continually add to what is printed out, but
-	   overwrites it.  The printf statemen below is just so th we do not overwrite the last line before the routine is entered. Note 
-	   tha fprintf(stdeerr is required because stderr is flused immediately, whereas printf is normally only flushed by \n. NOte
-	   that I also increased the interval where items are bing printed out to 50,000, so this would be a bit less active */
-	/* 130718 -- jm -for the moment I've changed this back, as we agreed that printing to stderr was bad practice. */
 
 
-	Log("\n");
 
-	for (nphot = 0; nphot < NPHOT; nphot++)
-	{
+      stuff_phot (&p[nphot], &pp);
+	  p[nphot].importance = 1.0;
+      p[nphot].np = nphot;
+      p[nphot].np_parent = nphot;
+      trans_phot_single (w, &p[nphot], iextract);
 
-		// This is just a watchdog method to tell the user the program is still running
-		// 130306 - ksl since we don't really care what the frequencies are any more
-		if (nphot % 50000 == 0)
-			// OLD 130718 fprintf (stderr, "\rPhoton %7d of %7d or %6.3f per cent ", nphot, NPHOT,
-			Log("Photon %7d of %7d or %6.3f per cent \n", nphot, NPHOT, nphot * 100. / NPHOT);
+    }
+  /* This is the end of the loop over all of the photons; after this the routine returns */
+  // 130624 ksl Line added to complete watchdog timeer,
+  Log ("\n\n");
 
-		Log_flush();			/* NSH June 13 Added call to flush logfile */
-
-		/* 74a_ksl Check that the weights are real */
-
-		if (sane_check(p[nphot].w))
-		{
-			Error("trans_phot:sane_check photon %d has weight %e\n", nphot, p[nphot].w);
-		}
-		/* Next block added by SS Jan 05 - for anisotropic scattering with extract we want to be sure that everything is
-		   initialised (by scatter?) before calling extract for macro atom photons. Insert this call to scatter which should do
-		   this. */
-
-
-		if (geo.rt_mode == 2 && geo.scatter_mode == 1)
-		{
-			if (p[nphot].origin == PTYPE_WIND)
-			{
-				if (p[nphot].nres > -1 && p[nphot].nres < NLINES)
-				{
-					geo.rt_mode = 1;
-					/* 74a_ksl Check to see when a photon weight is becoming unreal */
-					if (sane_check(p[nphot].w))
-					{
-						Error("trans_phot:sane_check photon %d has weight %e before scatter\n", nphot, p[nphot].w);
-					}
-					if ((nerr = scatter(&p[nphot], &p[nphot].nres, &nnscat)) != 0)
-					{
-						Error("trans_phot: Bad return from scatter %d at point 1", nerr);
-					}
-					/* 74a_ksl Check to see when a photon weight is becoming unreal */
-					if (sane_check(p[nphot].w))
-					{
-						Error("trans_phot:sane_check photon %d has weight %e aftger scatter\n", nphot, p[nphot].w);
-					}
-					geo.rt_mode = 2;
-				}
-			}
-		}
-
-		p[nphot].np = nphot;
-		p[nphot].np_parent = nphot;
-		p[nphot].importance = 1.0;
-		stuff_phot(&p[nphot], &pp);
-		trans_phot_single(w, &p[nphot], iextract);
-	}
-	/* This is the end of the loop over all of the photons; after this the routine returns */
-	// 130624 ksl Line added to complete watchdog timeer,
-	Log("\n\n");
-
-	return (0);
+  return (0);
 }
 
 int trans_phot_single(WindPtr w, PhotPtr p, int iextract)
@@ -166,6 +188,8 @@ int trans_phot_single(WindPtr w, PhotPtr p, int iextract)
 	int nnscat;
 	int nerr;
 	double p_norm, tau_norm;
+
+	n=0;
 
 	/* Initialize parameters that are needed for the flight of the photon through the wind */
 	stuff_phot(p, &pp);
@@ -356,31 +380,36 @@ int trans_phot_single(WindPtr w, PhotPtr p, int iextract)
 			}
 
 
-			/* SWM - Split photon into multiple if importance map suggests so */
-			if(wmain[n].importance > pp.importance)
+			/* SWM - Split photon into multiple if vr active and importance map suggests so */
+			if(geo.vr_type==VR_BOTH_CYCLES || (geo.vr_type==VR_SPECTRUM && geo.ioniz_or_extract==0) ||
+											(geo.vr_type==VR_IONISATION && geo.ioniz_or_extract	  )	)
 			{
-				double rSplit;
-				int iSplit, iSplit_Loop;
-				struct photon pSplit;
-
-				rSplit 			= 	wmain[n].importance / pp.importance;
-				pp.importance 	= 	wmain[n].importance;
-				pp.w 			/= 	rSplit;
-				iSplit 			= 	(int) rSplit;
-				rSplit 			-= 	(double) iSplit;
-				if(rand() / MAXRAND < rSplit) iSplit += 1;
-
-				for(iSplit_Loop = 1; iSplit_Loop < iSplit; iSplit_Loop++)
+				if(wmain[n].importance > pp.importance)
 				{
-					stuff_phot(&pp, &pSplit);
-					pSplit.np = geo.vr_np--;
-					pSplit.np_parent = pp.np_parent;
-					if ((nerr = scatter(&pSplit, ptr_nres, &nnscat)) != 0)
+					double rSplit;
+					int iSplit, iSplit_Loop;
+					struct photon pSplit;
+
+					rSplit 			= 	wmain[n].importance / pp.importance;
+					pp.importance 	= 	wmain[n].importance;
+					pp.w 			/= 	rSplit;
+					iSplit 			= 	(int) rSplit;
+					rSplit 			-= 	(double) iSplit;
+					if(rand() / MAXRAND < rSplit) iSplit += 1;
+					//pp.w 			/= 	(double) iSplit;
+
+					for(iSplit_Loop = 1; iSplit_Loop < iSplit; iSplit_Loop++)
 					{
-						Error("trans_phot: Bad return from scatter %d on split", nerr);
+						stuff_phot(&pp, &pSplit);
+						pSplit.np = geo.vr_np--;
+						pSplit.np_parent = pp.np_parent;
+						if ((nerr = scatter(&pSplit, ptr_nres, &nnscat)) != 0)
+						{
+							Error("trans_phot: Bad return from scatter %d on split", nerr);
+						}
+						pSplit.nscat++;
+						trans_phot_single(w, &pSplit, iextract);
 					}
-					pSplit.nscat++;
-					trans_phot_single(w, &pSplit, iextract);
 				}
 			}
 
@@ -439,7 +468,8 @@ int trans_phot_single(WindPtr w, PhotPtr p, int iextract)
 					line_heat(&plasmamain[wmain[n].nplasma], &pp, nres);
 				}
 
-				if (pp.w < weight_min)
+				//if (pp.w < weight_min)
+				if (pp.w < weight_min) //SWM - Adjusted to stop splitted photons dying too early
 				{
 					istat = pp.istat = P_ABSORB;	/* This photon was absorbed by continuum opacity within the wind */
 					pp.tau = VERY_BIG;

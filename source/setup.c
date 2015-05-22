@@ -963,10 +963,24 @@ int
 get_meta_params (void)
 {
   int i;
+  int iInput;
+
 
   geo.vr_type = 0;
-  rdint("vr.type", &geo.vr_type);
-  if(geo.vr_type > 0 && geo.coord_type == 0)
+  rdint("vr.type", &iInput);
+  switch(iInput){
+    case 0: geo.vr_type = VR_NONE; break;
+    case 1: geo.vr_type = VR_IONISATION; break;
+    case 2: geo.vr_type = VR_SPECTRUM; break;
+    case 3: geo.vr_type = VR_BOTH_CYCLES; break;
+    default: 
+      Error
+      ("get_meta_params: Valid VR types are 0=None, 1=Ionisation, 2=Spectrum or 3=Both\n"); 
+  }
+
+
+
+  if(geo.vr_type != VR_NONE && geo.coord_type == 0)
   {
     geo.vr_sphere_shells = 1;
     rdint("vr.sphere_shells", &geo.vr_sphere_shells);

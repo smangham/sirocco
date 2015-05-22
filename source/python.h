@@ -93,6 +93,17 @@ int NPHOT;			/* As of python_40, NPHOT must be defined in the main program using
 #define NWAVE  			       10000	//Increasing from 4000 to 10000 (SS June 04)
 #define MAXSCAT 			50
 
+
+/* SWM - Define variable for storing current step in program */
+enum program_steps
+{
+  STEP_GET_PARAMS=0,
+  STEP_SETUP,
+  STEP_IONISATION=1,
+  STEP_SPECTRUM=2,
+  STEP_FINISH
+} program_step;
+
 /* Define the structures */
 
 
@@ -376,7 +387,9 @@ struct geometry
   char fixed_con_file[132];	/* 54e -- For fixed concentrations, the file specifying concentrations */
 
   /* SWM - Options for variance reduction settings */
-  int vr_type, vr_sphere_shells;
+  enum {VR_NONE=0, VR_IONISATION=1, VR_SPECTRUM=2, VR_BOTH_CYCLES} vr_type; 
+
+  int vr_sphere_shells;
   double vr_shell_radius[10], vr_shell_importance[10]; 
   int vr_np;
   /* 1 = ionisation, 2 = spectrum, 3 = both */
