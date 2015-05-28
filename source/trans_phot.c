@@ -155,12 +155,77 @@ trans_phot (
 	    }
 	}
 
+	stuff_phot (&p[nphot], &pp);
+     disk_illum = geo.disk_illum;
+	  
+
+
+      if (iextract)
+	{
+	  // SS - for reflecting disk have to make sure disk photons are only extracted once!
+	  if (disk_illum == 1 && p[nphot].origin == PTYPE_DISK)
+	    {
+	      geo.disk_illum = 0;
+	    }
+
+
+	  stuff_phot (&p[nphot], &pextract);
+
+
+	  /* We then increase weight to account for number of scatters. This is done because in extract we multiply by the escape
+	     probability along a given direction, but we also need to divide the weight by the mean escape probability, which is
+	     equal to 1/nnscat */
+	  if (geo.scatter_mode == 2 && pextract.nres <= NLINES
+	      && pextract.nres > 0)
+	    {
+	      /* we normalised our rejection method by the escape probability along the vector of maximum velocity gradient.
+	         First find the sobolev optical depth along that vector */
+	      tau_norm =
+		sobolev (&wmain[pextract.grid], pextract.x, -1.0,
+			 lin_ptr[pextract.nres],
+			 wmain[pextract.grid].dvds_max);
+
+	      /* then turn into a probability */
+	      p_norm = p_escape_from_tau (tau_norm);
+
+	    }
+	  else
+	    {
+	      p_norm = 1.0;
+
+	      /* throw an error if nnscat does not equal 1 */
+	      if (pextract.nnscat != 1)
+		Error
+		  ("nnscat is %i for photon %i in scatter mode %i! nres %i NLINES %i\n",
+		   pextract.nnscat, nphot, geo.scatter_mode, pextract.nres,
+		   NLINES);
+	    }
 
 
 
+	  /* We then increase weight to account for number of scatters. This is done because in extract we multiply by the escape
+	     probability along a given direction, but we also need to divide the weight by the mean escape probability, which is
+	     equal to 1/nnscat */
+	  pextract.w *= p[nphot].nnscat / p_norm;
 
-      stuff_phot (&p[nphot], &pp);
-	  p[nphot].importance = 1.0;
+	  if (sane_check (pextract.w))
+	    {
+	      Error
+		("trans_phot: sane_check photon %d has weight %e before extract\n",
+		 nphot, pextract.w);
+	    }
+	  extract (w, &pextract, pextract.origin);
+
+
+	  // SS if necessary put back the correcy disk illumination
+	  if (disk_illum == 1 && p[nphot].origin == PTYPE_DISK)
+	    {
+	      geo.disk_illum = 1;
+	    }
+	}
+
+
+      p[nphot].importance = 1.0;
       p[nphot].np = nphot;
       p[nphot].np_parent = nphot;
       trans_phot_single (w, &p[nphot], iextract);
@@ -176,14 +241,15 @@ trans_phot (
 int trans_phot_single(WindPtr w, PhotPtr p, int iextract)
 {
 	double tau_scat, tau;
-	int istat;
+	int istat, iSplit, iSplit_Loop;
 	double dot(), rrr;
 	int translate();
-	int icell, disk_illum;
+	int icell;
 	int nres, *ptr_nres;
 	int kkk, n;
 	double weight_min;
-	struct photon pp, pextract;
+	struct photon pp, pextract, pSplit;
+	PhotPtr pScat;
 	double get_ion_density();
 	int nnscat;
 	int nerr;
@@ -198,60 +264,6 @@ int trans_phot_single(WindPtr w, PhotPtr p, int iextract)
 	istat = P_INWIND;
 	tau = 0;
 	icell = 0;
-
-	disk_illum = geo.disk_illum;
-
-	/* The next if statement is executed if we are calculating the detailed spectrum and makes sure we always run extract on the
-	   original photon no matter where it was generated */
-	if (iextract)
-	{
-		// SS - for reflecting disk have to make sure disk photons are only extracted once!
-		if (disk_illum == 1 && p->origin == PTYPE_DISK)
-			geo.disk_illum = 0;
-		stuff_phot(p, &pextract);
-
-
-		/* We then increase weight to account for number of scatters. This is done because in extract we multiply by the escape
-		   probability along a given direction, but we also need to divide the weight by the mean escape probability, which is
-		   equal to 1/nnscat */
-		if (geo.scatter_mode == 2 && pextract.nres <= NLINES && pextract.nres > 0)
-		{
-			/* we normalised our rejection method by the escape probability along the vector of maximum velocity gradient. First
-			   find the sobolev optical depth along that vector */
-			tau_norm = sobolev(&wmain[pextract.grid], pextract.x, -1.0, lin_ptr[pextract.nres], wmain[pextract.grid].dvds_max);
-
-			/* then turn into a probability */
-			p_norm = p_escape_from_tau(tau_norm);
-
-		}
-		else
-		{
-			p_norm = 1.0;
-
-			/* throw an error if nnscat does not equal 1 */
-			if (pextract.nnscat != 1)
-				Error
-					("nnscat is %i for photon %i in scatter mode %i! nres %i NLINES %i\n",
-					 pextract.nnscat, pextract.np, geo.scatter_mode, pextract.nres, NLINES);
-		}
-
-		/* We then increase weight to account for number of scatters. This is done because in extract we multiply by the escape
-		   probability along a given direction, but we also need to divide the weight by the mean escape probability, which is
-		   equal to 1/nnscat */
-		pextract.w *= p->nnscat / p_norm;
-
-		if (sane_check(pextract.w))
-		{
-			Error("trans_phot: sane_check photon %d has weight %e before extract\n", pextract.np, pextract.w);
-		}
-		extract(w, &pextract, pextract.origin);
-
-		// SS if necessary put back the correcy disk illumination
-		if (disk_illum == 1 && pextract.origin == PTYPE_DISK)
-			geo.disk_illum = 1;
-	}
-
-
 
 	/* This is the beginning of the loop for each photon and executes until the photon leaves the wind */
 
@@ -381,168 +393,172 @@ int trans_phot_single(WindPtr w, PhotPtr p, int iextract)
 
 
 			/* SWM - Split photon into multiple if vr active and importance map suggests so */
+			iSplit = 1;
 			if(geo.vr_type==VR_BOTH_CYCLES || (geo.vr_type==VR_SPECTRUM && geo.ioniz_or_extract==0) ||
 											(geo.vr_type==VR_IONISATION && geo.ioniz_or_extract	  )	)
 			{
-				if(wmain[n].importance > pp.importance)
+				if(wmain[n].importance > pp.importance*1.25)
 				{
 					double rSplit;
-					int iSplit, iSplit_Loop;
-					struct photon pSplit;
-
 					rSplit 			= 	wmain[n].importance / pp.importance;
 					pp.importance 	= 	wmain[n].importance;
 					pp.w 			/= 	rSplit;
 					iSplit 			= 	(int) rSplit;
 					rSplit 			-= 	(double) iSplit;
 					if(rand() / MAXRAND < rSplit) iSplit += 1;
-					//pp.w 			/= 	(double) iSplit;
-
-					for(iSplit_Loop = 1; iSplit_Loop < iSplit; iSplit_Loop++)
-					{
-						stuff_phot(&pp, &pSplit);
-						pSplit.np = geo.vr_np--;
-						pSplit.np_parent = pp.np_parent;
-						if ((nerr = scatter(&pSplit, ptr_nres, &nnscat)) != 0)
-						{
-							Error("trans_phot: Bad return from scatter %d on split", nerr);
-						}
-						pSplit.nscat++;
-						trans_phot_single(w, &pSplit, iextract);
-					}
 				}
 			}
 
-			if ((nerr = scatter(&pp, ptr_nres, &nnscat)) != 0)
+			/* SWM - For each scattering photon, run the rest of the block counting down to original */
+			for(iSplit_Loop=iSplit; iSplit_Loop > 0; iSplit_Loop--)
 			{
-				Error("trans_phot: Bad return from scatter %d at point 2", nerr);
-			}
-			pp.nscat++;
-			/* 74a_ksl - Check added to search for error in weights */
-
-			if (sane_check(pp.w))
-			{
-				Error("trans_phot:sane_check photon %d has weight %e after scatter\n", p->np, pp.w);
-			}
-
-			/* SS June 04: During the spectrum calculation cycles, photons are thrown away when they interact with macro atoms or
-			   become k-packets. This is done by setting their weight to zero (effectively they have been absorbed into either
-			   excitation energy or thermal energy). Since they now have no weight there is no need to follow them further. */
-			/* 54b-ksl ??? Stuart do you really mean the comment above; it's not obvious to me since if true why does one need to
-			   calculate the progression of photons through the wind at all??? Also how is this enforced; where is pp.w set to a
-			   low value. */
-			/* JM 1504 -- This is correct. It's one of the odd things about combining the macro-atom approach with our way of doing 
-			   'spectral cycles'. If photons activate macro-atoms they are destroyed, but we counter this by generating photons
-			   from deactivating macro-atoms with the already calculated emissivities. */
-
-			if (geo.matom_radiation == 1 && geo.rt_mode == 2 && pp.w < weight_min)
-				/* Flag for the spectrum calculations in a macro atom calculation SS */
-			{
-				istat = pp.istat = P_ABSORB;
-				pp.tau = VERY_BIG;
-				stuff_phot(&pp, p);
-				break;
-			}
-
-			// Calculate the line heating and if the photon was absorbed break finish up
-			// ??? Need to modify line_heat for multiple scattering but not yet
-			// Condition that nres < nlines added (SS) 
-
-			if (nres > -1 && nres < nlines)
-			{
-				pp.nrscat++;
-
-				/* This next statement writes out the position of every resonant scattering event to a file */
-				if (modes.track_resonant_scatters)
-					fprintf(pltptr,
-							"Photon %i has resonant scatter at %.2e %.2e %.2e in wind cell %i (grid cell=%i). Freq=%e Weight=%e\n",
-							p->np, pp.x[0], pp.x[1], pp.x[2], wmain[n].nplasma, pp.grid, pp.freq, pp.w);
-
-				/* 68a - 090124 - ksl - Increment the number of scatters by this ion in this cell */
-				/* 68c - 090408 - ksl - Changed this to the weight of the photon at the time of the scatter */
-
-				plasmamain[wmain[n].nplasma].scatters[line[nres].nion] += pp.w;
-
-				if (geo.rt_mode == 1)	// only do next line for non-macro atom case
-				{
-					line_heat(&plasmamain[wmain[n].nplasma], &pp, nres);
-				}
-
-				//if (pp.w < weight_min)
-				if (pp.w < weight_min) //SWM - Adjusted to stop splitted photons dying too early
-				{
-					istat = pp.istat = P_ABSORB;	/* This photon was absorbed by continuum opacity within the wind */
-					pp.tau = VERY_BIG;
-					stuff_phot(&pp, p);
-					break;
-				}
-			}
-
-
-			/* The next if statement causes photons to be extracted during the creation of the detailed spectrum portion of the
-			   program */
-
-			/* N.B. To use the anisotropic scattering option, extract needs to follow scatter.  This is because the reweighting
-			   which occurs in extract needs the pdf for scattering to have been initialized. 02may ksl.  This seems to be OK at
-			   present. */
-
-			if (iextract)
-			{
-				stuff_phot(&pp, &pextract);
-
-
-				/* JM 1407 -- This next loop is required because in anisotropic scattering mode 2 we have normalised our rejection
-				   method. This means that we have to adjust nnscat by this factor, since nnscat will be lower by a factor of
-				   1/p_norm */
-				if (geo.scatter_mode == 2 && pextract.nres <= NLINES && pextract.nres > 0)
-				{
-					/* we normalised our rejection method by the escape probability along the vector of maximum velocity gradient.
-					   First find the sobolev optical depth along that vector */
-					tau_norm =
-						sobolev(&wmain[pextract.grid], pextract.x, -1.0, lin_ptr[pextract.nres], wmain[pextract.grid].dvds_max);
-
-					/* then turn into a probability */
-					p_norm = p_escape_from_tau(tau_norm);
-
+				if(iSplit_Loop>1)
+				{	/* If any extra photons were created, set them up then run them first */
+					stuff_phot(&pp, &pSplit);
+					pSplit.np = geo.vr_np--;
+					pSplit.np_parent = pp.np_parent;
+					pScat = &pSplit;
 				}
 				else
-				{
-					p_norm = 1.0;
-
-					/* throw an error if nnscat does not equal 1 */
-					/* JM 1504-- originally I'd used the wrong value of nnscat here. This would throw large amounts of errors which 
-					   weren't actually errors */
-					/* nnscat is the quantity associated with this photon being extracted */
-					if (nnscat != 1)
-						Error
-							("nnscat is %i for photon %i in scatter mode %i! nres %i NLINES %i\n",
-							 nnscat, p->np, geo.scatter_mode, pextract.nres, NLINES);
+				{	/* Finally, run original photon */
+					pScat = &pp;
 				}
 
-				/* We then increase weight to account for number of scatters. This is done because in extract we multiply by the
-				   escape probability along a given direction, but we also need to divide the weight by the mean escape
-				   probability, which is equal to 1/nnscat */
-				pextract.w *= nnscat / p_norm;
-
-				if (sane_check(pextract.w))
+				if ((nerr = scatter(pScat, ptr_nres, &nnscat)) != 0)
 				{
-					Error("trans_phot: sane_check photon %d has weight %e before extract\n", p->np, pextract.w);
+					Error("trans_phot: Bad return from scatter %d at point 2", nerr);
 				}
-				extract(w, &pextract, PTYPE_WIND);	// Treat as wind photon for purpose of extraction
+				pScat->nscat++;
+				/* 74a_ksl - Check added to search for error in weights */
+
+				if (sane_check(pScat->w))
+				{
+					Error("trans_phot:sane_check photon %d has weight %e after scatter\n", pScat->np, pScat->w);
+				}
+
+				/* SS June 04: During the spectrum calculation cycles, photons are thrown away when they interact with macro atoms or
+				   become k-packets. This is done by setting their weight to zero (effectively they have been absorbed into either
+				   excitation energy or thermal energy). Since they now have no weight there is no need to follow them further. */
+				/* 54b-ksl ??? Stuart do you really mean the comment above; it's not obvious to me since if true why does one need to
+				   calculate the progression of photons through the wind at all??? Also how is this enforced; where is pp.w set to a
+				   low value. */
+				/* JM 1504 -- This is correct. It's one of the odd things about combining the macro-atom approach with our way of doing 
+				   'spectral cycles'. If photons activate macro-atoms they are destroyed, but we counter this by generating photons
+				   from deactivating macro-atoms with the already calculated emissivities. */
+
+				if (geo.matom_radiation == 1 && geo.rt_mode == 2 && pScat->w < weight_min)
+					/* Flag for the spectrum calculations in a macro atom calculation SS */
+				{
+					istat = pp.istat = P_ABSORB;
+					pScat->tau = VERY_BIG;
+					if(pScat == &pp) stuff_phot(&pp, p);
+					break;
+				}
+
+				// Calculate the line heating and if the photon was absorbed break finish up
+				// ??? Need to modify line_heat for multiple scattering but not yet
+				// Condition that nres < nlines added (SS) 
+
+				if (nres > -1 && nres < nlines)
+				{
+					pScat->nrscat++;
+
+					/* This next statement writes out the position of every resonant scattering event to a file */
+					if (modes.track_resonant_scatters)
+						fprintf(pltptr,
+								"Photon %i has resonant scatter at %.2e %.2e %.2e in wind cell %i (grid cell=%i). Freq=%e Weight=%e\n",
+								pScat->np, pScat->x[0], pScat->x[1], pScat->x[2], 
+								wmain[n].nplasma, pScat->grid, pScat->freq, pScat->w);
+
+					/* 68a - 090124 - ksl - Increment the number of scatters by this ion in this cell */
+					/* 68c - 090408 - ksl - Changed this to the weight of the photon at the time of the scatter */
+
+					plasmamain[wmain[n].nplasma].scatters[line[nres].nion] += pScat->w;
+
+					if (geo.rt_mode == 1)	// only do next line for non-macro atom case
+					{
+						line_heat(&plasmamain[wmain[n].nplasma], pScat, nres);
+					}
+
+					//if (pp.w < weight_min)
+					if (pScat->w < weight_min) //SWM - Adjusted to stop splitted photons dying too early
+					{
+						istat = pScat->istat = P_ABSORB;	/* This photon was absorbed by continuum opacity within the wind */
+						pScat->tau = VERY_BIG;
+						if(pScat == &pp) stuff_phot(&pp, p);
+						break;
+					}
+				}
+
+
+				/* The next if statement causes photons to be extracted during the creation of the detailed spectrum portion of the
+				   program */
+
+				/* N.B. To use the anisotropic scattering option, extract needs to follow scatter.  This is because the reweighting
+				   which occurs in extract needs the pdf for scattering to have been initialized. 02may ksl.  This seems to be OK at
+				   present. */
+
+				if (iextract)
+				{
+					stuff_phot(pScat, &pextract);
+
+
+					/* JM 1407 -- This next loop is required because in anisotropic scattering mode 2 we have normalised our rejection
+					   method. This means that we have to adjust nnscat by this factor, since nnscat will be lower by a factor of
+					   1/p_norm */
+					if (geo.scatter_mode == 2 && pextract.nres <= NLINES && pextract.nres > 0)
+					{
+						/* we normalised our rejection method by the escape probability along the vector of maximum velocity gradient.
+						   First find the sobolev optical depth along that vector */
+						tau_norm =
+							sobolev(&wmain[pextract.grid], pextract.x, -1.0, lin_ptr[pextract.nres], wmain[pextract.grid].dvds_max);
+
+						/* then turn into a probability */
+						p_norm = p_escape_from_tau(tau_norm);
+
+					}
+					else
+					{
+						p_norm = 1.0;
+
+						/* throw an error if nnscat does not equal 1 */
+						/* JM 1504-- originally I'd used the wrong value of nnscat here. This would throw large amounts of errors which 
+						   weren't actually errors */
+						/* nnscat is the quantity associated with this photon being extracted */
+						if (nnscat != 1)
+							Error
+								("nnscat is %i for photon %i in scatter mode %i! nres %i NLINES %i\n",
+								 nnscat, pScat->np, geo.scatter_mode, pextract.nres, NLINES);
+					}
+
+					/* We then increase weight to account for number of scatters. This is done because in extract we multiply by the
+					   escape probability along a given direction, but we also need to divide the weight by the mean escape
+					   probability, which is equal to 1/nnscat */
+					pextract.w *= nnscat / p_norm;
+
+					if (sane_check(pextract.w))
+					{
+						Error("trans_phot: sane_check photon %d has weight %e before extract\n", pScat->np, pextract.w);
+					}
+					extract(w, &pextract, PTYPE_WIND);	// Treat as wind photon for purpose of extraction
+				}
+
+				/* 	SWM - If this is the parent photon, finish scatter and continue. Otherwise, recurse on child photon  */
+				if(pScat == &pp)
+				{
+					/* OK we are ready to continue the processing of a photon which has scattered. The next steps reinitialize parameters
+					   so that the photon can continue throug the wind */
+					tau_scat = -log(1. - (rand() + 0.5) / MAXRAND);
+					istat = P_INWIND;
+					tau = 0;
+					reposition(w, pScat);
+					icell = 0;
+					stuff_phot(&pp, p);
+				}
+				else
+					trans_phot_single(w, &pSplit,  iextract);
+				
 			}
-
-
-
-
-			/* OK we are ready to continue the processing of a photon which has scattered. The next steps reinitialize parameters
-			   so that the photon can continue throug the wind */
-
-			tau_scat = -log(1. - (rand() + 0.5) / MAXRAND);
-			istat = P_INWIND;
-			tau = 0;
-			reposition(w, &pp);
-			stuff_phot(&pp, p);
-			icell = 0;
 		}
 
 

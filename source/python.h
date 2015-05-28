@@ -94,16 +94,6 @@ int NPHOT;			/* As of python_40, NPHOT must be defined in the main program using
 #define MAXSCAT 			50
 
 
-/* SWM - Define variable for storing current step in program */
-enum program_steps
-{
-  STEP_GET_PARAMS=0,
-  STEP_SETUP,
-  STEP_IONISATION=1,
-  STEP_SPECTRUM=2,
-  STEP_FINISH
-} program_step;
-
 /* Define the structures */
 
 
@@ -532,7 +522,7 @@ typedef struct wind
   int inwind;			/* 061104 -- 58b -- ksl -- Moved definitions of for whether a cell is or is not
 				   inwind to #define statements above */
 
-  double importance; /* SWM - Added for importance mapping */
+  double importance, weight_min, weight_max; /* SWM - Added for importance mapping */
 }
 wind_dummy, *WindPtr;
 
