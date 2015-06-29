@@ -522,7 +522,7 @@ typedef struct wind
   int inwind;			/* 061104 -- 58b -- ksl -- Moved definitions of for whether a cell is or is not
 				   inwind to #define statements above */
 
-  double importance, weight_min, weight_max; /* SWM - Added for importance mapping */
+  double importance, weight_min, weight_max, imp_inc; /* SWM - Added for importance mapping */
 }
 wind_dummy, *WindPtr;
 

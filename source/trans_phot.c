@@ -265,6 +265,10 @@ int trans_phot_single(WindPtr w, PhotPtr p, int iextract)
 	tau = 0;
 	icell = 0;
 
+	/* SWM - Used for importance mapping */
+	int grid_last = 0;
+
+
 	/* This is the beginning of the loop for each photon and executes until the photon leaves the wind */
 
 	while (istat == P_INWIND)
@@ -282,6 +286,9 @@ int trans_phot_single(WindPtr w, PhotPtr p, int iextract)
 		istat = translate(w, &pp, tau_scat, &tau, &nres);
 		/* nres is the resonance at which the photon was stopped.  At present the same value is also stored in pp->nres, but I have 
 		   not yet eliminated it from translate. ?? 02jan ksl */
+
+		if((p->grid = where_in_grid (p->x)) != grid_last) w[p->grid].imp_inc += (1.0/p->importance);
+		grid_last = p->grid;
 
 		icell++;
 		istat = walls(&pp, p);
