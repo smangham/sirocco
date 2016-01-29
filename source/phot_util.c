@@ -60,6 +60,11 @@ stuff_phot (pin, pout)
   pout->lmn[1] = pin->lmn[1];
   pout->lmn[2] = pin->lmn[2];
 
+  pout->xorig[0] = pin->xorig[0];
+  pout->xorig[1] = pin->xorig[1];
+  pout->xorig[2] = pin->xorig[2];
+
+
   pout->istat = pin->istat;
   pout->nres = pin->nres;
   pout->nrscat = pin->nrscat;

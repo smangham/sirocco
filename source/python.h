@@ -868,6 +868,7 @@ double wind_midz_var[NDIM_MAX][NDIM_MAX];
 
 typedef struct photon
 {
+  double xorig[3];  // DEBUG
   double x[3];			/* Vector containing position of packet */
   double lmn[3];		/*direction cosines of this packet */
   double freq, freq_orig;    /* current and original frequency of this packet */

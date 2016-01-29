@@ -458,7 +458,7 @@ wind_paths_evaluate(WindPtr wind)
 	for (i = 0; i < NDIM * MDIM; i++)
 	{	//For each cell in the wind
 		if (wind[i].inwind >= 0)
-		{	//If this is a wind cel;, evaluate each of the path histograms
+		{	//If this is a wind cell;, evaluate each of the path histograms
 			wind_paths_evaluate_single(wind[i].paths);
 			for(j = 0; j < geo.reverb_lines; j++)
 				wind_paths_evaluate_single(wind[i].line_paths[j]);
