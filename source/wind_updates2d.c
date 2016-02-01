@@ -180,6 +180,7 @@ WindPtr (w);
 
       nwind = plasmamain[n].nwind;
       volume = w[nwind].vol;
+
       //volume = plasmamain[n].vol; 	// 1411 JM -- we want volume to be the filled volume
       //1504 -- JM No we don't! The mean intensity shouldn't change if we *just* clump
 

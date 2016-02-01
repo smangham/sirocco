@@ -315,14 +315,25 @@ adiabatic_cooling (one, t)
      double t;
 {
   double cooling;
-  int nplasma;
+  int nplasma, nion;
+  double nparticles;
   PlasmaPtr xplasma;
 
   nplasma = one->nplasma;
   xplasma = &plasmamain[nplasma];
 
   //JM 1401 -- here was an old factor of 3/2 which KSL and JM believe to be incorrect. 
-  cooling = xplasma->ne * BOLTZMANN * t * xplasma->vol * one->div_v;
+  //JM 1601 -- this should include the pressure from all particles, rather than just ne
+  //cooling = xplasma->ne * BOLTZMANN * t * xplasma->vol * one->div_v;
+  nparticles = xplasma->ne;
+
+  for (nion = 0; nion < nions; nion++)
+  {
+  	/* loop over all ions as they all contribute to the pressure */
+  	nparticles += xplasma->density[nion];
+  }
+
+  cooling = nparticles * BOLTZMANN * t * xplasma->vol * one->div_v;
 
   return (cooling);
 }

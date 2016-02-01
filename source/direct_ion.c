@@ -89,8 +89,13 @@ compute_qrecomb_coeffs(T)
   int n, nvmin, ntmin;
   struct topbase_phot *xtop;
 
-  for (n = 0; n < nions; n++)
+  for (n = 0; n < nions; n++) //We need to generate data for the ions doing the recombining.
     {
+      /* There is only any point doing this is we are not a neutral ion */
+
+      if (ion[n].istate > 1)  //There is only any point doing this is we are not a neutral ion
+    {
+
       if (ion[n].dere_di_flag == 0)
   {
     //printf ("NO COEFFS\n");
@@ -100,24 +105,30 @@ compute_qrecomb_coeffs(T)
       else
   {
     /* we need to know about the bound-free jump, so we need the details
-       from the ground state cross-section for this ion */
+       from the ground state cross-section for for the ion below this one */
 
-    ntmin = ion[n].ntop_ground;  /* We only ever use the ground state cont_ptr. 
-                                       This is for topbase */
-    nvmin = ion[n].nxphot;
+    ntmin = ion[n-1].ntop_ground;  /* We only ever use the ground state cont_ptr. 
+                                      This is for topbase */
+    nvmin = ion[n-1].nxphot;
 
-    if (ion[n].phot_info > 0)  //topbase or hybrid VFKY (GS)+TB excited
+    if (ion[n-1].phot_info > 0)  //topbase or hybrid VFKY (GS)+TB excited
       { 
         xtop = &phot_top[ntmin];
       }
-    else if (ion[n].phot_info == 0)  // verner
+    else if (ion[n-1].phot_info == 0)  // verner
       {   //just the ground state ionization fraction.
         xtop = &phot_top[nvmin];
       }
-
+    else
+      {
+        Error ("compute_qrecomb_coeffs: no coll ionization data for ion %i\n",n-1);
+      }
+    
+    /* this will return 0 if there aren't any coeffs */
     qrecomb_coeffs[n] = q_recomb_dere(xtop, T);
   }
 
+    }   //End of if statement for neutral ions
     }   //End of loop over ions
 
   return (0);
@@ -337,6 +348,7 @@ q_recomb_dere (cont_ptr, electron_temperature)
   int nion;
   double u0;
   double gaunt, coeff;
+  double root_etemp;
 
   gaunt = 0.1;      //for now - from Mihalas for hydrogen
   u0 = cont_ptr->freq[0] * H_OVER_K / electron_temperature;
@@ -345,14 +357,30 @@ q_recomb_dere (cont_ptr, electron_temperature)
      only do this if it is the ground state */
   if (ion[nion].dere_di_flag == 1 && config[cont_ptr->nlev].ilv == 1)
     {
-      coeff = 2.07e-16 * config[cont_ptr->nlev].g / config[cont_ptr->uplev].g;
+      root_etemp = sqrt(electron_temperature);     
+      coeff = 2.07e-16 / (root_etemp * root_etemp * root_etemp);
+
+      /* the original way of getting mutilplicity doesn't work for non-matoms, 
+         because uplevel isn't identified */
+      //coeff *= config[cont_ptr->nlev].g / config[cont_ptr->uplev].g;
+
+      /* JM/NSH XXX -- This is the multiplicity of the ground states. 
+         Should be of order 1 so it may be better to just leave it out, 
+         since the collisional ionization cross section is doubtless 
+         averaged over upper states... */   
+      coeff *= ion[nion].g / ion[nion+1].g;   
+  
       coeff *= exp(u0);
       coeff *= q_ioniz_dere(nion, electron_temperature);
 
+
       /* do a sane check here, as there's an exponential which could blow up */
       if (sane_check(coeff))
-        Error("q_recomb is %8.4e for ion %i at temperature %8.4e\n",
+      {
+        Error("q_recomb is %8.4e for ion %i at temperature %8.4e, setting to zero\n",
                coeff, nion, electron_temperature);
+        coeff = 0.0;
+      }
     }
   else 
     coeff = 0.0;
@@ -370,7 +398,7 @@ JM 1301 -- Edited this to avoid need to call q_ioniz and exponential.
 Should improve speed and stability
 
 This equation comes from considering TE and getting the expression
-q_recomb = 2.07e-16 * gl/gu * exp(E/kT) * q_ioniz
+q_recomb = 2.07e-16 * gl/gu * exp(E/kT) * (T_e**-3/2) * q_ioniz
 then substituting the above expression for q_ioniz.
 */
 

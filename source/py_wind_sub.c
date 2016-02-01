@@ -1997,6 +1997,29 @@ IP_summary (w, rootname, ochoice)
 
     }
 
+
+  /* JM added printout for xi too */
+  for (n = 0; n < NDIM2; n++)
+    {
+      aaa[n] = 0;
+      if (w[n].vol > 0.0)
+  {
+    nplasma = w[n].nplasma;
+    aaa[n] = ((plasmamain[nplasma].xi));
+  }
+    }
+  display ("Xi Ionization parameter");
+
+  if (ochoice)
+    {
+      strcpy (filename, rootname);
+      strcat (filename, ".xi");
+      write_array (filename, ochoice);
+
+    }
+
+
+
   for (n = 0; n < NDIM2; n++)
     {
       aaa[n] = 0;
@@ -3306,6 +3329,7 @@ ionH1\tionH2\tionHe1\tionHe2\tionHe3\tionC3\tionC4\tionC5\tionN5\tionO6\tionSi4\
 
   if (ochoice)
   {
+
     fclose (fptr);
     printf("\nSaved summary of physical quantites in %s, use py_read_output.py to read\n",
           filename);
