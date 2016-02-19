@@ -506,7 +506,7 @@ double get_rand_brem(double freqmin, double freqmax);
 double delay_to_observer(PhotPtr pp);
 int delay_dump_prep(char filename[], int restart_stat, int i_rank);
 int delay_dump_finish(void);
-int delay_dump_combine(int iRanks);
+int delay_dump_combine(int i_ranks);
 int delay_dump(PhotPtr p, int np, int iExtracted);
 int delay_dump_single(PhotPtr pp, int extract_phot);
 /* paths.c */
@@ -524,6 +524,7 @@ int wind_paths_evaluate(WindPtr wind);
 int wind_paths_dump(WindPtr wind);
 int wind_paths_output_dump(WindPtr wind);
 int wind_paths_point_index(int i, int j, int k, int i_top);
+int wind_paths_sphere_point_index(int i, int j, int k);
 int wind_paths_output_vtk(WindPtr wind, char c_file_in[], int nangles);
 /* py_wind_sub.c */
 int zoom(int direction);
@@ -594,4 +595,3 @@ int level_tauoverview(int nlev, WindPtr w, char rootname[], int ochoice);
 int main(int argc, char *argv[]);
 int one_choice(int choice, char *root, int ochoice);
 int py_wind_help(void);
-/* test_saha.c */
