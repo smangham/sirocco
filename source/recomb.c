@@ -165,10 +165,20 @@ fb_topbase_partial (freq)
     return (0.0);		// No recombination at frequencies lower than the threshold freq occur
 
   nion = fb_xtop->nion;
-  gn = config[fb_xtop->nlev].g;
+
+  /* JM -- below lines to address bug #195 */
+  if (ion[nion].phot_info > 0)	// it's a topbase record
+    gn = config[fb_xtop->nlev].g;
+  else if (ion[nion].phot_info == 0)	// it's a VFKY record, so shouldn't really use levels
+  	gn = ion[nion].g;
+  else
+  	Error("fb_topbase_partial: Did not understand cross-section type %i for ion %i. Setting multiplicity to zero!\n",
+  		   ion[nion].phot_info, nion);
+
+
   gion = ion[nion + 1].g;	// Want the g factor of the next ion up
   x = sigma_phot (fb_xtop, freq);
-// Now calculate emission using Ferland's expression
+  // Now calculate emission using Ferland's expression
 
 
   partial =
@@ -178,7 +188,7 @@ fb_topbase_partial (freq)
 
 
 
-// 0=emissivity, 1=heat loss from electrons, 2=photons emissivity
+  // 0=emissivity, 1=heat loss from electrons, 2=photons emissivity
   if (fbfr == 1)
     partial *= (freq - fthresh) / freq;
   else if (fbfr == 2)

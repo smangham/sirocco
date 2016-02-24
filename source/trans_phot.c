@@ -307,10 +307,8 @@ trans_phot_single (WindPtr w, PhotPtr p, int iextract)
 
 
   /* This is the beginning of the loop for each photon and executes until the photon leaves the wind */
-
   while (istat == P_INWIND)
     {
-
       /* translate involves only a single shell (or alternatively a single tranfer in the windless region). istat as returned by
          should either be 0 in which case the photon hit the other side of the shell without scattering or 1 in which case there 
          was a scattering event in the shell, 2 in which case the photon reached the outside edge of the grid and escaped, 3 in 
