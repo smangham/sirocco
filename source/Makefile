@@ -113,7 +113,7 @@ LDFLAGS= -L$(LIB) -lm -lcfitsio -lgsl -lgslcblas
 #Note that version should be a single string without spaces. 
 
 
-VERSION = 80
+VERSION = 80a
 
 CHOICE=1             // Compress plasma as much as possible
 # CHOICE=0           //  Keep relation between plasma and wind identical

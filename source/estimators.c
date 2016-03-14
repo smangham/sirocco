@@ -87,7 +87,7 @@ bf_estimators_increment (one, p, ds)
    */
   if (modes.save_cell_stats && ncstat > 0)
     {
-      save_photon_stats(one, p, ds);  // save photon statistics (extra diagnostics)
+      save_photon_stats(one, p, ds,p->w);  // save photon statistics (extra diagnostics)
     }
 
 

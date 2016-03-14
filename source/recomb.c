@@ -172,8 +172,11 @@ fb_topbase_partial (freq)
   else if (ion[nion].phot_info == 0)	// it's a VFKY record, so shouldn't really use levels
   	gn = ion[nion].g;
   else
+  {
   	Error("fb_topbase_partial: Did not understand cross-section type %i for ion %i. Setting multiplicity to zero!\n",
   		   ion[nion].phot_info, nion);
+		gn = 0.0;   
+	   }
 
 
   gion = ion[nion + 1].g;	// Want the g factor of the next ion up
@@ -1355,7 +1358,7 @@ total_rrate (nion, T)
   else if (total_rr[ion[nion].nxtotalrr].type == RRTYPE_SHULL)
     {
       rate =
-	total_rr[ion[nion].nxtotalrr].params[0] * pow ((T / 1.0e4),
+	total_rr[ion[nion].nxtotalrr].params[0] * pow ((T / 1.0e4),-1.0*
 						       total_rr[ion
 								[nion].
 								nxtotalrr].

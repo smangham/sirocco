@@ -105,6 +105,9 @@ define_phot (p, f1, f2, nphot_tot, ioniz_or_final, iwind, freq_sampling)
          luminosity of the photosphere.  This implies that photons must be generated in such
          a way that it mimics the energy distribution of the star. */
 
+
+      for(n=0; n<NPHOT; n++) p[n].path = -1.0; /* SWM - Zero photon paths */
+
       geo.weight = (weight) = (geo.f_tot) / (nphot_tot);
       xmake_phot (p, f1, f2, ioniz_or_final, iwind, weight, 0, NPHOT);
     }

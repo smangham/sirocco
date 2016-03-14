@@ -462,7 +462,7 @@ if (freq > phot_freq_min)
    */
   if (modes.save_cell_stats && ncstat > 0)
     {
-      save_photon_stats (one, p, ds);	// save photon statistics (extra diagnostics)
+      save_photon_stats (one, p, ds, w_ave);	// save photon statistics (extra diagnostics)
     }
 
 
