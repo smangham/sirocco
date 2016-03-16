@@ -1381,9 +1381,9 @@ else if (modes.zeus_connect==1) //We have restarted, but are in zeus connect mod
 		if(rank_global == 0){
 			if(geo.reverb_vis == REV_VIS_VTK 	|| geo.reverb_vis == REV_VIS_BOTH)
 				wind_paths_output_vtk(w, files.root, nangles);
-			if(geo.reverb_vis == REV_VIS_DUMP	|| geo.reverb_vis == REV_VIS_BOTH)
-				wind_paths_output_dump(w);
 		}
+		if(geo.reverb_vis == REV_VIS_DUMP	|| geo.reverb_vis == REV_VIS_BOTH)
+				wind_paths_output_dump(w);
 		Log(" Completed evaluating wind path arrays.");
 	}
 
