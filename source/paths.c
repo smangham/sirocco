@@ -482,13 +482,13 @@ wind_paths_evaluate(WindPtr wind)
  * 10/15	-	Written by SWM
 *****************************************************************/
 int
-wind_paths_dump(WindPtr wind)
+wind_paths_dump(WindPtr wind, int rank_global)
 {
 	FILE *fopen(), *fptr;
 	char c_file[LINELENGTH];
 	int i, j, k;
 
-	sprintf(c_file,"%s.wind_paths_%d.csv", files.root, wind->nwind);
+	sprintf(c_file,"%s.wind_paths_%d.%d.csv", files.root, wind->nwind, rank_global);
 	fptr = fopen(c_file, "w");
 
 	wind_n_to_ij(wind->nwind, &i,&j);
@@ -530,13 +530,13 @@ wind_paths_dump(WindPtr wind)
  * 10/15	-	Written by SWM
 *****************************************************************/
 int
-wind_paths_output_dump(WindPtr wind)
+wind_paths_output_dump(WindPtr wind, int rank_global)
 {
 	int i,n;
 	for(i=0;i< geo.reverb_dump_cells; i++)
 	{	
 		wind_ij_to_n(geo.reverb_dump_i[i], geo.reverb_dump_j[i], &n);
-		wind_paths_dump(&wind[n]);	
+		wind_paths_dump(&wind[n], rank_global);	
 	}
 	return(0);
 }

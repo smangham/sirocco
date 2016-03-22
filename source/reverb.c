@@ -71,6 +71,8 @@ delay_dump_prep(char filename[], int restart_stat, int i_rank)
 	char string[LINELENGTH], c_file[LINELENGTH], c_rank[LINELENGTH];
 	int	i;
 
+	geo.reverb_fraction_converged = 0.85;
+
 	//Get output filename
 	strcpy(c_file, filename);		//Copy filename to new string
 	strcat(c_file, ".delay_dump");

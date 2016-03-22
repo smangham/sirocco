@@ -372,6 +372,7 @@ struct geometry
   char fixed_con_file[132];	/* 54e -- For fixed concentrations, the file specifying concentrations */
 
   //Added by SWM for reverberation mapping
+  double reverb_fraction_converged;
   enum reverb_enum      {REV_NONE=0, REV_PHOTON=1, REV_WIND=2, REV_MATOM=3} reverb; 
   enum reverb_vis_enum  {REV_VIS_NONE=0, REV_VIS_VTK=1, REV_VIS_DUMP=2, REV_VIS_BOTH=3} reverb_vis;
   int reverb_wind_cycles;
@@ -448,7 +449,7 @@ struct blmodel
 }
 blmod;
 
-
+double fraction_converged = 0; //Used for deciding when to add to wind paths
 /*
     SWN 6-2-15
     Wind paths is defined per cell and contains a binned array holding the spectrum of paths. Layers are
