@@ -184,7 +184,11 @@ delay_dump_combine(int i_ranks)
 	}
 	else
 	{
-		sprintf(c_call,"rm %s[0-9]*");
+		sprintf(c_call,"rm %s[0-9]*", delay_dump_file);
+		if (system(c_call) < 0)
+		{
+			Error("delay_dump_combine: Error calling system command '%s'", c_call);
+		}
 	}
 	return (0);
 }
