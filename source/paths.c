@@ -91,6 +91,18 @@ reverb_init(WindPtr wind, int nangles)
 	if (geo.reverb == REV_WIND || geo.reverb == REV_MATOM) 
 	{	//Initialise the arrays that handle photon path data and wind paths
 	
+		int n;
+		for(i=0;i<geo.ndim;i++)
+		{
+			wind_ij_to_n(i,0, &n);
+			printf("X %g\n",wind[n].x[0]);
+		}
+		for(i=0;i<geo.mdim;i++)
+		{
+			wind_ij_to_n(1,i, &n);
+			printf("Z %g\n",wind[n].x[1]);
+		}
+
 		r_rad_min = geo.wind_rmin;
 		r_rad_max = geo.rmax * 5.0;
 
