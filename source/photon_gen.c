@@ -149,9 +149,7 @@ define_phot (p, f1, f2, nphot_tot, ioniz_or_final, iwind, freq_sampling)
 
   for (n = 0; n < NPHOT; n++)
   {
-    p[n].xorig[0] = p[n].x[0];
-    p[n].xorig[1] = p[n].x[1];
-    p[n].xorig[2] = p[n].x[2];
+    p[n].origin_orig = p[n].origin;
     p[n].w_orig = p[n].w;
     p[n].freq_orig = p[n].freq;
     if(geo.reverb != REV_NONE && p[n].path < 0.0) //SWM - Set path lengths for disk, star etc. 

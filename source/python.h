@@ -870,11 +870,10 @@ double wind_midz_var[NDIM_MAX][NDIM_MAX];
 
 typedef struct photon
 {
-  double xorig[3];  // DEBUG
   double x[3];			/* Vector containing position of packet */
   double lmn[3];		/*direction cosines of this packet */
   double freq, freq_orig;    /* current and original frequency of this packet */
-  double w,w_orig;		       /* current and original weight of this packet */
+  double w, w_orig;		       /* current and original weight of this packet */
   double tau;
   enum istat_enum 
   	{	
@@ -913,7 +912,7 @@ typedef struct photon
       PTYPE_DISK_MATOM=12,
       PTYPE_WIND_MATOM=13,
       PTYPE_AGN_MATOM=14
-  	} 	origin;				/* Where this photon originated.  If the photon has
+  	} 	origin, origin_orig;	/* Where this photon originated.  If the photon has
 		   					         scattered it's "origin" may be changed to "wind".*/
                       /* note that we add 10 to origin when processed by a macro-atom
                          which means we need these values in the enum list */

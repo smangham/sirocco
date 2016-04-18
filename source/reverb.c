@@ -265,7 +265,7 @@ delay_dump(PhotPtr p, int np, int iExtracted)
 							p[nphot].x[0], p[nphot].x[1], p[nphot].x[2],
 							p[nphot].nscat, p[nphot].nrscat, delay,
 							(iExtracted ? delay_dump_bank_ex[nphot] : 0),
-							i - MSPEC, p[nphot].origin, 
+							i - MSPEC, p[nphot].origin_orig, 
 							p[nphot].nres, p[nphot].np);
 					}
 				}
