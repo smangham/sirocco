@@ -1031,6 +1031,18 @@ get_meta_params (void)
       Valid modes are 0=None, 1=Photon, 2=Wind, 3=Macro-atom.\n");
   }
 
+  if(geo.disk_type > 0)
+  {
+    rdint("reverb.disk_type", &meta_param);
+    switch(meta_param) 
+    { //Read in reverb tyoe, if any
+      case 0: geo.reverb_disk = REV_CORRELATED;    break;
+      case 1: geo.reverb_disk = REV_UNCORRELATED;  break;
+      default:Error("reverb.disk_type: Invalid reverb disk mode.\n \
+        Valid modes are 0=Correlated with central source, 1=Uncorrelated.\n");
+    }
+  }
+
   if (geo.reverb == REV_WIND || geo.reverb == REV_MATOM)
   { //If this requires further parameters, set defaults
     geo.reverb_lines = 0;

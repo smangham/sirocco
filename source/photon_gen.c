@@ -1227,6 +1227,14 @@ photo_gen_disk (p, weight, f1, f2, spectype, istart, nphot)
          i, p[i].freq, freqmin, freqmax);
          }
        */
+
+      if(geo.reverb != REV_NONE) //SWM - Set path lengths for disk, star etc. 
+      {
+        if(geo.reverb_disk == REV_UNCORRELATED)
+          p[i].path = 0.0;
+        else
+          simple_paths_gen_phot(&p[i]);
+      }
     }
   return (0);
 }
