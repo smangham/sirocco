@@ -95,12 +95,10 @@ reverb_init(WindPtr wind, int nangles)
 		for(i=0;i<geo.ndim;i++)
 		{
 			wind_ij_to_n(i,0, &n);
-			printf("X %g\n",wind[n].x[0]);
 		}
 		for(i=0;i<geo.mdim;i++)
 		{
 			wind_ij_to_n(1,i, &n);
-			printf("Z %g\n",wind[n].x[1]);
 		}
 
 		r_rad_min = geo.wind_rmin;
