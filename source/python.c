@@ -1360,7 +1360,8 @@ else if (modes.zeus_connect==1) //We have restarted, but are in zeus connect mod
       }
       MPI_Barrier(MPI_COMM_WORLD);
 #endif
-
+	if(geo.reverb_vis == REV_VIS_DUMP	|| geo.reverb_vis == REV_VIS_BOTH)
+		wind_paths_output_dump(w, rank_global);
 
 
 
