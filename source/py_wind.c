@@ -134,7 +134,7 @@ char *choice_options = "\n\
     1=onefile summary 2=all ions in a given cell\n\
  	 n=ne,  R=rho,  v=vel,        i=ion info, j=ave_tau, f=ave_freq, p=nphot, S=sim_alpha\n\
    r=t_r, t=t_e,  w=rad_weight,  s=vol,     l=lum,     C=cooling/heating,  b=adiabatic cooling\n\
-   a=abs, c=c4,   L=h-alpha,     g=photo,   h=recomb,  k=tau H,    l=lum,  m=F_rad, x=total, y=mod_te,\n\
+   a=abs, c=c4,   L=H-alpha,     g=photo,   h=recomb,  k=tau H,    l=lum,  m=F_rad, x=total, y=mod_te,\n\
    o=overview,    e=everything, P=Partial emission meas, I=Ionisation parameter\n\
    W=wind_region, D=dvds_ave, X=position summary, M=macro atom info, G=inner shell\n\
    d=convergence status  E=convergence_all_info   B=PlasmaPtr  J=Radiation density\n\

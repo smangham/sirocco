@@ -210,7 +210,6 @@ total_emission (one, f1, f2)
   if (f2 < f1)
     {
       xplasma->lum_rad = xplasma->lum_lines = xplasma->lum_ff = xplasma->lum_fb = 0;	//NSH 1108 Zero the new lum_comp variable NSH 1101 - removed
-      xplasma->lum_line_c4 = xplasma->lum_line_halpha = 0; //SWM - Zero the line of interest info
     }
   else
     {
@@ -456,12 +455,6 @@ photo_gen_wind (p, weight, freqmin, freqmax, photstart, nphot)
 	}
       p[n].w = weight;
       /* Determine the position of the photon in the moving frame */
-
-      /* SWM - Tracking luminosities of interesting lines in each cell */
-	  if(p[n].nres == geo.nres_c4)
-	  	plasmamain[nplasma].lum_line_c4 += p[n].w; 
-	  else if (p[n].nres == geo.nres_halpha)
-	  	plasmamain[nplasma].lum_line_halpha += p[n].w; 
 
       /* !! ERROR - Need to account for emission from torus if it exists */
 
