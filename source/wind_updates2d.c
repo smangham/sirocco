@@ -998,6 +998,7 @@ wind_rad_init ()
       plasmamain[n].max_freq = 0.0;	//NSH 120814 Zero the counter which works out the maximum frequency seen in a cell and hence the maximum applicable frequency of the power law estimators.
       plasmamain[n].lum = plasmamain[n].lum_rad = plasmamain[n].lum_lines =
 	plasmamain[n].lum_ff = 0.0;
+		plasmamain[n].lum_line_c4 = plasmamain[n].lum_line_halpha = 0.0; //SWM - Added to track interesting lines
       plasmamain[n].lum_fb = plasmamain[n].lum_z = 0.0;
       plasmamain[n].nrad = plasmamain[n].nioniz = 0;
       plasmamain[n].lum_comp = 0.0;	//1108 NSH Zero the compton luminosity for the cell

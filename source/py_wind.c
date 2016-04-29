@@ -132,9 +132,9 @@ History:
 
 char *choice_options = "\n\
     1=onefile summary 2=all ions in a given cell\n\
- 	   n=ne,  R=rho,  v=vel,        i=ion info, j=ave_tau, f=ave_freq, p=nphot, S=sim_alpha\n\
+ 	 n=ne,  R=rho,  v=vel,        i=ion info, j=ave_tau, f=ave_freq, p=nphot, S=sim_alpha\n\
    r=t_r, t=t_e,  w=rad_weight,  s=vol,     l=lum,     C=cooling/heating,  b=adiabatic cooling\n\
-   a=abs, c=c4,   g=photo,       h=recomb,  k=tau H,   l=lum,     m=F_rad, x=total, y=mod_te,\n\
+   a=abs, c=c4,   L=h-alpha,     g=photo,   h=recomb,  k=tau H,    l=lum,  m=F_rad, x=total, y=mod_te,\n\
    o=overview,    e=everything, P=Partial emission meas, I=Ionisation parameter\n\
    W=wind_region, D=dvds_ave, X=position summary, M=macro atom info, G=inner shell\n\
    d=convergence status  E=convergence_all_info   B=PlasmaPtr  J=Radiation density\n\
@@ -392,7 +392,7 @@ one_choice (choice, root, ochoice)
       plasma_cell (wmain, root, ochoice);
       break;
     case 'c':			/*C4 emission */
-      line_summary (wmain, n, istate, root, ochoice);
+      line_summary (wmain, 6, 4, 1548.1949e-8, root, ochoice);
       break;
     case 'C':			/*the ratio cooling to heating */
       coolheat_summary (wmain, root, ochoice);
@@ -474,6 +474,9 @@ one_choice (choice, root, ochoice)
       break;
     case 'l':			/* Lum of shell */
       lum_summary (wmain, root, ochoice);
+      break;
+    case 'L':     /* SWM - Lum of h-alpha */
+      line_summary (wmain, 1, 1, 6560.28e-8, root, ochoice);
       break;
     case 'm':			/* Radiation force */
       mo_summary (wmain, root, ochoice);

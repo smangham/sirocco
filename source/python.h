@@ -326,8 +326,6 @@ struct geometry
   double lum_adiabatic_ioniz;	
   double lum_wind_ioniz, lum_star_ioniz, lum_disk_ioniz, lum_bl_ioniz, lum_tot_ioniz;
 
-
-
   double f_matom, f_kpkt;	/*Added by SS Jun 2004 - to be used in computations of detailed spectra - the
 				   energy emitted in the band via k-packets and macro atoms respectively. */
 
@@ -370,6 +368,10 @@ struct geometry
 // The next set of parameters describe the input datafiles that are read
   char atomic_filename[132];	/* 54e -- The masterfile for the atomic data */
   char fixed_con_file[132];	/* 54e -- For fixed concentrations, the file specifying concentrations */
+
+
+  //Added by SWM for tracking C-IV/H-A hotspots
+  int nres_c4, nres_halpha;
 
   //Added by SWM for reverberation mapping
   double fraction_converged, reverb_fraction_converged;
@@ -652,6 +654,7 @@ typedef struct plasma
   int nxtot[NXBANDS];		/* 1108 NSH the total number of photon passages in frequency bands */
   double max_freq;		/*1208 NSH The maximum frequency photon seen in this cell */
   double lum_lines, lum_ff, lum_adiabatic;
+  double lum_line_c4, lum_line_halpha; //SWM - Added to track hotspots of interesting lines
   double lum_comp;		/* 1108 NSH The compton luminosity of the cell */
   double lum_di;		/* 1409 NSH The direct ionization luminosity */
   double lum_dr;		/* 1109 NSH The dielectronic recombination luminosity of the cell */

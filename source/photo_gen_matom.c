@@ -834,6 +834,8 @@ photo_gen_matom (p, weight, photstart, nphot)
 
       p[n].freq = pp.freq;
       p[n].nres = nres;
+	  if (p[n].nres == geo.nres_halpha)
+	  	plasmamain[nplasma].lum_line_halpha += p[n].w; 
 
 
       /* The photon frequency is now known. */
