@@ -505,6 +505,15 @@ main (argc, argv)
 	("There is a problem in allocating memory for the photon structure\n");
       exit (0);
     }
+  else 
+    {
+      /* JM 1605 -- large photon numbers can cause problems / runs to crash. Report to use (see #209) */
+      Log("Allocated %10d bytes for each of %5d elements of photon structure totaling %10.1f Mb \n",
+	       sizeof (p_dummy), NPHOT, 1.e-6 * NPHOT * sizeof (p_dummy));
+      if ( (NPHOT * sizeof (p_dummy)) > 1e9)
+      	Error("Over 1 GIGABYTE of photon structure allocated. Could cause serious problems.\n");
+    }
+
 
   /* Define the coordinate system for the grid and allocate memory for the wind structure
      by reading from user */

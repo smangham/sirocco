@@ -706,7 +706,10 @@ total_free (one, t_e, f1, f2)
 		}
       x = BREMS_CONSTANT * xplasma->ne * (sum) / H_OVER_K;
     }
-
+  
+  /* JM 1604 -- The reason why this is proportional to t_e**1/2, 
+     rather than t_e**(-1/2) as in equation 40 of LK02 is because
+     one gets an extra factor of (k*t_e/h) when one does the integral */
   x *= sqrt (t_e) * xplasma->vol;
   x *= (exp (-H_OVER_K * f1 / t_e) - exp (-H_OVER_K * f2 / t_e));
 
