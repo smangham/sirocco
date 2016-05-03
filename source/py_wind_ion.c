@@ -281,10 +281,10 @@ tau_ave_summary (w, element, istate, freq, rootname, ochoice)
 }
 
 int
-line_summary (w, element, istate, wavelength, rootname, ochoice)
+line_summary (w, element, istate, lambda, rootname, ochoice)
      WindPtr w;
      int element, istate;
-     double wavelength;
+     double lambda;
      char rootname[];
      int ochoice;
 {
@@ -297,11 +297,13 @@ line_summary (w, element, istate, wavelength, rootname, ochoice)
   int nline;
   double freq_search, dd;
 
-  double d1, d2, z, energy, rb, tot, omega;
+  double d1, d2, z, energy_c4, rb, tot, omega;
   int nplasma;
 
 
-  energy = HC / wavelength;
+  element = 6;
+  istate = 4;
+  energy_c4 = HC / lambda;
 
 /* Find the CIV ion */
   nion = 0;
@@ -318,9 +320,9 @@ line_summary (w, element, istate, wavelength, rootname, ochoice)
   while (nelem < nelements && ele[nelem].z != element)
     nelem++;
 
-/* Find the line in the data */
+/* Find the CIV line in the data */
   nline = 0;
-  freq_search = C / wavelength;
+  freq_search = C / lambda;
 
   while (fabs (1. - lin_ptr[nline]->freq / freq_search) > 0.0001
 	 && nline < nlines)
@@ -373,7 +375,7 @@ line_summary (w, element, istate, wavelength, rootname, ochoice)
 
   tot = 2. * tot;		// Why is there a factor of 2 here??? ksl
 
-  Log ("The total luminosity (flux) is %8.2g (%8.2g)\n",
+  Log ("The total CIV luminosity (flux) is %8.2g (%8.2g)\n",
        tot, tot / (4 * PI * 1e4 * PC * PC));
 
 
@@ -388,12 +390,12 @@ line_summary (w, element, istate, wavelength, rootname, ochoice)
 	      nplasma = w[n].nplasma;
 	      omega = 5.13 * pow (plasmamain[nplasma].t_e / 1.e5, 0.18);
 	      rb =
-		8.629e-6 * exp (-energy /
+		8.629e-6 * exp (-energy_c4 /
 				(BOLTZMANN * plasmamain[nplasma].t_e)) /
 		sqrt (plasmamain[nplasma].t_e) * omega;
 	      w[n].x[1] =
 		plasmamain[nplasma].density[nion] * plasmamain[nplasma].ne *
-		rb * energy * w[n].vol;
+		rb * energy_c4 * w[n].vol;
 	    }
 	  else
 	    w[n].x[1] = 0;
