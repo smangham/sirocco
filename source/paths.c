@@ -91,16 +91,6 @@ reverb_init(WindPtr wind, int nangles)
 	if (geo.reverb == REV_WIND || geo.reverb == REV_MATOM) 
 	{	//Initialise the arrays that handle photon path data and wind paths
 	
-		int n;
-		for(i=0;i<geo.ndim;i++)
-		{
-			wind_ij_to_n(i,0, &n);
-		}
-		for(i=0;i<geo.mdim;i++)
-		{
-			wind_ij_to_n(1,i, &n);
-		}
-
 		r_rad_min = geo.wind_rmin;
 		r_rad_max = geo.rmax * 5.0;
 
@@ -123,6 +113,13 @@ reverb_init(WindPtr wind, int nangles)
 				sprintf(linelist, "%s, %d",linelist, geo.reverb_line[i]);
 			}
 			Log("%s\n",linelist);
+			for(i=1; i<geo.reverb_dump_cells; i++)
+			{
+				if(geo.reverb_dump_i[i] > NDIM || geo.reverb_dump_j[i] > MDIM)
+				{
+					Error("reverb_init: Trying to dump info from a cell outside the grid\n");
+				}
+			}
 		}
 	  	else if(geo.reverb == REV_WIND)
 	  		Log ("reverb_init: Wind cell-based path tracking is enabled\n");

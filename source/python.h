@@ -380,7 +380,7 @@ struct geometry
   enum reverb_vis_enum  {REV_VIS_NONE=0, REV_VIS_VTK=1, REV_VIS_DUMP=2, REV_VIS_BOTH=3} reverb_vis;
   int reverb_wind_cycles;
   int reverb_path_bins, reverb_angle_bins;  //SWM - Number of bins for path arrays, vtk output angular bins
-  int reverb_dump_cells;                    //SWM - Number of cells to dump, list of cells to dump 'nwind' values
+  int reverb_dump_cells;                    //SWM - Number of cells to dump
   int *reverb_dump_i, *reverb_dump_j;       //SWM - i & j values of the cells to dump. Necessary as ij_to_n doesn't work in setup
   int reverb_lines, *reverb_line;           //SWM - Number of lines to track, and array of line 'nres' values
 }
@@ -462,7 +462,9 @@ blmod;
 typedef struct wind_paths
 {
   double* ad_path_flux;  //Array[by frequency, then path] of total flux of photons with the given v&p
+  double* ad_path_flux_disk, ad_path_flux_wind, ad_path_flux_cent;  // As above, by source
   int*    ai_path_num;   //Array[by frequency, then path] of the number of photons in this bin
+  int*    ai_path_num_disk, ai_path_num_wind, ai_path_num_cent;     // As above, by source
   double  d_flux, d_path;     //Total flux, average path
   int     i_num;              //Number of photons hitting this cell
 } wind_paths_dummy, *Wind_Paths_Ptr;
