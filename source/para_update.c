@@ -415,6 +415,7 @@ communicate_matom_estimators_para ()
 
   /* because in the above loop we have already divided by number of processes, we can now do a sum
      with MPI_Reduce, passing it MPI_SUM as an argument. This will give us the mean across threads */
+  MPI_Barrier (MPI_COMM_WORLD);
   MPI_Reduce (cell_helper, cell_helper2, NPLASMA * 7, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
   MPI_Reduce (level_helper, level_helper2, NPLASMA * nlevels_macro, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
   MPI_Reduce (jbar_helper, jbar_helper2, NPLASMA * size_Jbar_est, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
@@ -429,6 +430,7 @@ communicate_matom_estimators_para ()
       Log_parallel ("Zeroth thread successfully received the macro-atom estimators. About to broadcast.\n");
     }
 
+  MPI_Barrier (MPI_COMM_WORLD);
   MPI_Bcast (cell_helper2, NPLASMA * 7, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   MPI_Bcast (level_helper2, NPLASMA * nlevels_macro, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   MPI_Bcast (jbar_helper2, NPLASMA * size_Jbar_est, MPI_DOUBLE, 0, MPI_COMM_WORLD);
