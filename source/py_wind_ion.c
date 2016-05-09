@@ -281,10 +281,9 @@ tau_ave_summary (w, element, istate, freq, rootname, ochoice)
 }
 
 int
-line_summary (w, element, istate, lambda, rootname, ochoice)
+line_summary (w, element, istate, rootname, ochoice)
      WindPtr w;
      int element, istate;
-     double lambda;
      char rootname[];
      int ochoice;
 {
@@ -303,7 +302,7 @@ line_summary (w, element, istate, lambda, rootname, ochoice)
 
   element = 6;
   istate = 4;
-  energy_c4 = HC / lambda;
+  energy_c4 = HC / (1550e-8);
 
 /* Find the CIV ion */
   nion = 0;
@@ -322,7 +321,7 @@ line_summary (w, element, istate, lambda, rootname, ochoice)
 
 /* Find the CIV line in the data */
   nline = 0;
-  freq_search = C / lambda;
+  freq_search = C / 1548.1949e-8;
 
   while (fabs (1. - lin_ptr[nline]->freq / freq_search) > 0.0001
 	 && nline < nlines)

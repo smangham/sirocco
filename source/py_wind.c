@@ -392,10 +392,7 @@ one_choice (choice, root, ochoice)
       plasma_cell (wmain, root, ochoice);
       break;
     case 'c':			/*C4 emission */
-      n=6;
-      istate=4;
-      lambda = 1548.1949e-8;
-      line_summary (wmain, n, istate, lambda, root, ochoice);
+      line_summary (wmain, n, istate, root, ochoice);
       break;
     case 'C':			/*the ratio cooling to heating */
       coolheat_summary (wmain, root, ochoice);
@@ -478,11 +475,6 @@ one_choice (choice, root, ochoice)
     case 'l':			/* Lum of shell */
       lum_summary (wmain, root, ochoice);
       break;
-    case 'L':     /*H-A emission */
-      n=1;
-      istate=1;
-      lambda = 6562.8e-8;
-      line_summary (wmain, n, istate, lambda, root, ochoice);      
     case 'm':			/* Radiation force */
       mo_summary (wmain, root, ochoice);
       break;
