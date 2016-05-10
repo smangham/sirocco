@@ -194,7 +194,7 @@ wind_read (filename)
    * values for the dimensionality of some of the variable length structures, associated 
    * with macro atoms, especially but likely to be a good idea ovrall
    */
-
+  strcpy(geo.atomic_filename, "/Users/swm1n12/python/data/h10_hetop_lohe1_standard78");
   get_atomic_data (geo.atomic_filename);
 
 

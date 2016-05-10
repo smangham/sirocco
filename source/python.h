@@ -656,7 +656,7 @@ typedef struct plasma
   int nxtot[NXBANDS];		/* 1108 NSH the total number of photon passages in frequency bands */
   double max_freq;		/*1208 NSH The maximum frequency photon seen in this cell */
   double lum_lines, lum_ff, lum_adiabatic;
-  double lum_line_c4, lum_line_halpha; //SWM - Added to track hotspots of interesting lines
+  double lum_line_halpha; //SWM - Added to track hotspots of interesting lines
   double lum_comp;		/* 1108 NSH The compton luminosity of the cell */
   double lum_di;		/* 1409 NSH The direct ionization luminosity */
   double lum_dr;		/* 1109 NSH The dielectronic recombination luminosity of the cell */

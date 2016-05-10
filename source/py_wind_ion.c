@@ -413,6 +413,141 @@ line_summary (w, element, istate, rootname, ochoice)
   return (0);
 }
 
+}
+
+int
+line_summary_halpha (w, element, istate, rootname, ochoice)
+     WindPtr w;
+     int element, istate;
+     char rootname[];
+     int ochoice;
+{
+  int nion, nelem;
+  int n;
+  double x;
+  char choice[LINELENGTH], iname[LINELENGTH];
+  char name[LINELENGTH];
+  char filename[LINELENGTH];
+  int nline;
+  double freq_search, dd;
+
+  double d1, d2, z, energy_c4, rb, tot, omega;
+  int nplasma;
+
+
+  element = 1;
+  istate = 1;
+  energy_c4 = HC / (6562e-8);
+
+/* Find the CIV ion */
+  nion = 0;
+  while (nion < nions
+   && !(ion[nion].z == element && ion[nion].istate == istate))
+    nion++;
+  if (nion == nions)
+    {
+      Log ("Error--element %d ion %d not found in define_wind\n", element,
+     istate);
+      return (-1);
+    }
+  nelem = 0;
+  while (nelem < nelements && ele[nelem].z != element)
+    nelem++;
+
+/* Find the CIV line in the data */
+  nline = 0;
+  freq_search = C / 6562e-8;
+
+  while (fabs (1. - lin_ptr[nline]->freq / freq_search) > 0.0001
+   && nline < nlines)
+    nline++;
+  if (nline == nlines)
+    {
+      Error ("line_summary: Could not find line in linelist\n");
+      exit (0);
+    }
+
+  rdint ("line_transfer(0=pure.abs,1=pure.scat,2=sing.scat,3=escape.prob)",
+   &geo.line_mode);
+  if (geo.line_mode == 0)
+    Log ("Pure_abs in line heating/cooling\n");
+  else if (geo.line_mode == 1)
+    Log ("Pure_scat_in line heating/cooling\n");
+  else if (geo.line_mode == 2)
+    Log ("Single scat for line heating/cooling\n");
+  else if (geo.line_mode == 3)
+    Log ("Escape probabilities for line heating/cooling\n");
+  else
+    {
+      Log ("Unknown line mode\n");
+      return (0);
+    }
+
+  strcpy (name, "");
+  sprintf (name, "Luminosity %d (%s) ion %d fractions\n", element,
+     ele[nelem].name, istate);
+
+  tot = 0;
+  for (n = 0; n < NDIM2; n++)
+    {
+      aaa[n] = 0;
+      if (w[n].vol > 0.0)
+  {
+    nplasma = w[n].nplasma;
+    dd = plasmamain[nplasma].density[lin_ptr[nline]->nion];
+    two_level_atom (lin_ptr[nline], &plasmamain[nplasma], &d1, &d2);
+    x =
+      (d2) * a21 (lin_ptr[nline]) * H * lin_ptr[nline]->freq * w[n].vol;
+    x *= z = scattering_fraction (lin_ptr[nline], &plasmamain[nplasma]);
+
+    tot += x;
+    aaa[n] = x;
+  }
+    }
+
+  display (name);
+
+  tot = 2. * tot;   // Why is there a factor of 2 here??? ksl
+
+  Log ("The total CIV luminosity (flux) is %8.2g (%8.2g)\n",
+       tot, tot / (4 * PI * 1e4 * PC * PC));
+
+
+  /* Store the appropriate values in a place where it does not matter */
+  if (ochoice)
+    {
+      for (n = 0; n < NDIM2; n++)
+  {
+    // Here is the calculation of the effective collisions strength
+    if (w[n].vol > 0.0)
+      {
+        nplasma = w[n].nplasma;
+        omega = 5.13 * pow (plasmamain[nplasma].t_e / 1.e5, 0.18);
+        rb =
+    8.629e-6 * exp (-energy_c4 /
+        (BOLTZMANN * plasmamain[nplasma].t_e)) /
+    sqrt (plasmamain[nplasma].t_e) * omega;
+        w[n].x[1] =
+    plasmamain[nplasma].density[nion] * plasmamain[nplasma].ne *
+    rb * energy_c4 * w[n].vol;
+      }
+    else
+      w[n].x[1] = 0;
+  }
+
+      strcpy (filename, rootname);
+      strcpy (choice, ".line");
+      strcat (choice, ele[nelem].name);
+      sprintf (iname, "%d", istate);
+      strcat (choice, iname);
+
+      strcat (filename, choice);
+      write_array (filename, ochoice);
+    }
+
+  return (0);
+}
+
 int
 total_emission_summary (w, rootname, ochoice)
      WindPtr w;

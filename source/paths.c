@@ -198,6 +198,24 @@ line_paths_add_phot(WindPtr wind, PhotPtr pp, int *nres)
 					//printf("DEBUG: Added to line %d in cell %d - path %g weight %g\n",geo.reverb_line[i], wind->nwind, pp->path, pp->w);
 					wind->line_paths[i]->ad_path_flux[j]+= pp->w;
 					wind->line_paths[i]->ai_path_num[ j]++;
+					switch(pp->origin)
+					{
+						case PTYPE_STAR:
+						case PTYPE_AGN:
+						case PTYPE_BL:
+							wind->line_paths[i]->ai_path_flux_cent[j]+= pp->w;
+							wind->line_paths[i]->ai_path_num_cent[ j]++;
+							break;
+						case PTYPE_DISK:
+							wind->line_paths[i]->ai_path_flux_disk[j]+= pp->w;
+							wind->line_paths[i]->ai_path_num_disk[ j]++;
+							break;
+						case default:
+							wind->line_paths[i]->ai_path_flux_wind[j]+= pp->w;
+							wind->line_paths[i]->ai_path_num_wind[ j]++;
+							break;
+					}
+
 					break; break;
 				}
 			}
@@ -505,7 +523,7 @@ wind_paths_dump(WindPtr wind, int rank_global)
 
 	fprintf(fptr, "'Path Bin', 'General'");
 	for(j=0;j< geo.reverb_lines; j++)
-		fprintf(fptr, ", %d", j);
+		fprintf(fptr, ", %d, %d Central, %d Disk, %d Wind", j);
 	fprintf(fptr, "\n");
 
 
@@ -515,7 +533,11 @@ wind_paths_dump(WindPtr wind, int rank_global)
 		fprintf(fptr,"%g, %g",reverb_path_bin[k],
 			wind->paths->ad_path_flux[k]);	
 		for(j=0;j< geo.reverb_lines; j++)
-			fprintf(fptr, ", %g", wind->line_paths[j]->ad_path_flux[k]);
+			fprintf(fptr, ", %g, %g, %g, %g", 
+				wind->line_paths[j]->ad_path_flux[k],
+				wind->line_paths[j]->ad_path_flux_cent[k],
+				wind->line_paths[j]->ad_path_flux_disk[k],
+				wind->line_paths[j]->ad_path_flux_wind[k]);
 		fprintf(fptr, "\n");		
 	}
 	fclose(fptr);
