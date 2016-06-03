@@ -462,9 +462,13 @@ blmod;
 typedef struct wind_paths
 {
   double* ad_path_flux;  //Array[by frequency, then path] of total flux of photons with the given v&p
-  double* ad_path_flux_disk, ad_path_flux_wind, ad_path_flux_cent;  // As above, by source
+  double* ad_path_flux_disk;
+  double* ad_path_flux_wind;
+  double* ad_path_flux_cent;  // As above, by source
   int*    ai_path_num;   //Array[by frequency, then path] of the number of photons in this bin
-  int*    ai_path_num_disk, ai_path_num_wind, ai_path_num_cent;     // As above, by source
+  int*    ai_path_num_disk;
+  int*    ai_path_num_wind;
+  int*    ai_path_num_cent;     // As above, by source
   double  d_flux, d_path;     //Total flux, average path
   int     i_num;              //Number of photons hitting this cell
 } wind_paths_dummy, *Wind_Paths_Ptr;

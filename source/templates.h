@@ -320,6 +320,7 @@ int kpkt(PhotPtr p, int *nres, int *escape);
 int fake_matom_bb(PhotPtr p, int *nres, int *escape);
 int fake_matom_bf(PhotPtr p, int *nres, int *escape);
 int emit_matom(WindPtr w, PhotPtr p, int *nres, int upper);
+double matom_emit_in_line_prob(WindPtr one, struct lines *line_ptr_emit);
 /* estimators.c */
 int bf_estimators_increment(WindPtr one, PhotPtr p, double ds);
 int bb_estimators_increment(WindPtr one, PhotPtr p, double tau_sobolev, double dvds, int nn);
@@ -574,7 +575,7 @@ int get_los_dvds(WindPtr w, char rootname[], int ochoice);
 /* py_wind_ion.c */
 int ion_summary(WindPtr w, int element, int istate, int iswitch, char rootname[], int ochoice);
 int tau_ave_summary(WindPtr w, int element, int istate, double freq, char rootname[], int ochoice);
-int line_summary(WindPtr w, int element, int istate, char rootname[], int ochoice);
+int line_summary(WindPtr w, char rootname[], int ochoice);
 int total_emission_summary(WindPtr w, char rootname[], int ochoice);
 int modify_te(WindPtr w, char rootname[], int ochoice);
 int partial_measure_summary(WindPtr w, int element, int istate, char rootname[], int ochoice);

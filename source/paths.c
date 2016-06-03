@@ -203,15 +203,15 @@ line_paths_add_phot(WindPtr wind, PhotPtr pp, int *nres)
 						case PTYPE_STAR:
 						case PTYPE_AGN:
 						case PTYPE_BL:
-							wind->line_paths[i]->ai_path_flux_cent[j]+= pp->w;
+							wind->line_paths[i]->ad_path_flux_cent[j]+= pp->w;
 							wind->line_paths[i]->ai_path_num_cent[ j]++;
 							break;
 						case PTYPE_DISK:
-							wind->line_paths[i]->ai_path_flux_disk[j]+= pp->w;
+							wind->line_paths[i]->ad_path_flux_disk[j]+= pp->w;
 							wind->line_paths[i]->ai_path_num_disk[ j]++;
 							break;
-						case default:
-							wind->line_paths[i]->ai_path_flux_wind[j]+= pp->w;
+						default:
+							wind->line_paths[i]->ad_path_flux_wind[j]+= pp->w;
 							wind->line_paths[i]->ai_path_num_wind[ j]++;
 							break;
 					}
@@ -523,7 +523,7 @@ wind_paths_dump(WindPtr wind, int rank_global)
 
 	fprintf(fptr, "'Path Bin', 'General'");
 	for(j=0;j< geo.reverb_lines; j++)
-		fprintf(fptr, ", %d, %d Central, %d Disk, %d Wind", j);
+		fprintf(fptr, ", %d, %d Central, %d Disk, %d Wind", j,j,j,j);
 	fprintf(fptr, "\n");
 
 
