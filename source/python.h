@@ -2,6 +2,10 @@
 #include "mpi.h"
 #endif 
 
+//JANSSON for .json-format input files - swm 7/16
+#include "jansson.h"
+json_t *j_input;
+
 int np_mpi_global;               /// Global variable which holds the number of MPI processes
 
 int rank_global; 

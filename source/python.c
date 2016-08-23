@@ -222,7 +222,7 @@ History:
 #include "atomic.h"
 #include <time.h>  //To allow the used of the clock command without errors!!
 
-
+#include "jansson.h"
 #include "python.h"
 #define NSPEC	20
 
@@ -290,6 +290,11 @@ main (argc, argv)
   /* Parse the command line. Get the root. create files.diagfolder + diagfiles */
 
   restart_stat = parse_command_line (argc, argv);
+  parse_json_input (files.root); //TEST
+  read_json_simulation_parameters(j_input);
+  json_dump_file((const json_t*) j_input, "python.json", JSON_INDENT(4));
+  exit(0);
+
 
   /* If the restart flag has been set, we check to see if a windsave file exists.  If it doues we will 
      we will restart from that point.  If the windsave file does not exist we will start from scratch */

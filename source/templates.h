@@ -464,6 +464,10 @@ int communicate_estimators_para(void);
 int gather_spectra_para(int nspec_helper, int nspecs);
 int communicate_matom_estimators_para(void);
 /* setup.c */
+int parse_json_input(char *c_file);
+int get_json_int_min(json_t *j_root, const char *c_key, int *i_value, int i_min_value);
+int get_json_bool_opt(json_t *j_root, const char *c_key, int *i_value, int i_default);
+int read_json_simulation_parameters(json_t *j_input);
 int parse_command_line(int argc, char *argv[]);
 int init_log_and_windsave(int restart_stat);
 int get_grid_params(int ndom);

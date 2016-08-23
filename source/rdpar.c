@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "log.h"
+
 #define LINELEN		256
 #define	OLD		100
 #define	NORMAL		1
