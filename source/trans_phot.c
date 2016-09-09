@@ -293,6 +293,12 @@ trans_phot_single (WindPtr w, PhotPtr p, int iextract)
   double x_dfudge_check[3];	
   int ndom;
 
+  // SWM 0916 - Importance mapping variables
+  int i_split, i_split_loop;
+  struct photon p_split, *p_scat;
+  double r_split;
+  int i_grid_last=0;
+
   /* Initialize parameters that are needed for the flight of the photon through the wind */
   stuff_phot (p, &pp);
   tau_scat = -log (1. - (rand () + 0.5) / MAXRAND);
@@ -302,7 +308,6 @@ trans_phot_single (WindPtr w, PhotPtr p, int iextract)
   icell = 0;
 
   n=0;  // Needed to avoid 03 warning, but it is not clear that it is defined as expected.
-
 
 
   /* This is the beginning of the loop for each photon and executes until the photon leaves the wind */
@@ -320,6 +325,17 @@ trans_phot_single (WindPtr w, PhotPtr p, int iextract)
       istat = translate (w, &pp, tau_scat, &tau, &nres);
       /* nres is the resonance at which the photon was stopped.  At present the same value is also stored in pp->nres, but I have 
          not yet eliminated it from translate. ?? 02jan ksl */
+
+
+      	//SWM 9-16 Increment the importance flux through the current cell. Count each photon only once. 
+      	if(geo.vr != VR_NONE)
+		{
+			if((p->grid = where_in_grid (wmain[pp.grid].ndom, p->x)) != i_grid_last)
+			{ 
+				w[p->grid].vr_imp_incedent += (1.0/p->vr_imp);
+				i_grid_last = p->grid;
+			}
+		}
 
       icell++;
       istat = walls (&pp, p);
@@ -451,173 +467,201 @@ trans_phot_single (WindPtr w, PhotPtr p, int iextract)
 		("trans_phot:sane_checl photon %d has weight %e before scatter\n",
 		 p->np, pp.w);
 	    }
-	  if ((nerr = scatter (&pp, ptr_nres, &nnscat)) != 0)
-	    {
-	      Error ("trans_phot: Bad return from scatter %d at point 2",
-		     nerr);
-	    }
-	  pp.nscat++;
-	  /* 74a_ksl - Check added to search for error in weights */
 
-	  if (sane_check (pp.w))
-	    {
-	      Error
-		("trans_phot:sane_check photon %d has weight %e after scatter\n",
-		 p->np, pp.w);
-	    }
 
-	  /* SS June 04: During the spectrum calculation cycles, photons are thrown away when they interact with macro atoms or
-	     become k-packets. This is done by setting their weight to zero (effectively they have been absorbed into either
-	     excitation energy or thermal energy). Since they now have no weight there is no need to follow them further. */
-	  /* 54b-ksl ??? Stuart do you really mean the comment above; it's not obvious to me since if true why does one need to
-	     calculate the progression of photons through the wind at all??? Also how is this enforced; where is pp.w set to a
-	     low value. */
-	  /* JM 1504 -- This is correct. It's one of the odd things about combining the macro-atom approach with our way of doing 
-	     'spectral cycles'. If photons activate macro-atoms they are destroyed, but we counter this by generating photons
-	     from deactivating macro-atoms with the already calculated emissivities. */
-
-	  if (geo.matom_radiation == 1 && geo.rt_mode == 2
-	      && pp.w < weight_min)
-	    /* Flag for the spectrum calculations in a macro atom calculation SS */
-	    {
-	      istat = pp.istat = P_ABSORB;
-	      pp.tau = VERY_BIG;
-	      stuff_phot (&pp, p);
-	      break;
-	    }
-
-	  // Calculate the line heating and if the photon was absorbed break finish up
-	  // ??? Need to modify line_heat for multiple scattering but not yet
-	  // Condition that nres < nlines added (SS) 
-
-	  if (nres > -1 && nres < nlines)
-	    {
-	      pp.nrscat++;
-
-	      /* This next statement writes out the position of every resonant scattering event to a file */
-	      if (modes.track_resonant_scatters)
-		fprintf (pltptr,
-			 "Photon %i has resonant scatter at %.2e %.2e %.2e in wind cell %i (grid cell=%i). Freq=%e Weight=%e\n",
-			 p->np, pp.x[0], pp.x[1], pp.x[2], wmain[n].nplasma,
-			 pp.grid, pp.freq, pp.w);
-
-	      /* 68a - 090124 - ksl - Increment the number of scatters by this ion in this cell */
-	      /* 68c - 090408 - ksl - Changed this to the weight of the photon at the time of the scatter */
-
-	      plasmamain[wmain[n].nplasma].scatters[line[nres].nion] += pp.w;
-
-	      if (geo.rt_mode == 1)	// only do next line for non-macro atom case
+		i_split = 1;															// Assume the photon will be split into 1
+		if(geo.vr==VR_BOTH_CYCLES || (geo.vr==VR_SPECTRUM && !geo.ioniz_or_extract) ||
+											(geo.vr==VR_IONISATION && geo.ioniz_or_extract))
 		{
-		  line_heat (&plasmamain[wmain[n].nplasma], &pp, nres);
+			if(wmain[n].vr_imp > pp.vr_imp*1.25)						// If this meets the minimum importance ratio to split
+			{
+				r_split 		= 	wmain[n].vr_imp / pp.vr_imp;				// Figure out the split ratio from current & new importance
+				pp.vr_imp		= 	wmain[n].vr_imp;							// Adjust the photon to the new importance
+				pp.w 			/= 	r_split;									// Adjust the weight post-split
+				i_split 		= 	(int) r_split;								// If there are a round number of splits, find that
+				r_split 		-= 	(double) i_split;							// Subtract the round number of splits from the split ratio
+				if(rand() / MAXRAND < r_split) i_split += 1;					// If there is a fractional chance of a split, calculate it
+			}																	// This may result in minor weight loss/gain, but evens out
 		}
 
-	      if (pp.w < weight_min)
+		/*	SWM 9-16 Take the scattering process out into a loop, as it needs to be done for each photon in the split.
+			We scatter each spawned photon, then send it off on a new transport run.
+			Once we've done all the scattered photons, we then return to the original photon and return back to the normal flow. 
+			An alternative would be to split out the scatter logic into a separate function...? */
+		for(i_split_loop=i_split; i_split_loop > 0; i_split_loop--)
 		{
-		  istat = pp.istat = P_ABSORB;	/* This photon was absorbed by continuum opacity within the wind */
-		  pp.tau = VERY_BIG;
-		  stuff_phot (&pp, p);
-		  break;
-		}
+			if(i_split_loop>1)
+			{	/* If any extra photons were created, set them up then run them first */
+				stuff_phot(&pp, &p_split);
+				p_split.np = geo.vr_np--;
+				p_split.vr_np = pp.np;
+				p_scat = &p_split;
+			}
+			else
+			{	/* Finally, run original photon */
+				p_scat = &pp;
+			}
+
+			if ((nerr = scatter(p_scat, ptr_nres, &nnscat)) != 0)
+			{
+				Error("trans_phot: Bad return from scatter %d at point 2", nerr);
+			}
+			p_scat->nscat++;
+			/* 74a_ksl - Check added to search for error in weights */
+
+			if (sane_check(p_scat->w))
+			{
+				Error("trans_phot:sane_check photon %d has weight %e after scatter\n", p_scat->np, p_scat->w);
+			}
+
+			/* SS June 04: During the spectrum calculation cycles, photons are thrown away when they interact with macro atoms or
+			   become k-packets. This is done by setting their weight to zero (effectively they have been absorbed into either
+			   excitation energy or thermal energy). Since they now have no weight there is no need to follow them further. */
+			/* 54b-ksl ??? Stuart do you really mean the comment above; it's not obvious to me since if true why does one need to
+			   calculate the progression of photons through the wind at all??? Also how is this enforced; where is pp.w set to a
+			   low value. */
+			/* JM 1504 -- This is correct. It's one of the odd things about combining the macro-atom approach with our way of doing 
+			   'spectral cycles'. If photons activate macro-atoms they are destroyed, but we counter this by generating photons
+			   from deactivating macro-atoms with the already calculated emissivities. */
+
+			if (geo.matom_radiation == 1 && geo.rt_mode == 2 && p_scat->w < weight_min)
+				/* Flag for the spectrum calculations in a macro atom calculation SS */
+			{
+				istat = pp.istat = P_ABSORB;
+				p_scat->tau = VERY_BIG;
+				if(p_scat == &pp) stuff_phot(&pp, p);
+				break;
+			}
+
+		  	// Calculate the line heating and if the photon was absorbed break finish up
+		  	// ??? Need to modify line_heat for multiple scattering but not yet
+		  	// Condition that nres < nlines added (SS) 
+
+		  	if (nres > -1 && nres < nlines)
+		  	{
+		    	pp.nrscat++;
+
+		    	/* This next statement writes out the position of every resonant scattering event to a file */
+		   		if (modes.track_resonant_scatters)
+					fprintf (pltptr,
+						"Photon %i has resonant scatter at %.2e %.2e %.2e in wind cell %i (grid cell=%i). Freq=%e Weight=%e\n",
+				 		p->np, pp.x[0], pp.x[1], pp.x[2], wmain[n].nplasma,
+				 		pp.grid, pp.freq, pp.w);
+
+		    	/* 68a - 090124 - ksl - Increment the number of scatters by this ion in this cell */
+		    	/* 68c - 090408 - ksl - Changed this to the weight of the photon at the time of the scatter */
+
+		    	plasmamain[wmain[n].nplasma].scatters[line[nres].nion] += pp.w;
+
+		    	if (geo.rt_mode == 1)	// only do next line for non-macro atom case
+				{
+			  	line_heat (&plasmamain[wmain[n].nplasma], &pp, nres);
+				}
+
+		    	if (pp.w < weight_min)
+				{
+			  		istat = pp.istat = P_ABSORB;	/* This photon was absorbed by continuum opacity within the wind */
+			  		pp.tau = VERY_BIG;
+			  		stuff_phot (&pp, p);
+			  		break;
+				}
+	    	}
+
+
+		  	/* 	The next if statement causes photons to be extracted during the creation of the detailed spectrum portion of the
+		     	program */
+
+		  	/* 	N.B. To use the anisotropic scattering option, extract needs to follow scatter.  This is because the reweighting
+		     	which occurs in extract needs the pdf for scattering to have been initialized. 02may ksl.  This seems to be OK at
+		     	present. */
+
+		  	if (iextract)
+		    {
+		      	stuff_phot (&pp, &pextract);
+
+
+		      	/* 	JM 1407 -- This next loop is required because in anisotropic scattering mode 2 we have normalised our rejection 
+		         	method. This means that we have to adjust nnscat by this factor, since nnscat will be lower by a factor of
+		         	1/p_norm */
+		     	if (geo.scatter_mode == 2 && pextract.nres <= NLINES && pextract.nres > 0)
+				{
+			  		/* 	we normalised our rejection method by the escape probability along the vector of maximum velocity gradient.
+			     		First find the sobolev optical depth along that vector */
+			  		tau_norm = sobolev (&wmain[pextract.grid], pextract.x, -1.0,
+				     					lin_ptr[pextract.nres], wmain[pextract.grid].dvds_max);
+
+			 		 /* then turn into a probability */
+			  		p_norm = p_escape_from_tau (tau_norm);
+				}
+		      	else
+				{
+			  		p_norm = 1.0;
+
+			  		/* throw an error if nnscat does not equal 1 */
+			  		/* 	JM 1504-- originally I'd used the wrong value of nnscat here. This would throw large amounts of errors which 
+			     		weren't actually errors */
+			  		/* nnscat is the quantity associated with this photon being extracted */
+			  		if (nnscat != 1) Error("nnscat is %i for photon %i in scatter mode %i! nres %i NLINES %i\n",
+			       							nnscat, p->np, geo.scatter_mode, pextract.nres, NLINES);
+				}
+
+		      	/* 	We then increase weight to account for number of scatters. This is done because in extract we multiply by the
+		         	escape probability along a given direction, but we also need to divide the weight by the mean escape
+		         	probability, which is equal to 1/nnscat */
+		      	pextract.w *= nnscat / p_norm;
+
+		      	if (sane_check (pextract.w))
+				{
+			  		Error("trans_phot: sane_check photon %d has weight %e before extract\n", p->np, pextract.w);
+				}
+		      	extract (w, &pextract, PTYPE_WIND);	// Treat as wind photon for purpose of extraction
+		    }
+
+			p_scat->istat = P_INWIND;
+			reposition(&pp);
+			stuff_v (pp.x, x_dfudge_check); // this is a vector we use to see if dfudge moved the photon outside the wind cone
+	  	
+		  	/* 	JM 1506 -- call walls again to account for instance where DFUDGE 
+		     	can take photon outside of the wind and into the disk or star 
+		     	after scattering. Note that walls updates the istat in pp as well.
+		     	This may not be necessary but I think to account for every eventuality 
+		     	it should be done */
+		  	istat = walls (&pp, p);
+
+		  	/* 	This *does not* update istat if the photon scatters outside of the wind-
+		     	I guess P_INWIND is really in wind or empty space but not escaped.
+		     	translate_in_space will take care of this next time round. All a bit
+		     	convoluted but should work. */
+
+	      	/*	JM 1506 -- we don't throw errors here now, but we do keep a track 
+	         	of how many 4 photons were lost due to DFUDGE pushing them 
+	         	outside of the wind after scatter */
+
+		  	// XXX PLACEHOLDER Check that this is the correct logic here 
+		  	if (where_in_wind (pp.x, &ndom) != W_ALL_INWIND && where_in_wind (x_dfudge_check, &ndom) == W_ALL_INWIND)
+		  	{
+	      		n_lost_to_dfudge++;		// increment the counter (checked at end of trans_phot)
+	  		}
+
+
+		    /* 	SWM 9-16 If this is the parent photon, finish scatter and continue. Otherwise, recurse on child photon  */
+			if(p_scat == &pp)
+			{
+				/* 	OK we are ready to continue the processing of a photon which has scattered. The next steps reinitialize parameters
+					so that the photon can continue throug the wind */
+				tau_scat = -log(1. - (rand() + 0.5) / MAXRAND);
+				istat = P_INWIND;
+				tau = 0;
+				icell = 0;
+				stuff_phot(&pp, p);
+			}
+			else
+				trans_phot_single(w, &p_split,  iextract);
 	    }
 
-
-	  /* The next if statement causes photons to be extracted during the creation of the detailed spectrum portion of the
-	     program */
-
-	  /* N.B. To use the anisotropic scattering option, extract needs to follow scatter.  This is because the reweighting
-	     which occurs in extract needs the pdf for scattering to have been initialized. 02may ksl.  This seems to be OK at
-	     present. */
-
-	  if (iextract)
-	    {
-	      stuff_phot (&pp, &pextract);
-
-
-	      /* JM 1407 -- This next loop is required because in anisotropic scattering mode 2 we have normalised our rejection 
-	         method. This means that we have to adjust nnscat by this factor, since nnscat will be lower by a factor of
-	         1/p_norm */
-	      if (geo.scatter_mode == 2 && pextract.nres <= NLINES
-		  && pextract.nres > 0)
-		{
-		  /* we normalised our rejection method by the escape probability along the vector of maximum velocity gradient.
-		     First find the sobolev optical depth along that vector */
-		  tau_norm =
-		    sobolev (&wmain[pextract.grid], pextract.x, -1.0,
-			     lin_ptr[pextract.nres],
-			     wmain[pextract.grid].dvds_max);
-
-		  /* then turn into a probability */
-		  p_norm = p_escape_from_tau (tau_norm);
-
-		}
-	      else
-		{
-		  p_norm = 1.0;
-
-		  /* throw an error if nnscat does not equal 1 */
-		  /* JM 1504-- originally I'd used the wrong value of nnscat here. This would throw large amounts of errors which 
-		     weren't actually errors */
-		  /* nnscat is the quantity associated with this photon being extracted */
-		  if (nnscat != 1)
-		    Error
-		      ("nnscat is %i for photon %i in scatter mode %i! nres %i NLINES %i\n",
-		       nnscat, p->np, geo.scatter_mode, pextract.nres,
-		       NLINES);
-		}
-
-	      /* We then increase weight to account for number of scatters. This is done because in extract we multiply by the
-	         escape probability along a given direction, but we also need to divide the weight by the mean escape
-	         probability, which is equal to 1/nnscat */
-	      pextract.w *= nnscat / p_norm;
-
-	      if (sane_check (pextract.w))
-		{
-		  Error
-		    ("trans_phot: sane_check photon %d has weight %e before extract\n",
-		     p->np, pextract.w);
-		}
-	      extract (w, &pextract, PTYPE_WIND);	// Treat as wind photon for purpose of extraction
-	    }
-
-
-
-
-	  /* OK we are ready to continue the processing of a photon which has scattered. The next steps reinitialize parameters
-	     so that the photon can continue throug the wind */
-
-	  tau_scat = -log (1. - (rand () + 0.5) / MAXRAND);
-	  istat = pp.istat = P_INWIND;	// if we got here, the photon stays in the wind- make sure istat doesn't say scattered still! 
-	  tau = 0;
-	  
-	  stuff_v (pp.x, x_dfudge_check); // this is a vector we use to see if dfudge moved the photon outside the wind cone
-	  reposition (&pp);
-
-	  /* JM 1506 -- call walls again to account for instance where DFUDGE 
-	     can take photon outside of the wind and into the disk or star 
-	     after scattering. Note that walls updates the istat in pp as well.
-	     This may not be necessary but I think to account for every eventuality 
-	     it should be done */
-	  istat = walls (&pp, p);
-
-	  /* This *does not* update istat if the photon scatters outside of the wind-
-	     I guess P_INWIND is really in wind or empty space but not escaped.
-	     translate_in_space will take care of this next time round. All a bit
-	     convoluted but should work. */
-
-      /* JM 1506 -- we don't throw errors here now, but we do keep a track 
-         of how many 4 photons were lost due to DFUDGE pushing them 
-         outside of the wind after scatter */
-
-	  // XXX PLACEHOLDER Check that this is the correct logic here 
-	  if (where_in_wind (pp.x, &ndom) != W_ALL_INWIND && where_in_wind (x_dfudge_check, &ndom) == W_ALL_INWIND)
-	  {
-      	n_lost_to_dfudge++;		// increment the counter (checked at end of trans_phot)
-	  }
-
-	  stuff_phot (&pp, p);
-	  icell = 0;
+	  	stuff_phot (&pp, p);
+	  	icell = 0;
 	}
-
 
 
       /* This completes the portion of the code that handles the scattering of a photon What follows is a simple check to see if

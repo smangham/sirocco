@@ -69,6 +69,9 @@ stuff_phot (pin, pout)
   pout->nnscat = pin->nnscat;
   pout->np = pin->np;
 
+  pout->vr_imp = pin->vr_imp;
+  pout->vr_np  = pin->vr_np;
+
   return (0);
 }
 

@@ -529,6 +529,12 @@ int nplasma, nmacro;	/*The total number of cells in the plasma and macro structu
   int reverb_dump_cells;                    //SWM - Number of cells to dump, list of cells to dump 'nwind' values
   double *reverb_dump_x, *reverb_dump_z;    //SWM - x & z values of the cells to dump
   int reverb_lines, *reverb_line;           //SWM - Number of lines to track, and array of line 'nres' values
+
+  //Added by SWM for variance reduction
+  enum vr_enum {VR_NONE=0, VR_IONISATION=1, VR_SPECTRUM=2, VR_BOTH_CYCLES=3} vr; 
+  int vr_sphere_shells;                     //SWM - For VR sphere mode, number of shells to use
+  double vr_shell_radius[10], vr_shell_importance[10]; //SWM - Shell structure
+  int vr_np;                                //SWM - Current photon number
 }
 geo;
 
@@ -645,7 +651,9 @@ typedef struct wind
   	{	W_IN_DISK=-5, W_IGNORE=-2, 	W_NOT_INWIND=-1, 
   		W_ALL_INWIND=0, W_PART_INWIND=1 
   	}	inwind;			
-  Wind_Paths_Ptr paths, *line_paths;         // SWM 6-2-15 Path data struct for each cell
+  Wind_Paths_Ptr paths, *line_paths;        // SWM 6-2-15 Path data struct for each cell
+  double vr_imp;                            // SWM 9-16 Importance for variance reduction
+  double vr_imp_incedent;                   // SWM 9-16 Total photon importance incident upon cell. Used for iteration.
 }
 wind_dummy, *WindPtr;
 
@@ -998,6 +1006,9 @@ typedef struct photon
   int np;			/*NSH 13/4/11 - an internal pointer to the photon number so 
 				   so we can write out details of where the photon goes */
   double path; 			/* SWM - Photon path length */
+
+  double vr_imp;    // SWM 8-9-16 Importance of photon
+  int vr_np;        // SWM 8-9-16 NP of parent photon
 
 }
 p_dummy, *PhotPtr;
