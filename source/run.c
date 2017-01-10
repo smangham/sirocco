@@ -107,7 +107,7 @@ calculate_ionization (restart_stat)
 /* XXXX - BEGINNING OF CYCLE TO CALCULATE THE IONIZATION OF THE WIND */
 
   if (geo.wcycle == geo.wcycles)
-    xsignal (files.root, "%-20s No ionization needed: wcycles(%d)==wcyeles(%d)\n", "COMMENT", geo.wcycle, geo.wcycles);
+    xsignal (files.root, "%-20s No ionization needed: wcycles(%d)==wcycles(%d)\n", "COMMENT", geo.wcycle, geo.wcycles);
   else
   {
     geo.pcycle = 0;             /* Set the spectrum cycles executed to 0, because 
@@ -120,9 +120,15 @@ calculate_ionization (restart_stat)
   if (geo.reverb > REV_NONE)
   {
     reverb_init (wmain);
-    delay_dump_prep (restart_stat, rank_global);
-  }
 
+    if(rank_global == 0)
+      delay_dump_prep_master (restart_stat);
+    #ifdef MPI_ON
+      MPI_Barrier (MPI_COMM_WORLD); // Once all done
+      if(rank_global != 0)
+        delay_dump_prep_slave();
+    #endif
+  }
 
   while (geo.wcycle < geo.wcycles)
   {                             /* This allows you to build up photons in bunches */
@@ -584,10 +590,6 @@ make_spectra (restart_stat)
 #endif
     Log ("Completed spectrum cycle %3d :  The elapsed TIME was %f\n", geo.pcycle, timer ());
 
-    /* SWM0215: Delay dump photons from this cycle */
-    if (geo.reverb > REV_NONE && !geo.select_extract)
-      delay_dump (p, NPHOT, 0); // SWM - Dump delay tracks from this iteration
-
     /* JM1304: moved geo.pcycle++ after xsignal to record cycles correctly. First cycle is cycle 0. */
 
     xsignal (files.root, "%-20s Finished %3d of %3d spectrum cycles \n", "OK", geo.pcycle, geo.pcycles);
@@ -617,14 +619,13 @@ make_spectra (restart_stat)
   }
 #endif
 
-  /* SWM0215: Dump the last photon path details to file */
-  if (geo.reverb != REV_NONE)
-    delay_dump_finish ();       // Each thread dumps to file
+  /* SWM1216: Close the DB connection */
 #ifdef MPI_ON
   MPI_Barrier (MPI_COMM_WORLD); // Once all done
-  if (rank_global == 0 && geo.reverb != REV_NONE)
-    delay_dump_combine (np_mpi_global); // Combine results if necessary
 #endif
+if (geo.reverb != REV_NONE)
+  delay_dump_finish ();
+
 
 
 /* Finally done */

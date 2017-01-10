@@ -10,14 +10,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <sqlite3.h>
 #include "atomic.h"
 #include "python.h"
 
 
-char delay_dump_file[LINELENGTH];
-int delay_dump_bank_size = 65535, delay_dump_bank_curr = 0;
-PhotPtr delay_dump_bank;
-int *delay_dump_bank_ex;
+sqlite3 *db;
+int subzero;
+int seconds_per_day = 86400;
 
 /**********************************************************/
 /** @name 	delay_to_observer
@@ -65,55 +65,53 @@ delay_to_observer (PhotPtr pp)
  * 9/14	-	Written by SWM
 ***********************************************************/
 int
-delay_dump_prep (int restart_stat, int i_rank)
+delay_dump_prep_master (int restart_stat)
 {
-  FILE *fopen (), *fptr;
-  char string[LINELENGTH], c_file[LINELENGTH], c_rank[LINELENGTH];
-  int i;
+  char c_file[LINELENGTH], *err_msg;
+  subzero = 0;
 
-  //Get output filename
+  // Open SQLite database
   strcpy (c_file, files.root);  //Copy filename to new string
-  strcat (c_file, ".delay_dump");
-  if (i_rank > 0)
-  {
-    sprintf (c_rank, "%i", i_rank);     //Write thread to string
-    strcat (c_file, c_rank);    //Append thread to filename
+  strcat (c_file, ".db");
+  printf("Preparing to open database '%s'",c_file);
+  if (SQLITE_OK != sqlite3_open(c_file, &db)) {
+    fprintf(stderr, "Master cannot open database: %s\n", sqlite3_errmsg(db));
+    sqlite3_close(db);
+    exit(0);
+  } 
+  // If this is not a restart run, purge the table and create a new one.
+  if(!restart_stat) {
+	  if (SQLITE_OK != sqlite3_exec(db, "DROP TABLE IF EXISTS Photons;", 0, 0, &err_msg)) {
+	    fprintf(stderr, "SQL error: %s\n", err_msg);
+	    sqlite3_free(err_msg);        
+	    sqlite3_close(db);
+	    exit(0);
+	  } 
+	  if (SQLITE_OK != sqlite3_exec(db, "CREATE TABLE Photons("
+	  		"id INTEGER PRIMARY KEY, Wavelength FLOAT, Weight FLOAT, X FLOAT, Y FLOAT, Z FLOAT,"
+	  		"ContinuumScatters INTEGER, ResonantScatters INTEGER, Delay FLOAT, Spectrum INTEGER," 
+		 		"Origin INTEGER, Resonance INTEGER, Origin_matom BOOLEAN);", 0, 0, &err_msg)) {
+	    fprintf(stderr, "SQL error: %s\n", err_msg);
+	    sqlite3_free(err_msg);        
+	    sqlite3_close(db);
+	    exit(0);
+	  } 
   }
-  strcpy (delay_dump_file, c_file);     //Store modified filename for later
-
-  //Allocate and zero dump files and set extract status
-  delay_dump_bank = (PhotPtr) calloc (sizeof (p_dummy), delay_dump_bank_size);
-  delay_dump_bank_ex = (int *) calloc (sizeof (int), delay_dump_bank_size);
-  for (i = 0; i < delay_dump_bank_size; i++)
-    delay_dump_bank_ex[i] = 0;
-
-  if (restart_stat == 1)
-  {                             //Check whether the output file already has a header
-    Log ("delay_dump_prep: Resume run, skipping writeout\n");
-    return (0);
-  }
-
-  if ((fptr = fopen (delay_dump_file, "w")) == NULL)
-  {                             //If this isn't a continue run, prep the output file
-
-    Error ("delay_dump_prep: Unable to open %s for writing\n", delay_dump_file);
-    exit (0);
-  }
-
-  if (i_rank > 0)
-  {
-    fprintf (fptr, "# Delay dump file for slave process %d\n", i_rank);
-  }
-  else
-  {                             // Construct and write a header string for the output file
-    fprintf (fptr, "# Python Version %s\n", VERSION);
-    get_time (string);
-    fprintf (fptr, "# Date	%s\n#  \n", string);
-    fprintf (fptr, "# \n# Freq      Wavelength  Weight   "
-             " Last X     Last Y     Last Z    " " Scatters   RScatter   Delay      Extracted  Spectrum   Origin   Last_Res  \n");
-  }
-  fclose (fptr);
   return (0);
+}
+int delay_dump_prep_slave() {
+  char c_file[LINELENGTH], err_msg;
+  subzero = 0;
+
+  // Open SQLite database
+  strcpy (c_file, files.root);  //Copy filename to new string
+  strcat (c_file, ".db");
+  if (SQLITE_OK != sqlite3_open(c_file, &db)) {
+    fprintf(stderr, "Slave cannot open database: %s\n", sqlite3_errmsg(db));
+    sqlite3_close(db);
+    exit(0);
+  } 
+  return(0);
 }
 
 /**********************************************************/
@@ -130,142 +128,9 @@ delay_dump_prep (int restart_stat, int i_rank)
 int
 delay_dump_finish (void)
 {
-  if (delay_dump_bank_curr > 0)
-  {
-    delay_dump (delay_dump_bank, delay_dump_bank_curr - 1, 1);
-  }
-  free (delay_dump_bank);
-  free (delay_dump_bank_ex);
+	sqlite3_close(db);
   return (0);
 }
-
-/**********************************************************/
-/** @name 	delay_dump_combine
- * @brief	Prepares delay dump output file
- *
- * @param [in] i_ranks		Number of parallel processes
- * @return 					0
- *
- * Collects all the delay dump files together at the end. 
- * Called by the master thread. Uses 'cat' for simplicity.
- *
- * @notes
- * 6/15	-	Written by SWM
-***********************************************************/
-int
-delay_dump_combine (int i_ranks)
-{
-  FILE *fopen ();               //, *f_base, *f_cat;
-  char c_call[LINELENGTH];      //, c_cat[LINELENGTH], c_char;
-  //int i;
-/*
-	f_base = fopen(delay_dump_file, 'a');
-	for(i=1;i<iRanks;i++)
-	{
-		sprintf(c_cat, "%s%d", c_cat, i);
-		if((f_cat = fopen(c_cat, 'r')) == NULL)
-			Error("delay_dump_combine: Missing file %s%d", c_cat,i);
-		else
-			while((c_char = fgetc(f_cat)) != EOF) fputc(c_char, f_base);
-		fclose(f_cat);
-	}
-	fclose(f_base);
-*/
-  //Yes this is done as a system call and won 't work on Windows machines. Lazy solution!
-  sprintf (c_call, "cat %s[0-9]* >> %s", delay_dump_file, delay_dump_file);
-  if (system (c_call) < 0)
-  {
-    Error ("delay_dump_combine: Error calling system command '%s'", c_call);
-  }
-  else
-  {
-    sprintf (c_call, "rm %s[0-9]*", delay_dump_file);
-  }
-  return (0);
-}
-
-/**********************************************************/
-/** @name 	delay_dump
- * @brief	Dumps tracked photons to file
- *
- * @param [in] np			Pointer to photon array tp dump
- * @param [in] np			Number photons in p
- * @param [in] iExtracted	Array of extract flags for p
- * @return 					0
- *
- * Sifts through the photons in the delay_dump file, checking
- * if they've scattered or were generated in the wind and so
- * contribute to the delay map. Uses the same filters as 
- * the spectra_create() function for scatters & angles.
- *
- * @notes
- * 6/15	-	Written by SWM
-***********************************************************/
-int
-delay_dump (PhotPtr p, int np, int iExtracted)
-{
-  FILE *fopen (), *fptr;
-  int nphot, mscat, mtopbot, i, subzero;
-  double zangle, delay;
-  subzero = 0;
-
-  printf ("delay_dump: Dumping %d photons\n", np);
-  /*
-   * Open a file for writing the spectrum
-   */
-  if ((fptr = fopen (delay_dump_file, "a")) == NULL)
-  {
-    Error ("delay_dump: Unable to reopen %s for writing\n", delay_dump_file);
-    exit (0);
-  }
-  for (nphot = 0; nphot < np; nphot++)
-  {
-    if (iExtracted ||
-        (p[nphot].istat == P_ESCAPE && (p[nphot].nscat > 0 || p[nphot].origin == PTYPE_WIND || p[nphot].origin == PTYPE_WIND_MATOM)))
-    {
-      zangle = fabs (p[nphot].lmn[2]);
-      /*
-       * Complicated if statement to allow one to choose
-       * whether to construct the spectrum from all photons
-       * or just from photons which have scattered a
-       * specific number of times.  01apr13--ksl-Modified
-       * if statement to change behavior on negative
-       * numbers to say that a negative number for mscat
-       * implies that you accept any photon with |mscat| or
-       * more scatters
-       */
-      for (i = MSPEC; i < nspectra; i++)
-      {
-        if (((mscat = xxspec[i].nscat) > 999 ||
-             p[nphot].nscat == mscat ||
-             (mscat < 0 && p[nphot].nscat >= (-mscat))) && ((mtopbot = xxspec[i].top_bot) == 0 || (mtopbot * p[nphot].x[2]) > 0))
-        {
-          if (iExtracted || (xxspec[i].mmin < zangle && zangle < xxspec[i].mmax))
-          {
-            delay = (delay_to_observer (&p[nphot]) - geo.rmax) / C;
-            if (delay < 0)
-              subzero++;
-
-            fprintf (fptr,
-                     "%10.5g %10.5g %10.5g %+10.5g %+10.5g %+10.5g %3d     %3d     %10.5g %5d %5d %5d %10d\n",
-                     p[nphot].freq, C * 1e8 / p[nphot].freq, p[nphot].w,
-                     p[nphot].x[0], p[nphot].x[1], p[nphot].x[2],
-                     p[nphot].nscat, p[nphot].nrscat, delay,
-                     (iExtracted ? delay_dump_bank_ex[nphot] : 0), i - MSPEC, p[nphot].origin, p[nphot].nres);
-          }
-        }
-      }
-    }
-  }
-
-  if (subzero > 0)
-  {
-    Log ("delay_dump: %d photons with <0 delay found! Increase path bin resolution to minimise this error\n", subzero);
-  }
-  fclose (fptr);
-  return (0);
-}
-
 /**********************************************************/
 /** @name 	delay_dump_single
  * @brief	Preps a single photon to be dumped
@@ -281,24 +146,31 @@ delay_dump (PhotPtr p, int np, int iExtracted)
  * 6/15	-	Written by SWM
 ***********************************************************/
 int
-delay_dump_single (PhotPtr pp, int extract_phot)
+delay_dump (PhotPtr pp, int i_spec)
 {
-  //If we're filtering out continuum photons and this is a continuum photon, throw it away.
+	char *err_msg;
+  
+ 	//If we're filtering out continuum photons and this is a continuum photon, throw it away.
   if(geo.reverb_filter_lines == -1 && pp->nres == -1) return (1);
+	char c_sql[LINELENGTH];
+	int b_matom = 0;
+	int i_origin = pp->origin;
+	if(pp->origin > 10) {
+		b_matom = 1;
+		i_origin -= 10;
+	}
+	double r_delay = (delay_to_observer (pp) - geo.rmax) / (C * seconds_per_day);
+	if(r_delay<0) subzero++;
 
-  stuff_phot (pp, &delay_dump_bank[delay_dump_bank_curr]);      //Bank single photon in temp array
-  delay_dump_bank_ex[delay_dump_bank_curr] = extract_phot;      //Record if it's extract photon
-  if (delay_dump_bank_curr == delay_dump_bank_size - 1) //If temp array is full
-  {
-    delay_dump (delay_dump_bank, delay_dump_bank_size, 1);
-    delay_dump_bank_curr = 0;   //Dump to file, zero array position
-    int i;
-    for (i = 0; i < delay_dump_bank_size; i++)
-      delay_dump_bank_ex[i] = 0;        //Zero extract status of single array
-  }
-  else
-  {
-    delay_dump_bank_curr++;
-  }
+  sprintf(c_sql,"INSERT INTO Photons VALUES(%g, %g, %g, %g, %g, %d, %d, %g, %d, %d, %d, %d) ", 
+  				C * 1e8 /pp->freq, pp->w, pp->x[0], pp->x[1], pp->x[2], 
+  				pp->nscat-pp->nrscat, pp->nrscat, r_delay, i_spec, i_origin, pp->nres, b_matom);
+
+	if (SQLITE_OK != sqlite3_exec(db, c_sql, 0, 0, &err_msg)) {
+	      fprintf(stderr, "SQL error: %s\n", err_msg);
+	      sqlite3_free(err_msg);        
+	      sqlite3_close(db);
+	      exit(0);
+	} 
   return (0);
 }

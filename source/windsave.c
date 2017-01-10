@@ -317,7 +317,6 @@ wind_complete (w)
       Error ("wind_complete: Don't know how to complete coord_type %d\n", zdom[ndom].coord_type);
       exit (0);
     }
-
   }
   return (0);
 }

@@ -432,7 +432,7 @@ the same resonance again */
         if (pstart.nscat > 0 || pstart.origin > 9 || (pstart.nres > -1 && pstart.nres < nlines))
         {                       //If this photon has scattered, been reprocessed, or originated in the wind it's important
           pstart.w = pp->w;     //Adjust weight to weight reduced by extraction
-          delay_dump_single (&pstart, 1);       //Dump photon now weight has been modified by extraction
+          delay_dump (&pstart, nspec);       //Dump photon now weight has been modified by extraction
         }
       }
 
