@@ -293,7 +293,7 @@ line_summary (w, rootname, ochoice)
      int ochoice;
 {
   int nion, nelem;
-  int element, istate, iline;
+  int element, istate, iline, iconfig, ilevden;
   int n;
   double x, lambda;
   char choice[LINELENGTH], iname[LINELENGTH];
@@ -356,6 +356,17 @@ line_summary (w, rootname, ochoice)
     exit (0);
   }
 
+if(lin_ptr[nline]->macro_info == 1)
+{
+  iconfig = lin_ptr[nline]->nconfigu;
+  ilevden = config[iconfig].nden;
+  printf("LINE CONFIG INDEX: %d, LEVDEN INDEX: %d\n",iconfig, ilevden);
+  printf("CONFIG IS %d-%d\n",config[iconfig].z, config[iconfig].istate);
+  printf("LINE IS %d-%d %.0f\n",lin_ptr[nline]->z, lin_ptr[nline]->istate, 1e8*C/freq_search);
+  printf("ION IS %d-%d\n", ion[nion].z, ion[nion].z);
+}
+
+
   rdint ("line_transfer(0=pure.abs,1=pure.scat,2=sing.scat,3=escape.prob, 4=off, diagnostic)", &geo.line_mode);
   if (geo.line_mode == 0)
     Log ("Pure_abs in line heating/cooling\n");
@@ -385,15 +396,10 @@ line_summary (w, rootname, ochoice)
       nplasma = w[n].nplasma;
 
       if(lin_ptr[nline]->macro_info == 1)
-      { //If this is a matom line
-        //Base matom emissivity for the upper level of the line
-        x = macromain[nplasma].matom_emiss[lin_ptr[nline]->nconfigu];
-        //Calculate the probability of this upper level de-exciting into the line
-        x *= matom_emit_in_line_prob(&(w[n]),lin_ptr[nline]);
-        if(x < 0) 
-        {
-          return(-1);
-        }
+      { //If this is a matom line, get level population.
+        d2 =  den_config (&plasmamain[nplasma], iconfig);
+        x  = d2;
+        // x = (d2) * a21 (lin_ptr[nline]) * H * lin_ptr[nline]->freq * w[n].vol;  SWM COMMENTED OUT FOR TESTING
       }
       else
       { //If this is not a matom line
@@ -401,8 +407,9 @@ line_summary (w, rootname, ochoice)
         x = (d2) * a21 (lin_ptr[nline]) * H * lin_ptr[nline]->freq * w[n].vol;
       }
       if(geo.line_mode != 4)
-        x *= z = scattering_fraction (lin_ptr[nline], &plasmamain[nplasma]);
-
+      {
+      //   x *= z = scattering_fraction (lin_ptr[nline], &plasmamain[nplasma]);  SWM COMMENTED OUT FOR TESTING
+      }
       tot += x;
       aaa[n] = x;
     }
@@ -418,19 +425,19 @@ line_summary (w, rootname, ochoice)
   /* Store the appropriate values in a place where it does not matter */
   if (ochoice)
   {
-    for (n = 0; n < NDIM2; n++)
-    {
-      // Here is the calculation of the effective collisions strength
-      if (w[n].vol > 0.0)
-      {
-        nplasma = w[n].nplasma;
-        omega = 5.13 * pow (plasmamain[nplasma].t_e / 1.e5, 0.18);
-        rb = 8.629e-6 * exp (-energy / (BOLTZMANN * plasmamain[nplasma].t_e)) / sqrt (plasmamain[nplasma].t_e) * omega;
-        w[n].x[1] = plasmamain[nplasma].density[nion] * plasmamain[nplasma].ne * rb * energy * w[n].vol;
-      }
-      else
-        w[n].x[1] = 0;
-    }
+    // for (n = 0; n < NDIM2; n++) SWM COMMENTED OUT FOR TESTING
+    // {
+    //   // Here is the calculation of the effective collisions strength
+    //   if (w[n].vol > 0.0)
+    //   {
+    //     nplasma = w[n].nplasma;
+    //     omega = 5.13 * pow (plasmamain[nplasma].t_e / 1.e5, 0.18);
+    //     rb = 8.629e-6 * exp (-energy / (BOLTZMANN * plasmamain[nplasma].t_e)) / sqrt (plasmamain[nplasma].t_e) * omega;
+    //     w[n].x[1] = plasmamain[nplasma].density[nion] * plasmamain[nplasma].ne * rb * energy * w[n].vol;
+    //   }
+    //   else
+    //     w[n].x[1] = 0;
+    // }
 
 
     strcpy (filename, rootname);
