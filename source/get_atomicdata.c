@@ -2540,7 +2540,8 @@ BAD_T_RR  5  0  1  1  4.647E-10  0.7484  6.142E+01  1.753E+07*/
               /* JM 1709 -- increased number of entries read up to max of 20 */
               nparam = sscanf (aline, "%*s %le %le %le %le %le %le %le %le %le %le %le %le %le %le %le %le %le %le %le %le",
                                &temp[0], &temp[1], &temp[2], &temp[3], &temp[4], &temp[5], &temp[6], &temp[7], &temp[8], &temp[9],
-                               &temp[10], &temp[11], &temp[12], &temp[13], &temp[14], &temp[15], &temp[16], &temp[17], &temp[18], &temp[19]);
+                               &temp[10], &temp[11], &temp[12], &temp[13], &temp[14], &temp[15], &temp[16], &temp[17], &temp[18],
+                               &temp[19]);
 
               for (nn = 0; nn < np; nn++)
               {
@@ -2556,7 +2557,8 @@ BAD_T_RR  5  0  1  1  4.647E-10  0.7484  6.142E+01  1.753E+07*/
               /* JM 1709 -- increased number of entries read up to max of 20 */
               nparam = sscanf (aline, "%*s %le %le %le %le %le %le %le %le %le %le %le %le %le %le %le %le %le %le %le %le",
                                &temp[0], &temp[1], &temp[2], &temp[3], &temp[4], &temp[5], &temp[6], &temp[7], &temp[8], &temp[9],
-                               &temp[10], &temp[11], &temp[12], &temp[13], &temp[14], &temp[15], &temp[16], &temp[17], &temp[18], &temp[19]);
+                               &temp[10], &temp[11], &temp[12], &temp[13], &temp[14], &temp[15], &temp[16], &temp[17], &temp[18],
+                               &temp[19]);
 
               for (nn = 0; nn < np; nn++)
               {
@@ -2985,7 +2987,7 @@ index_phot_top ()
 
   for (n = 0; n < ntop_phot + nxphot; n++)
   {
-    phot_top_ptr[n] = &phot_top[index[n + 1] - 1];	
+    phot_top_ptr[n] = &phot_top[index[n + 1] - 1];
   }
 
   /* Free the memory for the arrays */
@@ -3100,8 +3102,8 @@ indexx (n, arrin, indx)
   if (n < 2)
   {
     Log_silent ("Nothing for indexx to do! Only one element\n");
-	indx[0]=0;
-	indx[1]=1;  /* NSH 1707 - We still need to populate the array */
+    indx[0] = 0;
+    indx[1] = 1;                /* NSH 1707 - We still need to populate the array */
     return;
   }
 

@@ -223,7 +223,7 @@ History:
 #include <string.h>
 #include <math.h>
 #include "atomic.h"
-#include <time.h>		//To allow the used of the clock command without errors!!
+#include <time.h>               //To allow the used of the clock command without errors!!
 
 
 #include "python.h"
@@ -243,11 +243,11 @@ main (argc, argv)
   FILE *fopen ();
 
   int opar_stat, restart_stat;
-  double time_max;		// The maximum time the program is allowed to run before halting
-  double lstar;			// The luminosity of the star, iv it exists
+  double time_max;              // The maximum time the program is allowed to run before halting
+  double lstar;                 // The luminosity of the star, iv it exists
 
-  int my_rank;			// these two variables are used regardless of parallel mode
-  int np_mpi;			// rank and number of processes, 0 and 1 in non-parallel
+  int my_rank;                  // these two variables are used regardless of parallel mode
+  int np_mpi;                   // rank and number of processes, 0 and 1 in non-parallel
   int ndom;
 
 
@@ -260,17 +260,17 @@ main (argc, argv)
   np_mpi = 1;
 #endif
 
-  np_mpi_global = np_mpi;	// Global variable which holds the number of MPI processes
-  rank_global = my_rank;	// Global variable which holds the rank of the active MPI process
-  Log_set_mpi_rank (my_rank, np_mpi);	// communicates my_rank to kpar
+  np_mpi_global = np_mpi;       // Global variable which holds the number of MPI processes
+  rank_global = my_rank;        // Global variable which holds the rank of the active MPI process
+  Log_set_mpi_rank (my_rank, np_mpi);   // communicates my_rank to kpar
 
 
-  opar_stat = 0;		/* Initialize opar_stat to indicate that if we do not open a rdpar file, 
-				   the assumption is that we are reading from the command line */
-  restart_stat = 0;		/* Assume initially that these is a new run from scratch, and not 
-				   a restart */
-  time_max = 13.8e9 * 3.2e7;	/* The maximum time the program will run without stopping.  This
-				   is initially set to the lifetime of the universe */
+  opar_stat = 0;                /* Initialize opar_stat to indicate that if we do not open a rdpar file, 
+                                   the assumption is that we are reading from the command line */
+  restart_stat = 0;             /* Assume initially that these is a new run from scratch, and not 
+                                   a restart */
+  time_max = 13.8e9 * 3.2e7;    /* The maximum time the program will run without stopping.  This
+                                   is initially set to the lifetime of the universe */
   time_max = -1;
 
 
@@ -297,32 +297,27 @@ main (argc, argv)
 
   /* Start logging of errors and comments */
 
-  Log ("!!Python Version %s \n", VERSION);	//54f -- ksl -- Now read from version.h
+  Log ("!!Python Version %s \n", VERSION);      //54f -- ksl -- Now read from version.h
   Log ("!!Git commit hash %s\n", GIT_COMMIT_HASH);
 
   /* warn the user if there are uncommited changes */
 
   int git_diff_status = GIT_DIFF_STATUS;
   if (git_diff_status > 0)
-    Log
-      ("!!Git: This version was compiled with %i files with uncommitted changes.\n",
-       git_diff_status);
+    Log ("!!Git: This version was compiled with %i files with uncommitted changes.\n", git_diff_status);
 
   Log ("!!Python is running with %d processors\n", np_mpi_global);
-  Log_parallel
-    ("This is MPI task number %d (a total of %d tasks are running).\n",
-     rank_global, np_mpi_global);
+  Log_parallel ("This is MPI task number %d (a total of %d tasks are running).\n", rank_global, np_mpi_global);
 
   Debug ("Debug statements are on. To turn off use lower verbosity (< 5).\n");
 
   /* Set the maximum time if it was defined */
   if (time_max > 0)
-    {
-      set_max_time (files.root, time_max);
-    }
+  {
+    set_max_time (files.root, time_max);
+  }
 
-  xsignal (files.root, "%-20s Initializing variables for %s\n", "NOK",
-	   files.root);
+  xsignal (files.root, "%-20s Initializing variables for %s\n", "NOK", files.root);
 
   opar_stat = setup_created_files ();
 
@@ -338,177 +333,171 @@ main (argc, argv)
      of the system */
 
 
-  if (restart_stat == 1)	/* We want to continue a run. This is generally used 
-				   because we had to limit to runtime of python or we decided
-				   we needed more ionization or spectral cycles */
+  if (restart_stat == 1)        /* We want to continue a run. This is generally used 
+                                   because we had to limit to runtime of python or we decided
+                                   we needed more ionization or spectral cycles */
+  {
+    Log ("Continuing a previous run of %s \n", files.root);
+    strcpy (files.old_windsave, files.root);
+    strcat (files.old_windsave, ".wind_save");
+
+    if (wind_read (files.old_windsave) < 0)
     {
-      Log ("Continuing a previous run of %s \n", files.root);
-      strcpy (files.old_windsave, files.root);
-      strcat (files.old_windsave, ".wind_save");
+      Error ("python: Unable to open %s\n", files.old_windsave);        //program will exit if unable to read the file
+      exit (0);
+    }
+    w = wmain;
 
-      if (wind_read (files.old_windsave) < 0)
-	{
-	  Error ("python: Unable to open %s\n", files.old_windsave);	//program will exit if unable to read the file
-	  exit (0);
-	}
-      w = wmain;
+    geo.run_type = SYSTEM_TYPE_PREVIOUS;        // We read the data from a file
 
-      geo.run_type = SYSTEM_TYPE_PREVIOUS;	// We read the data from a file
+    xsignal (files.root, "%-20s Read %s\n", "COMMENT", files.old_windsave);
 
-      xsignal (files.root, "%-20s Read %s\n", "COMMENT", files.old_windsave);
+    if (geo.pcycle > 0)
+    {
+      spec_read (files.specsave);
+      xsignal (files.root, "%-20s Read %s\n", "COMMENT", files.specsave);
+    }
+  }
 
-      if (geo.pcycle > 0)
-	{
-	  spec_read (files.specsave);
-	  xsignal (files.root, "%-20s Read %s\n", "COMMENT", files.specsave);
-	}
+  else if (restart_stat == 0)   /* We are starting a new run, which is the normal mode of operation */
+  {
+
+    /* First,  establish the overall system type.  XXX System type should be a physical system,
+     * to make things easier for the user.  So really want system types to be something like
+     * CV, YSO, AGN so that defaults can be set. 
+     */
+
+    geo.system_type = SYSTEM_TYPE_STAR;
+
+    rdint ("System_type(0=star,1=binary,2=agn,3=previous)", &geo.system_type);
+
+    if (geo.system_type == SYSTEM_TYPE_BINARY)
+    {
+      geo.binary = TRUE;
     }
 
-  else if (restart_stat == 0)	/* We are starting a new run, which is the normal mode of operation */
-    {
+    init_geo ();                /* Set values in the geometry structure and the domain stucture to reasonable starting
+                                   values */
 
-      /* First,  establish the overall system type.  XXX System type should be a physical system,
-       * to make things easier for the user.  So really want system types to be something like
-       * CV, YSO, AGN so that defaults can be set. 
+    if (geo.system_type == SYSTEM_TYPE_PREVIOUS)
+    {
+      /* This option is for the confusing case where we want to start with a previous wind 
+         model,(presumably because that run produced a wind close to the one we are looking for, 
+         but we are going to change some parameters that do not affect the wind geometry,  
+         We will write use new filenames for the results, so all of the previous work is still saved,
        */
 
-      geo.system_type = SYSTEM_TYPE_STAR;
-
-      rdint ("System_type(0=star,1=binary,2=agn,3=previous)",
-	     &geo.system_type);
-
-      if (geo.system_type == SYSTEM_TYPE_BINARY)
-	{
-	  geo.binary = TRUE;
-	}
-
-      init_geo ();		/* Set values in the geometry structure and the domain stucture to reasonable starting
-				   values */
-
-      if (geo.system_type == SYSTEM_TYPE_PREVIOUS)
-	{
-	  /* This option is for the confusing case where we want to start with a previous wind 
-	     model,(presumably because that run produced a wind close to the one we are looking for, 
-	     but we are going to change some parameters that do not affect the wind geometry,  
-	     We will write use new filenames for the results, so all of the previous work is still saved,
-	   */
-
-	  strcpy (files.old_windsave, "earlier.run");
-	  rdstr ("Old_windfile(root_only)", files.old_windsave);
-	  strcat (files.old_windsave, ".wind_save");
+      strcpy (files.old_windsave, "earlier.run");
+      rdstr ("Old_windfile(root_only)", files.old_windsave);
+      strcat (files.old_windsave, ".wind_save");
 
 
-	  Log
-	    ("Starting a new run from scratch starting using a previous windfile\n");
+      Log ("Starting a new run from scratch starting using a previous windfile\n");
 
-	  /* Note that wind_read also reads the atomic data file that was used to create the previous run of the data. */
+      /* Note that wind_read also reads the atomic data file that was used to create the previous run of the data. */
 
-	  if (wind_read (files.old_windsave) < 0)
-	    {
-	      Error ("python: Unable to open %s\n", files.old_windsave);	//program will exit if unable to read the file
-	      exit (0);
-	    }
+      if (wind_read (files.old_windsave) < 0)
+      {
+        Error ("python: Unable to open %s\n", files.old_windsave);      //program will exit if unable to read the file
+        exit (0);
+      }
 
-	  geo.run_type = SYSTEM_TYPE_PREVIOUS;	// after wind_read one will have a different wind_type otherwise
-	  w = wmain;
-	  geo.wcycle = 0;
-	  geo.pcycle = 0;	/* This is a new run of an old windsave file so we set the nunber of cycles already done to 0 */
-	}
+      geo.run_type = SYSTEM_TYPE_PREVIOUS;      // after wind_read one will have a different wind_type otherwise
+      w = wmain;
+      geo.wcycle = 0;
+      geo.pcycle = 0;           /* This is a new run of an old windsave file so we set the nunber of cycles already done to 0 */
+    }
 
 
 
-      if (geo.run_type != SYSTEM_TYPE_PREVIOUS)
-	{
-	  /* get_stellar_params gets information like mstar, rstar, tstar etc.
-	     it returns the luminosity of the star */
+    if (geo.run_type != SYSTEM_TYPE_PREVIOUS)
+    {
+      /* get_stellar_params gets information like mstar, rstar, tstar etc.
+         it returns the luminosity of the star */
 
-	  rdpar_comment ("Parameters for the Central Object");
-	  lstar = get_stellar_params ();
+      rdpar_comment ("Parameters for the Central Object");
+      lstar = get_stellar_params ();
 
-	  /* Describe the disk */
-	  /* This option is the most common one, where we are starting to define a completely new system.  
-	   */
+      /* Describe the disk */
+      /* This option is the most common one, where we are starting to define a completely new system.  
+       */
 
-      get_disk_params();
+      get_disk_params ();
 
-//OLD	  rdpar_comment ("Parameters for the Disk (if there is one)");
-//OLD	  rdint
-//OLD	    ("disk.type(0=no.disk,1=standard.flat.disk,2=vertically.extended.disk)",
-//OLD	     &geo.disk_type);
-//OLD	  if (geo.disk_type != DISK_NONE)
-//OLD	    {
-//OLD	      rdint ("Disk_radiation(y=1)", &geo.disk_radiation);
-//OLD	    }
-//OLD	  else
-//OLD	    {
-//OLD	      geo.disk_radiation = 0;
-//OLD	    }
-//OLD	  get_spectype (geo.disk_radiation,
-//OLD			"Rad_type_for_disk(0=bb,1=models)_to_make_wind",
-//OLD			&geo.disk_ion_spectype);
-
-
-//OLD	  if (geo.disk_type)	/* Then a disk exists and it needs to be described */
-//OLD	    {
-//OLD	      get_disk_params ();
-//OLD	    }
-
-	  /* describe the boundary layer / agn components to the spectrum if they exist. 
-	     reads in information specified by the user and sets variables in geo structure */
-
-	  get_bl_and_agn_params (lstar);
-
-	  /* At this point we check whether we have any sources of radiation and exit if we do not */
-
-	  if (!geo.star_radiation && !geo.disk_radiation && !geo.bl_radiation
-	      && !geo.bl_radiation && !geo.agn_radiation)
-	    {
-	      Error
-		("python: No radiation sources so nothing to do but quit!\n");
-	      exit (0);
-	    }
-
-	  /* With the macro atom approach we won't want to generate photon 
-	     bundles in the wind so switch it off here. (SS) */
-
-	  if (geo.rt_mode == RT_MODE_MACRO)
-	    {
-	      Log
-		("python: Using Macro Atom method so switching off wind radiation.\n");
-	      geo.wind_radiation = 0;
-	    }
+//OLD     rdpar_comment ("Parameters for the Disk (if there is one)");
+//OLD     rdint
+//OLD       ("disk.type(0=no.disk,1=standard.flat.disk,2=vertically.extended.disk)",
+//OLD        &geo.disk_type);
+//OLD     if (geo.disk_type != DISK_NONE)
+//OLD       {
+//OLD         rdint ("Disk_radiation(y=1)", &geo.disk_radiation);
+//OLD       }
+//OLD     else
+//OLD       {
+//OLD         geo.disk_radiation = 0;
+//OLD       }
+//OLD     get_spectype (geo.disk_radiation,
+//OLD                   "Rad_type_for_disk(0=bb,1=models)_to_make_wind",
+//OLD                   &geo.disk_ion_spectype);
 
 
-	  /* Describe the wind. This routine reads in geo.rmax and geo.twind
-	     and then gets params by calling e.g. get_sv_wind_params() */
+//OLD     if (geo.disk_type)    /* Then a disk exists and it needs to be described */
+//OLD       {
+//OLD         get_disk_params ();
+//OLD       }
+
+      /* describe the boundary layer / agn components to the spectrum if they exist. 
+         reads in information specified by the user and sets variables in geo structure */
+
+      get_bl_and_agn_params (lstar);
+
+      /* At this point we check whether we have any sources of radiation and exit if we do not */
+
+      if (!geo.star_radiation && !geo.disk_radiation && !geo.bl_radiation && !geo.bl_radiation && !geo.agn_radiation)
+      {
+        Error ("python: No radiation sources so nothing to do but quit!\n");
+        exit (0);
+      }
+
+      /* With the macro atom approach we won't want to generate photon 
+         bundles in the wind so switch it off here. (SS) */
+
+      if (geo.rt_mode == RT_MODE_MACRO)
+      {
+        Log ("python: Using Macro Atom method so switching off wind radiation.\n");
+        geo.wind_radiation = 0;
+      }
 
 
-	  rdpar_comment
-	    ("Parameters descibing the various winds or coronae in the system");
-
-	  rdint ("Wind_radiation(y=1)", &geo.wind_radiation);
-
-	  rdint ("Number.of.wind.components", &geo.ndomain);
+      /* Describe the wind. This routine reads in geo.rmax and geo.twind
+         and then gets params by calling e.g. get_sv_wind_params() */
 
 
-	  for (n = 0; n < geo.ndomain; n++)
-	    {
+      rdpar_comment ("Parameters descibing the various winds or coronae in the system");
 
-	      get_domain_params (n);
+      rdint ("Wind_radiation(y=1)", &geo.wind_radiation);
 
-	    }
-
-
-	  if (geo.disk_type == DISK_NONE)
-	    {
-	      geo.disk_radiation = 0;
-	      geo.diskrad = 0;
-	    }
+      rdint ("Number.of.wind.components", &geo.ndomain);
 
 
-	}
+      for (n = 0; n < geo.ndomain; n++)
+      {
+
+        get_domain_params (n);
+
+      }
+
+
+      if (geo.disk_type == DISK_NONE)
+      {
+        geo.disk_radiation = 0;
+        geo.diskrad = 0;
+      }
+
 
     }
+
+  }
 
 
 
@@ -536,45 +525,42 @@ main (argc, argv)
    * one is starting from an early wind file as implemented this is quite restrictive about what one
    * can change in the previous case.   */
 
-  if (geo.run_type != SYSTEM_TYPE_PREVIOUS)	// Start of block to define a model for the first time
+  if (geo.run_type != SYSTEM_TYPE_PREVIOUS)     // Start of block to define a model for the first time
+  {
+
+
+    /* Describe the wind. This routine reads in geo.rmax and geo.twind
+       and then gets params by calling e.g. get_sv_wind_params() */
+
+
+    for (n = 0; n < geo.ndomain; n++)
     {
-
-
-      /* Describe the wind. This routine reads in geo.rmax and geo.twind
-         and then gets params by calling e.g. get_sv_wind_params() */
-
-
-      for (n = 0; n < geo.ndomain; n++)
-	{
-	  rdpar_comment ("Parameters for Domain %d", n);
-	  get_wind_params (n);
-	}
-
-    }				// End of block to define a model for the first time
-
-  else				// This refers to a previous system and so geo is already defined
-    {
-      if (geo.disk_type)	/* Then a disk exists and it needs to be described */
-	{
-	  if (geo.disk_radiation)
-	    {
-	      rdint
-		("Disk.temperature.profile(0=standard;1=readin,2=analyatic)",
-		 &geo.disk_tprofile);
-	      if (geo.disk_tprofile == DISK_TPROFILE_READIN)
-		{
-		  rdstr ("T_profile_file", files.tprofile);
-		}
-	    }
-	}
-      if (modes.zeus_connect == 1)	/* We are in rad-hydro mode, we want the new density and temperature */
-	{
-	  /* Hydro takes the wind domain number as an argument in the current domains setup */
-	  Log
-	    ("We are going to read in the density and temperature from a zeus file\n");
-	  get_hydro (geo.hydro_domain_number);	//This line just populates the hydro structures  
-	}
+      rdpar_comment ("Parameters for Domain %d", n);
+      get_wind_params (n);
     }
+
+  }                             // End of block to define a model for the first time
+
+  else                          // This refers to a previous system and so geo is already defined
+  {
+    if (geo.disk_type)          /* Then a disk exists and it needs to be described */
+    {
+      if (geo.disk_radiation)
+      {
+        rdint ("Disk.temperature.profile(0=standard;1=readin,2=analyatic)", &geo.disk_tprofile);
+        if (geo.disk_tprofile == DISK_TPROFILE_READIN)
+        {
+          rdstr ("T_profile_file", files.tprofile);
+        }
+      }
+    }
+    if (modes.zeus_connect == 1)        /* We are in rad-hydro mode, we want the new density and temperature */
+    {
+      /* Hydro takes the wind domain number as an argument in the current domains setup */
+      Log ("We are going to read in the density and temperature from a zeus file\n");
+      get_hydro (geo.hydro_domain_number);      //This line just populates the hydro structures  
+    }
+  }
 
 
   /* Calculate additional parameters associated with the binary star system */
@@ -595,10 +581,10 @@ main (argc, argv)
   /* If the disk radius is <0, assume no disk was intended. */
 
   if (geo.diskrad <= 0.0)
-    {
-      geo.disk_type = DISK_NONE;
-      geo.disk_radiation = 0;
-    }
+  {
+    geo.disk_type = DISK_NONE;
+    geo.disk_radiation = 0;
+  }
 
   if (geo.star_radiation)
     Log ("There is a star which radiates\n");
@@ -638,25 +624,17 @@ main (argc, argv)
  * number as one inputs. It' s not obvious that this is a good idea. */
 
   if (geo.pcycles > 0)
-    {
+  {
 
-      get_spectype (geo.star_radiation,
-		    "Rad_type_for_star(0=bb,1=models,2=uniform)_in_final_spectrum",
-		    &geo.star_spectype);
-      get_spectype (geo.disk_radiation,
-		    "Rad_type_for_disk(0=bb,1=models,2=uniform)_in_final_spectrum",
-		    &geo.disk_spectype);
-      get_spectype (geo.bl_radiation,
-		    "Rad_type_for_bl(0=bb,1=models,2=uniform)_in_final_spectrum",
-		    &geo.bl_spectype);
-      geo.agn_spectype = 3;
-      get_spectype (geo.agn_radiation,
-		    "Rad_type_for_agn(3=power_law,4=cloudy_table,5=bremsstrahlung)_in_final_spectrum",
-		    &geo.agn_spectype);
-      init_observers ();
-    }
+    get_spectype (geo.star_radiation, "Rad_type_for_star(0=bb,1=models,2=uniform)_in_final_spectrum", &geo.star_spectype);
+    get_spectype (geo.disk_radiation, "Rad_type_for_disk(0=bb,1=models,2=uniform)_in_final_spectrum", &geo.disk_spectype);
+    get_spectype (geo.bl_radiation, "Rad_type_for_bl(0=bb,1=models,2=uniform)_in_final_spectrum", &geo.bl_spectype);
+    geo.agn_spectype = 3;
+    get_spectype (geo.agn_radiation, "Rad_type_for_agn(3=power_law,4=cloudy_table,5=bremsstrahlung)_in_final_spectrum", &geo.agn_spectype);
+    init_observers ();
+  }
 
-  geo.matom_radiation = 0;	//initialise for ionization cycles - don't use pre-computed emissivities for macro-atom levels/ k-packets.
+  geo.matom_radiation = 0;      //initialise for ionization cycles - don't use pre-computed emissivities for macro-atom levels/ k-packets.
   get_standard_care_factors ();
   get_meta_params ();
 
@@ -675,41 +653,40 @@ main (argc, argv)
   freqmax = xband.f2[xband.nbands - 1];
 
   if (modes.iadvanced)
+  {
+    /* Do we require extra diagnostics or not */
+    rdint ("@Extra.diagnostics(0=no,1=yes) ", &modes.diag_on_off);
+    if (modes.diag_on_off)
     {
-      /* Do we require extra diagnostics or not */
-      rdint ("@Extra.diagnostics(0=no,1=yes) ", &modes.diag_on_off);
-      if (modes.diag_on_off)
-	{
-	  get_extra_diagnostics ();
-	}
+      get_extra_diagnostics ();
     }
+  }
 
 
   /* Wrap up and save all the inputs */
 
 
   if (strncmp (files.root, "mod", 3) == 0)
-    {
-      cpar ("mod.pf");
-    }
+  {
+    cpar ("mod.pf");
+  }
 
   else if (opar_stat == 1)
-    {
-      cpar (files.input);
-    }
+  {
+    cpar (files.input);
+  }
   else
-    {
-      cpar (files.new_pf);
-    }
+  {
+    cpar (files.new_pf);
+  }
 
   /* At this point, all inputs have been obtained at this point and the inputs have been copied to "mod.pf" or "python.pf"
    * If we have used, the -i flag, we quit; otherwise we continue on to run the model */
   if (modes.quit_after_inputs)
-    {
-      Log
-	("This was was run with the -i or --dry-run flag set, so quitting now inputs have been gathered.\n");
-      exit (0);
-    }
+  {
+    Log ("This was was run with the -i or --dry-run flag set, so quitting now inputs have been gathered.\n");
+    exit (0);
+  }
 
   /* INPUTS ARE FINALLY COMPLETE */
 
@@ -718,10 +695,9 @@ main (argc, argv)
 
   Log ("There are %d domains\n", geo.ndomain);
   for (n = 0; n < geo.ndomain; n++)
-    {
-      Log ("%20s type: %d  ndim: %d mdim: %d ndim2: %d\n", zdom[n].name,
-	   zdom[n].wind_type, zdom[n].ndim, zdom[n].mdim, zdom[n].ndim2);
-    }
+  {
+    Log ("%20s type: %d  ndim: %d mdim: %d ndim2: %d\n", zdom[n].name, zdom[n].wind_type, zdom[n].ndim, zdom[n].mdim, zdom[n].ndim2);
+  }
 
 
   /* DFUDGE is a distance that assures we can "push through" boundaries.  setup_dfudge
@@ -744,13 +720,13 @@ main (argc, argv)
    */
 
   for (ndom = 0; ndom < geo.ndomain; ndom++)
-    {
+  {
 
-      if (zdom[ndom].coord_type == RTHETA && geo.run_type == SYSTEM_TYPE_PREVIOUS)	//We need to generate an rtheta wind cone if we are restarting
-	{
-	  rtheta_make_cones (ndom, wmain);
-	}
+    if (zdom[ndom].coord_type == RTHETA && geo.run_type == SYSTEM_TYPE_PREVIOUS)        //We need to generate an rtheta wind cone if we are restarting
+    {
+      rtheta_make_cones (ndom, wmain);
     }
+  }
 
 
 
@@ -758,28 +734,28 @@ main (argc, argv)
 
   /* Next line finally defines the wind if this is the initial time this model is being run */
 
-  if (geo.run_type != SYSTEM_TYPE_PREVIOUS)	// Define the wind and allocate the arrays the first time
-    {
-      define_wind ();
-    }
+  if (geo.run_type != SYSTEM_TYPE_PREVIOUS)     // Define the wind and allocate the arrays the first time
+  {
+    define_wind ();
+  }
 
-  else if (modes.zeus_connect == 1)	//We have restarted, but are in zeus connect mode, so we want to update density, temp and velocities
-    {
+  else if (modes.zeus_connect == 1)     //We have restarted, but are in zeus connect mode, so we want to update density, temp and velocities
+  {
 
-      /* Hydro takes the wind domain number as an argument in the current domains setup */
-      hydro_restart (geo.hydro_domain_number);
-    }
+    /* Hydro takes the wind domain number as an argument in the current domains setup */
+    hydro_restart (geo.hydro_domain_number);
+  }
 
   /* this routine checks, somewhat crudely, if the grid is well enough resolved */
   check_grid ();
 
   w = wmain;
   if (modes.save_cell_stats)
-    {
-      /* Open a diagnostic file or files (with hardwired names) */
+  {
+    /* Open a diagnostic file or files (with hardwired names) */
 
-      open_diagfile ();
-    }
+    open_diagfile ();
+  }
 
   /* initialize the random number generator */
   /* By default, the random number generator start with fixed seeds (differnt
@@ -792,10 +768,10 @@ main (argc, argv)
    */
 
   if ((modes.rand_seed_usetime == 1) || (modes.zeus_connect == 1))
-    {
-      n = (unsigned int) clock () * (rank_global + 1);
-      srand (n);
-    }
+  {
+    n = (unsigned int) clock () * (rank_global + 1);
+    srand (n);
+  }
   else
     srand (1084515760 + (13 * rank_global));
 
@@ -804,9 +780,9 @@ main (argc, argv)
 
   /* If required, read in a non-standard disk temperature profile */
   if (geo.disk_tprofile == 1)
-    {
-      read_non_standard_disk_profile (files.tprofile);
-    }
+  {
+    read_non_standard_disk_profile (files.tprofile);
+  }
 
 
 
@@ -825,15 +801,13 @@ main (argc, argv)
  * */
 
 
-  disk_init (geo.rstar, geo.diskrad, geo.mstar, geo.disk_mdot, freqmin,
-	     freqmax, 0, &geo.f_disk);
-  qdisk_init ();		/* Initialize a disk qdisk to store the information about photons impinging on the disk */
-  xsignal (files.root, "%-20s Finished initialization for %s\n", "NOK",
-	   files.root);
+  disk_init (geo.rstar, geo.diskrad, geo.mstar, geo.disk_mdot, freqmin, freqmax, 0, &geo.f_disk);
+  qdisk_init ();                /* Initialize a disk qdisk to store the information about photons impinging on the disk */
+  xsignal (files.root, "%-20s Finished initialization for %s\n", "NOK", files.root);
   check_time (files.root);
 
 /* XXXX - THE CALCULATION OF THE IONIZATION OF THE WIND */
-  geo.ioniz_or_extract = 1;	//SS July 04 - want to compute MC estimators during ionization cycles
+  geo.ioniz_or_extract = 1;     //SS July 04 - want to compute MC estimators during ionization cycles
   //1 simply implies we are in the ionization section of the code
   //and allows routines to act accordinaly.
 /* 67 -ksl- geo.wycle will start at zero unless we are completing an old run */
@@ -845,9 +819,9 @@ main (argc, argv)
   Log (" Completed wind creation.  The elapsed TIME was %f\n", timer ());
   /* SWM - Evaluate wind paths for last iteration */
   if (geo.reverb == REV_WIND || geo.reverb == REV_MATOM)
-    {				//If this is a mode in which we keep wind arrays, update them
-      wind_paths_evaluate (w, my_rank);
-    }
+  {                             //If this is a mode in which we keep wind arrays, update them
+    wind_paths_evaluate (w, my_rank);
+  }
 
 /* XXXX - THE CALCULATION OF A DETAILED SPECTRUM IN A SPECIFIC REGION OF WAVELENGTH SPACE */
 
@@ -866,16 +840,16 @@ main (argc, argv)
 /* Next step speeds up extraction stage */
 
   if (!modes.keep_photoabs)
-    {
-      DENSITY_PHOT_MIN = -1.0;	// Do not calculated photoabsorption in detailed spectrum 
-    }
+  {
+    DENSITY_PHOT_MIN = -1.0;    // Do not calculated photoabsorption in detailed spectrum 
+  }
 
   /*Switch on k-packet/macro atom emissivities  SS June 04 */
 
   if (geo.rt_mode == RT_MODE_MACRO)
-    {
-      geo.matom_radiation = 1;
-    }
+  {
+    geo.matom_radiation = 1;
+  }
 
   /* Finished initializations required for macro-atom approach */
 

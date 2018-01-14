@@ -162,8 +162,8 @@ calculate_ionization (restart_stat)
     /* Zero the arrays, and other variables that need to be zeroed after the photons are generated. */
 
 
-    geo.lum_star_back=0;
-    geo.lum_disk_back=0;
+    geo.lum_star_back = 0;
+    geo.lum_disk_back = 0;
 
 
     for (n = 0; n < NRINGS; n++)
@@ -291,9 +291,9 @@ calculate_ionization (restart_stat)
  * values, loglin (0=linear, 1=log for the wavelength scale), all photons or just wind photons
  */
 
-      spectrum_summary (files.wspec,       "w", 0, 6, SPECTYPE_RAW, 1., 0, 0);  /* .spec_tot */ 
-      spectrum_summary (files.lwspec,      "w", 0, 6, SPECTYPE_RAW, 1., 1, 0);  /* .log_spec_tot */
-      spectrum_summary (files.wspec_wind,  "w", 0, 6, SPECTYPE_RAW, 1., 0, 1);  /* .spec_tot_wind  */
+      spectrum_summary (files.wspec, "w", 0, 6, SPECTYPE_RAW, 1., 0, 0);        /* .spec_tot */
+      spectrum_summary (files.lwspec, "w", 0, 6, SPECTYPE_RAW, 1., 1, 0);       /* .log_spec_tot */
+      spectrum_summary (files.wspec_wind, "w", 0, 6, SPECTYPE_RAW, 1., 0, 1);   /* .spec_tot_wind  */
       spectrum_summary (files.lwspec_wind, "w", 0, 6, SPECTYPE_RAW, 1., 1, 1);  /* .log_spec_tot_wind */
       phot_gen_sum (files.phot, "w");   /* Save info about the way photons are created and absorbed
                                            by the disk */
@@ -332,9 +332,9 @@ calculate_ionization (restart_stat)
       }
       if (modes.make_tables)
       {
-          strcpy(dummy,"");
-          sprintf(dummy,"diag_%s/%s%02d",files.root,files.root,geo.wcycle);
-          do_windsave2table(dummy);
+        strcpy (dummy, "");
+        sprintf (dummy, "diag_%s/%s%02d", files.root, files.root, geo.wcycle);
+        do_windsave2table (dummy);
       }
 
 #ifdef MPI_ON

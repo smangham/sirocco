@@ -66,95 +66,90 @@ ion_abundances (xplasma, mode)
 
 
   if (mode == IONMODE_ML93_FIXTE)
-    {
+  {
 /* on-the-spot approximation using existing t_e.   This routine does not attempt 
 to match heating and cooling in the wind element! */
 
-      if ((ireturn = nebular_concentrations (xplasma, NEBULARMODE_ML93)))
-	{
-	  Error
-	    ("ionization_abundances: nebular_concentrations failed to converge\n");
-	  Error
-	    ("ionization_abundances: j %8.2e t_e %8.2e t_r %8.2e w %8.2e\n",
-	     xplasma->j, xplasma->t_e, xplasma->w);
-	}
+    if ((ireturn = nebular_concentrations (xplasma, NEBULARMODE_ML93)))
+    {
+      Error ("ionization_abundances: nebular_concentrations failed to converge\n");
+      Error ("ionization_abundances: j %8.2e t_e %8.2e t_r %8.2e w %8.2e\n", xplasma->j, xplasma->t_e, xplasma->w);
     }
+  }
   else if (mode == IONMODE_LTE_TR)
-    {
+  {
 /* LTE using t_r */
-      ireturn = nebular_concentrations (xplasma, NEBULARMODE_TR);
-    }
+    ireturn = nebular_concentrations (xplasma, NEBULARMODE_TR);
+  }
   else if (mode == IONMODE_LTE_TE)
-    {
+  {
 /* LTE using t_e */
-      ireturn = nebular_concentrations (xplasma, NEBULARMODE_TE);
-    }
+    ireturn = nebular_concentrations (xplasma, NEBULARMODE_TE);
+  }
   else if (mode == IONMODE_FIXED)
-    {				//  Hardwired concentrations
+  {                             //  Hardwired concentrations
 
-      ireturn = fix_concentrations (xplasma, 0);
-    }
+    ireturn = fix_concentrations (xplasma, 0);
+  }
   else if (mode == IONMODE_ML93)
-    {
+  {
 /* On the spot, with one_shot at updating t_e before calculating densities */
 
 /* Shift values to old */
-      xplasma->dt_e_old = xplasma->dt_e;
-      xplasma->dt_e = xplasma->t_e - xplasma->t_e_old;
-      xplasma->t_e_old = xplasma->t_e;
-      xplasma->t_r_old = xplasma->t_r;
-      xplasma->lum_tot_old = xplasma->lum_tot;
+    xplasma->dt_e_old = xplasma->dt_e;
+    xplasma->dt_e = xplasma->t_e - xplasma->t_e_old;
+    xplasma->t_e_old = xplasma->t_e;
+    xplasma->t_r_old = xplasma->t_r;
+    xplasma->lum_tot_old = xplasma->lum_tot;
 
-      ireturn = one_shot (xplasma, mode);
+    ireturn = one_shot (xplasma, mode);
 
 /* Convergence check */
-      convergence (xplasma);
-    }
+    convergence (xplasma);
+  }
   else if (mode == IONMODE_PAIRWISE_ML93 || mode == IONMODE_MATRIX_BB)
-    {
-      /* Feb 2012 new for mode 6. New abundances have been computed using pairwise Saha equation
-         approach. We can now attempt to balance heating and cooling with the new abundance in the
-         same way as mode 3. */
+  {
+    /* Feb 2012 new for mode 6. New abundances have been computed using pairwise Saha equation
+       approach. We can now attempt to balance heating and cooling with the new abundance in the
+       same way as mode 3. */
 
 /* Shift values to old */
-      xplasma->dt_e_old = xplasma->dt_e;
-      xplasma->dt_e = xplasma->t_e - xplasma->t_e_old;
-      xplasma->t_e_old = xplasma->t_e;
-      xplasma->t_r_old = xplasma->t_r;
-      xplasma->lum_tot_old = xplasma->lum_tot;
+    xplasma->dt_e_old = xplasma->dt_e;
+    xplasma->dt_e = xplasma->t_e - xplasma->t_e_old;
+    xplasma->t_e_old = xplasma->t_e;
+    xplasma->t_r_old = xplasma->t_r;
+    xplasma->lum_tot_old = xplasma->lum_tot;
 
-      ireturn = one_shot (xplasma, mode);
+    ireturn = one_shot (xplasma, mode);
 
 /* Convergence check */
-      convergence (xplasma);
-    }
-  else if (mode == IONMODE_PAIRWISE_SPECTRALMODEL
-	   || mode == IONMODE_MATRIX_SPECTRALMODEL)
-    {
+    convergence (xplasma);
+  }
+  else if (mode == IONMODE_PAIRWISE_SPECTRALMODEL || mode == IONMODE_MATRIX_SPECTRALMODEL)
+  {
 
 /*  spectral_estimators does the work of getting banded W and alpha. Then oneshot gets called. */
 
-      ireturn = spectral_estimators (xplasma);	
+    ireturn = spectral_estimators (xplasma);
 
-      xplasma->dt_e_old = xplasma->dt_e;
-      xplasma->dt_e = xplasma->t_e - xplasma->t_e_old;
-      xplasma->t_e_old = xplasma->t_e;
-      xplasma->t_r_old = xplasma->t_r;
-      xplasma->lum_tot_old = xplasma->lum_tot;
+    xplasma->dt_e_old = xplasma->dt_e;
+    xplasma->dt_e = xplasma->t_e - xplasma->t_e_old;
+    xplasma->t_e_old = xplasma->t_e;
+    xplasma->t_r_old = xplasma->t_r;
+    xplasma->lum_tot_old = xplasma->lum_tot;
 
 
-      ireturn = one_shot (xplasma, mode);
+    ireturn = one_shot (xplasma, mode);
 
 
 /* Convergence check */
-      convergence (xplasma);
-    }
+    convergence (xplasma);
+  }
   else
-    {
-      Error ("ion_abundances: Could not calculate abundances for mode %d\n",
-	     mode);
-      exit (0);
-    }
+  {
+    Error ("ion_abundances: Could not calculate abundances for mode %d\n", mode);
+    exit (0);
+  }
 
   /* If we want the Auger effect deal with it now. Initially, this is
      put in here, right at the end of the ionization calculation -
@@ -163,9 +158,9 @@ to match heating and cooling in the wind element! */
      affected in an important way. */
 
   if (geo.auger_ionization == 1)
-    {
-      auger_ionization (xplasma);
-    }
+  {
+    auger_ionization (xplasma);
+  }
 
 
   return (ireturn);
@@ -220,31 +215,26 @@ convergence (xplasma)
   double epsilon;
 
   trcheck = techeck = hccheck = converging = 0;
-  xplasma->trcheck = xplasma->techeck = xplasma->hccheck = 0;	//NSH 70g - zero the global variables
+  xplasma->trcheck = xplasma->techeck = xplasma->hccheck = 0;   //NSH 70g - zero the global variables
   epsilon = 0.05;
 
   /* Check the fractional change in tempperatature and if is less than 
    * epsiolong increment trcheck and techeck 
    */
 
-  if ((xplasma->converge_t_r =
-       fabs (xplasma->t_r_old - xplasma->t_r) / (xplasma->t_r_old +
-						 xplasma->t_r)) > epsilon)
+  if ((xplasma->converge_t_r = fabs (xplasma->t_r_old - xplasma->t_r) / (xplasma->t_r_old + xplasma->t_r)) > epsilon)
     xplasma->trcheck = trcheck = 1;
   if (xplasma->t_e < TMAX)
-    {
-      if ((xplasma->converge_t_e =
-	   fabs (xplasma->t_e_old - xplasma->t_e) / (xplasma->t_e_old +
-						     xplasma->t_e)) > epsilon)
-	xplasma->techeck = techeck = 1;
-      if ((xplasma->converge_hc =
-	   fabs (xplasma->heat_tot - xplasma->cool_tot) / fabs (xplasma->heat_tot + xplasma->cool_tot)) > epsilon)
-	xplasma->hccheck = hccheck = 1;
-    }
-  else				//If the cell has reached the maximum temperature
-    {
-      xplasma->techeck = techeck = xplasma->hccheck = hccheck = 2;	//we mark it as overlimit
-    }
+  {
+    if ((xplasma->converge_t_e = fabs (xplasma->t_e_old - xplasma->t_e) / (xplasma->t_e_old + xplasma->t_e)) > epsilon)
+      xplasma->techeck = techeck = 1;
+    if ((xplasma->converge_hc = fabs (xplasma->heat_tot - xplasma->cool_tot) / fabs (xplasma->heat_tot + xplasma->cool_tot)) > epsilon)
+      xplasma->hccheck = hccheck = 1;
+  }
+  else                          //If the cell has reached the maximum temperature
+  {
+    xplasma->techeck = techeck = xplasma->hccheck = hccheck = 2;        //we mark it as overlimit
+  }
 
 //110919 nsh modified line below to include the adiabatic cooling in the check that heating equals cooling
 //111004 nsh further modification to include DR and compton cooling, now moved out of lum_tot
@@ -266,23 +256,22 @@ convergence (xplasma)
    * amount by which the temperature can change in this cycle
    */
 
-  if (xplasma->dt_e_old * xplasma->dt_e < 0
-      && fabs (xplasma->dt_e) > fabs (xplasma->dt_e_old))
+  if (xplasma->dt_e_old * xplasma->dt_e < 0 && fabs (xplasma->dt_e) > fabs (xplasma->dt_e_old))
     converging = 1;
   xplasma->converging = converging;
 
   if (converging == 1)
-    {				// Not converging
-      xplasma->gain *= 0.7;
-      if (xplasma->gain < 0.1)
-	xplasma->gain = 0.1;
-    }
+  {                             // Not converging
+    xplasma->gain *= 0.7;
+    if (xplasma->gain < 0.1)
+      xplasma->gain = 0.1;
+  }
   else
-    {
-      xplasma->gain *= 1.1;
-      if (xplasma->gain > 0.8)
-	xplasma->gain = 0.8;
-    }
+  {
+    xplasma->gain *= 1.1;
+    if (xplasma->gain > 0.8)
+      xplasma->gain = 0.8;
+  }
 
   return (whole_check);
 }
@@ -320,30 +309,30 @@ check_convergence ()
 {
   int n;
   int nconverge, nconverging, ntot;
-  int nte, ntr, nhc;		//NSH 70g - three new counters for the different convergence criteria
-  int nmax;			//NSH 130725 - counter for cells which are marked as converged, but over temp
+  int nte, ntr, nhc;            //NSH 70g - three new counters for the different convergence criteria
+  int nmax;                     //NSH 130725 - counter for cells which are marked as converged, but over temp
   double xconverge, xconverging;
 
   nconverge = nconverging = ntot = 0;
-  ntr = nte = nhc = nmax = 0;	//NSH 70i zero the counters
+  ntr = nte = nhc = nmax = 0;   //NSH 70i zero the counters
 
   for (n = 0; n < NPLASMA; n++)
-    {
-      ntot++;
-      if (plasmamain[n].converge_whole == 0)
-	nconverge++;
-      if (plasmamain[n].trcheck == 0)	//NSH 70g - count up the three individual convergence criteria
-	ntr++;
-      if (plasmamain[n].techeck == 0)
-	nte++;
-      if (plasmamain[n].hccheck == 0)
-	nhc++;
-      if (plasmamain[n].techeck == 2)
-	nmax++;
-      if (plasmamain[n].converging == 0)
-	nconverging++;
+  {
+    ntot++;
+    if (plasmamain[n].converge_whole == 0)
+      nconverge++;
+    if (plasmamain[n].trcheck == 0)     //NSH 70g - count up the three individual convergence criteria
+      ntr++;
+    if (plasmamain[n].techeck == 0)
+      nte++;
+    if (plasmamain[n].hccheck == 0)
+      nhc++;
+    if (plasmamain[n].techeck == 2)
+      nmax++;
+    if (plasmamain[n].converging == 0)
+      nconverging++;
 
-    }
+  }
 
   xconverge = ((double) nconverge) / ntot;
   xconverging = ((double) nconverging) / ntot;
@@ -351,11 +340,11 @@ check_convergence ()
   Log
     ("!!Check_converging: %4d (%.3f) converged and %4d (%.3f) converging of %d cells\n",
      nconverge, xconverge, nconverging, xconverging, ntot);
-  Log ("!!Check_convergence_breakdown: t_r %4d t_e(real) %4d t_e(maxed) %4d hc(real) %4d\n", ntr, nte, nmax, nhc);	//NSH 70g split of what is converging
+  Log ("!!Check_convergence_breakdown: t_r %4d t_e(real) %4d t_e(maxed) %4d hc(real) %4d\n", ntr, nte, nmax, nhc);      //NSH 70g split of what is converging
   Log
     ("Summary  convergence %4d %.3f  %4d  %.3f  %d  #  n_converged fraction_converged  converging fraction_converging total cells\n",
      nconverge, xconverge, nconverging, xconverging, ntot);
-  Log_flush ();			/*NSH June 13 Added call to flush logfile */
+  Log_flush ();                 /*NSH June 13 Added call to flush logfile */
   return (0);
 }
 
@@ -413,25 +402,25 @@ one_shot (xplasma, mode)
   te_old = xplasma->t_e;
 
   if (modes.zeus_connect == 1 || modes.fixed_temp == 1)
-    {
-      te_new = te_old;		//We dont want to change the temperature
-      xxxplasma = xplasma;
-      zero_emit (te_old);	//But we do still want to compute all heating and cooling rates
-    }
-  else				//Do things to old way - look for a new temperature
-    {
-      te_new = calc_te (xplasma, 0.7 * te_old, 1.3 * te_old);	//compute the new t_e - no limits on where it can go
-      xplasma->t_e = (1 - gain) * te_old + gain * te_new;	/*Allow the temperature to move by a fraction gain towards 
-								   the equilibrium temperature */
+  {
+    te_new = te_old;            //We dont want to change the temperature
+    xxxplasma = xplasma;
+    zero_emit (te_old);         //But we do still want to compute all heating and cooling rates
+  }
+  else                          //Do things to old way - look for a new temperature
+  {
+    te_new = calc_te (xplasma, 0.7 * te_old, 1.3 * te_old);     //compute the new t_e - no limits on where it can go
+    xplasma->t_e = (1 - gain) * te_old + gain * te_new; /*Allow the temperature to move by a fraction gain towards 
+                                                           the equilibrium temperature */
 
-      /* NSH 130722 - NOTE - at this stage, the cooling terms are still those computed from 
-       * the 'ideal' t_e, not the new t_e - this may be worth investigatiing. */
-      if (xplasma->t_e > TMAX)	//check to see if we have maxed out the temperature.
-	{
-	  xplasma->t_e = TMAX;
-	}
-	zero_emit(xplasma->t_e);  //Get the heating and cooling rates correctly for the new temperature
+    /* NSH 130722 - NOTE - at this stage, the cooling terms are still those computed from 
+     * the 'ideal' t_e, not the new t_e - this may be worth investigatiing. */
+    if (xplasma->t_e > TMAX)    //check to see if we have maxed out the temperature.
+    {
+      xplasma->t_e = TMAX;
     }
+    zero_emit (xplasma->t_e);   //Get the heating and cooling rates correctly for the new temperature
+  }
 
 
 
@@ -443,37 +432,31 @@ meaning in nebular concentrations.
 
   if (mode == IONMODE_ML93)
     mode = NEBULARMODE_ML93;
-  else if (mode <= 1 || mode == 5 || mode > 9)	
-    {
-      /* There is no mode 5 at present  - SIM + two new modes in Feb 2012  + mode 5 now removed */
+  else if (mode <= 1 || mode == 5 || mode > 9)
+  {
+    /* There is no mode 5 at present  - SIM + two new modes in Feb 2012  + mode 5 now removed */
 
-      Error ("one_shot: Sorry, Charlie, don't know how to process mode %d\n",
-	     mode);
-      exit (0);
-    }
+    Error ("one_shot: Sorry, Charlie, don't know how to process mode %d\n", mode);
+    exit (0);
+  }
 
   if (xplasma->t_r > 10.)
-    {				/* Then modify to an on the spot approx */
-      if (nebular_concentrations (xplasma, mode))
-	{
-	  Error
-	    ("ionization_on_the_spot: nebular_concentrations failed to converge\n");
-	  Error
-	    ("ionization_on_the_spot: j %8.2e t_e %8.2e t_r %8.2e w %8.2e nphot %i\n",
-	     xplasma->j, xplasma->t_e, xplasma->w, xplasma->ntot);
-	}
-      if (xplasma->ne < 0 || VERY_BIG < xplasma->ne)
-	{
-	  Error ("ionization_on_the_spot: ne = %8.2e out of range\n",
-		 xplasma->ne);
-	}
-    }
-  else
+  {                             /* Then modify to an on the spot approx */
+    if (nebular_concentrations (xplasma, mode))
     {
-      Error ("ionization_on_the_spot: t_r exceptionally small %g\n",
-	     xplasma->t_r);
-      exit (0);
+      Error ("ionization_on_the_spot: nebular_concentrations failed to converge\n");
+      Error ("ionization_on_the_spot: j %8.2e t_e %8.2e t_r %8.2e w %8.2e nphot %i\n", xplasma->j, xplasma->t_e, xplasma->w, xplasma->ntot);
     }
+    if (xplasma->ne < 0 || VERY_BIG < xplasma->ne)
+    {
+      Error ("ionization_on_the_spot: ne = %8.2e out of range\n", xplasma->ne);
+    }
+  }
+  else
+  {
+    Error ("ionization_on_the_spot: t_r exceptionally small %g\n", xplasma->t_r);
+    exit (0);
+  }
 
 
   return (0);
@@ -556,17 +539,17 @@ calc_te (xplasma, tmin, tmax)
    */
 
   if ((z1 * z2 < 0.0))
-    {				// Then the interval is bracketed 
-      xplasma->t_e = zbrent (zero_emit, tmin, tmax, 50.);
-    }
+  {                             // Then the interval is bracketed 
+    xplasma->t_e = zbrent (zero_emit, tmin, tmax, 50.);
+  }
   else if (fabs (z1) < fabs (z2))
-    {
-      xplasma->t_e = tmin;
-    }
+  {
+    xplasma->t_e = tmin;
+  }
   else
-    {
-      xplasma->t_e = tmax;
-    }
+  {
+    xplasma->t_e = tmax;
+  }
   /* With the new temperature in place for the cell, get the correct value of heat_tot.
      SS June  04 */
 
@@ -622,7 +605,7 @@ zero_emit (t)
   xxxplasma->heat_tot += xxxplasma->heat_photo_macro;
   xxxplasma->heat_photo += xxxplasma->heat_photo_macro;
 
-  /*81d - nsh - all cooling calculations moved into seperate routine.*/
+  /*81d - nsh - all cooling calculations moved into seperate routine. */
 
 //OLD  /* 70d - ksl - Added next line so that adiabatic cooling reflects the temperature we
 //OLD   * are testing.  Adiabatic cooling is proportional to temperature
@@ -631,14 +614,14 @@ zero_emit (t)
 //OLD  if (geo.adiabatic)
 //OLD    {
 //OLD      if (wmain[xxxplasma->nwind].div_v >= 0.0)
-//OLD	{
-//OLD	  /* This is the case where we have adiabatic cooling - we want to retain the old behaviour, 
-//OLD	     so we use the 'test' temperature to compute it. If div_v is less than zero, we don't do
-//OLD	     anything here, and so the existing value of adiabatic cooling is used - this was computed 
-//OLD	     in wind_updates2d before the call to ion_abundances. */
-//OLD	  xxxplasma->cool_adiabatic =
-//OLD	    adiabatic_cooling (&wmain[xxxplasma->nwind], t);
-//OLD	}
+//OLD   {
+//OLD     /* This is the case where we have adiabatic cooling - we want to retain the old behaviour, 
+//OLD        so we use the 'test' temperature to compute it. If div_v is less than zero, we don't do
+//OLD        anything here, and so the existing value of adiabatic cooling is used - this was computed 
+//OLD        in wind_updates2d before the call to ion_abundances. */
+//OLD     xxxplasma->cool_adiabatic =
+//OLD       adiabatic_cooling (&wmain[xxxplasma->nwind], t);
+//OLD   }
 //OLD    }
 
 //OLD  else
@@ -663,12 +646,12 @@ zero_emit (t)
 //OLD  xxxplasma->cool_tot =
 //OLD    xxxplasma->cool_adiabatic + xxxplasma->cool_dr + xxxplasma->cool_di +
 //OLD    xxxplasma->cool_comp + total_emission (&wmain[xxxplasma->nwind], 0.,
-//OLD					  VERY_BIG);
+//OLD                                     VERY_BIG);
 
-  cooling(xxxplasma,t);
+  cooling (xxxplasma, t);
 
   difference = xxxplasma->heat_tot - xxxplasma->cool_tot;
-  
+
   // Test for just ff
   //difference = xxxplasma->heat_ff - xxxplasma->lum_ff;
 
@@ -678,6 +661,3 @@ zero_emit (t)
 
   return (difference);
 }
-
-
-

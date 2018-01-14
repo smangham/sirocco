@@ -38,49 +38,44 @@ get_disk_params ()
 {
 
   rdpar_comment ("Parameters for the Disk (if there is one)");
-  rdint
-    ("Disk.type(0=no.disk,1=standard.flat.disk,2=vertically.extended.disk)",
-     &geo.disk_type);
+  rdint ("Disk.type(0=no.disk,1=standard.flat.disk,2=vertically.extended.disk)", &geo.disk_type);
   if (geo.disk_type != DISK_NONE)
-    {
-      rdint ("Disk.radiation(y=1)", &geo.disk_radiation);
-    }
+  {
+    rdint ("Disk.radiation(y=1)", &geo.disk_radiation);
+  }
   else
-    {
-      geo.disk_radiation = 0;
-    }
-  get_spectype (geo.disk_radiation,
-		"Disk.rad_type(0=bb,1=models)_to_make_wind",
-		&geo.disk_ion_spectype);
+  {
+    geo.disk_radiation = 0;
+  }
+  get_spectype (geo.disk_radiation, "Disk.rad_type(0=bb,1=models)_to_make_wind", &geo.disk_ion_spectype);
 
 
   if (geo.disk_type == DISK_NONE)
-    {
-      return (0);
-    }
-  rdint ("Disk.temperature.profile(0=Shakura-Sunyaev;1=readin,2=yso)",
-	 &geo.disk_tprofile);
+  {
+    return (0);
+  }
+  rdint ("Disk.temperature.profile(0=Shakura-Sunyaev;1=readin,2=yso)", &geo.disk_tprofile);
   if (geo.disk_tprofile == DISK_TPROFILE_STANDARD)
-    {
-      geo.disk_mdot /= (MSOL / YR);	// Convert to msol/yr to simplify input
-      rddoub ("Disk.mdot(msol/yr)", &geo.disk_mdot);
-      geo.disk_mdot *= (MSOL / YR);
-    }
+  {
+    geo.disk_mdot /= (MSOL / YR);       // Convert to msol/yr to simplify input
+    rddoub ("Disk.mdot(msol/yr)", &geo.disk_mdot);
+    geo.disk_mdot *= (MSOL / YR);
+  }
   else if (geo.disk_tprofile == DISK_TPROFILE_READIN)
-    {
-      rdstr ("Disk.T_profile_file", files.tprofile);
-      geo.disk_mdot = 0;
-    }
+  {
+    rdstr ("Disk.T_profile_file", files.tprofile);
+    geo.disk_mdot = 0;
+  }
   else
-    {
-      geo.disk_mdot = 0;
-    }
+  {
+    geo.disk_mdot = 0;
+  }
 
   /* Set a default for diskrad for an AGN */
   if (geo.system_type == SYSTEM_TYPE_AGN)
-    {
-      geo.diskrad = 100. * geo.r_agn;
-    }
+  {
+    geo.diskrad = 100. * geo.r_agn;
+  }
 
   rddoub ("Disk.radmax(cm)", &geo.diskrad);
   Log ("geo.diskrad  %e\n", geo.diskrad);
@@ -90,16 +85,15 @@ get_disk_params ()
 /* If diskrad <= geo.rstar set geo.disk_type = DISK_NONE to make any disk transparent anyway. */
 
   if (geo.diskrad < geo.rstar)
-    {
-      Log ("Disk radius is less than star radius, so assuming no disk)\n");
-      geo.disk_type = DISK_NONE;
-    }
+  {
+    Log ("Disk radius is less than star radius, so assuming no disk)\n");
+    geo.disk_type = DISK_NONE;
+  }
 
   if (geo.disk_type == DISK_VERTICALLY_EXTENDED)
-    {				/* Get the additional variables need to describe a vertically extended disk */
-      rddoub ("Disk.z0(fractional.height.at.diskrad)", &geo.disk_z0);
-      rddoub ("Disk.z1(powerlaw.index)", &geo.disk_z1);
-    }
+  {                             /* Get the additional variables need to describe a vertically extended disk */
+    rddoub ("Disk.z0(fractional.height.at.diskrad)", &geo.disk_z0);
+    rddoub ("Disk.z1(powerlaw.index)", &geo.disk_z1);
+  }
   return (0);
 }
-

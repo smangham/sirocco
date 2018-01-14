@@ -454,26 +454,26 @@ The choice of SMAX_FRAC can affect execution time.*/
   if (geo.rt_mode == RT_MODE_MACRO)
   {                             // Macro-method
     /* In the macro-method, b-f and other continuum processes do not reduce the photon
-    weight, but are treated as as scattering processes.  Therfore most of what was in 
-    subroutine radiation can be avoided. 
-    */
+       weight, but are treated as as scattering processes.  Therfore most of what was in 
+       subroutine radiation can be avoided. 
+     */
 
 
-    one = &w[p->grid];         
+    one = &w[p->grid];
     nplasma = one->nplasma;
     xplasma = &plasmamain[nplasma];
     xplasma->ntot++;
 
 
-    if (geo.ioniz_or_extract == 1)       
+    if (geo.ioniz_or_extract == 1)
     {
-     /* For an ionization cycle */
+      /* For an ionization cycle */
       bf_estimators_increment (one, p, ds_current);
 
-    /*photon weight times distance in the shell is proportional to the mean intensity */
+      /*photon weight times distance in the shell is proportional to the mean intensity */
       xplasma->j += p->w * ds_current;
 
-    /* frequency weighted by the weights and distance in the shell.  See eqn 2 ML93 */
+      /* frequency weighted by the weights and distance in the shell.  See eqn 2 ML93 */
       xplasma->ave_freq += p->freq * p->w * ds_current;
 
     }
@@ -534,11 +534,11 @@ History:
                 however note that frequencies are not changed.
 
 **************************************************************/
-double xnorth[]={0.,0.,1.};
-double xsouth[]={0.,0.,-1.};
+double xnorth[] = { 0., 0., 1. };
+double xsouth[] = { 0., 0., -1. };
 
 int
-walls (p, pold,normal)
+walls (p, pold, normal)
      PhotPtr p, pold;
      double *normal;
 {
@@ -552,13 +552,14 @@ walls (p, pold,normal)
    * being that the star is located at the center of the
    * coordiante grid.
    */
-  
-  if ((r = dot (p->x, p->x)) < geo.rstar_sq) {
-      s=ds_to_sphere(geo.rstar,pold);
-      stuff_phot(pold,p);
-      move_phot(p,s);
-      stuff_v(p->x,normal); 
-      return (p->istat = P_HIT_STAR);
+
+  if ((r = dot (p->x, p->x)) < geo.rstar_sq)
+  {
+    s = ds_to_sphere (geo.rstar, pold);
+    stuff_phot (pold, p);
+    move_phot (p, s);
+    stuff_v (p->x, normal);
+    return (p->istat = P_HIT_STAR);
   }
 
   /* Check to see if it has hit the disk.  */
@@ -570,11 +571,12 @@ walls (p, pold,normal)
     {
       // We are inside a vertically extended disk.  So call ds_to_disk to find out where we hit it
       s = ds_to_disk (pold, 0);
-      if (s <= 0){
-          Error("walls: We seem to have ben inside the disk before now\n");
+      if (s <= 0)
+      {
+        Error ("walls: We seem to have ben inside the disk before now\n");
       }
       stuff_phot (pold, p);
-      move_phot (p, s-DFUDGE);
+      move_phot (p, s - DFUDGE);
       return (p->istat = P_HIT_DISK);
     }
   }
@@ -589,19 +591,21 @@ walls (p, pold,normal)
     // Check whether it hit the disk plane beyond the geo.diskrad**2
     vmove (pold->x, pold->lmn, s, xxx);
 
-    if (dot (xxx, xxx) < geo.diskrad_sq )
+    if (dot (xxx, xxx) < geo.diskrad_sq)
     {                           /* The photon has hit the disk */
       stuff_phot (pold, p);     /* Move the photon to the point where it hits the disk */
-      move_phot (p, s - DFUDGE); 
-      if (pold->x[2]>0) {
-          randvcos(p->lmn,xnorth);
-          stuff_v(xnorth,normal);
-          }
-     else {
-          randvcos(p->lmn,xsouth);
-          stuff_v(xsouth,normal);
-          }
-     return (p->istat = P_HIT_DISK);
+      move_phot (p, s - DFUDGE);
+      if (pold->x[2] > 0)
+      {
+        randvcos (p->lmn, xnorth);
+        stuff_v (xnorth, normal);
+      }
+      else
+      {
+        randvcos (p->lmn, xsouth);
+        stuff_v (xsouth, normal);
+      }
+      return (p->istat = P_HIT_DISK);
     }
 
   }

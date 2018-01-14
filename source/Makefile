@@ -10,7 +10,7 @@
 # 05jan	ksl	54f  Modified Makefile so that the Version number is automatically
 # 		copied to version.h  Also fixed so that one does not need to put
 # 		a new filename in two separate places, and so that the latest
-# 		compile version automatically becomve shte 
+# 		compile version automatically becomve shte
 # 05apr	ksl	55c   Modified in a way that implies that one must have gsl as part
 # 		of the Python directory tree.  This is because I was having problems
 # 		with gsl after we went to Redhat Enterprise at the Institute, and
@@ -35,7 +35,7 @@ EXTRA_FLAGS =
 
 #Check a load of compiler options
 #this is mostly to address issue $100
-ifeq (mpicc, $(CC))		
+ifeq (mpicc, $(CC))
 	# you're using mpicc, so we'll compile with the DMPI_ON flag
 	MPI_FLAG = -DMPI_ON
 
@@ -53,7 +53,7 @@ ifeq (mpicc, $(CC))
 			EXTRA_FLAGS += -fno-aggressive-loop-optimizations 	# add the flag to EXTRA_FLAGS
 			COMPILER_PRINT_STRING += with -fno-aggressive-loop-optimizations
 		endif
-	endif	
+	endif
 
 else ifeq (gcc, $(CC))
 	# no mpicc,
@@ -87,8 +87,8 @@ GIT_COMMIT_HASH := $(shell expr `git rev-parse HEAD`)
 # Test if indent is installed. We use a different version on mac and linux.
 OS_TYPE := $(shell uname -s)
 ifeq ($(OS_TYPE), Darwin)
-	INDENT_PATH := $(shell which gnuindent)
-	INDENT_VERSION = $(shell gnuindent -version)
+	INDENT_PATH := $(shell which gindent)
+	INDENT_VERSION = $(shell gindent -version)
 else
 	INDENT_PATH := $(shell which indent)
 	INDENT_VERSION := $(shell indent -version)
@@ -97,7 +97,7 @@ endif
 ifeq (, $(INDENT_PATH))
 	#If indent is not installed, error
 	INDENT_STRING = Gnuindent not installed so not indenting code
-	INDENT_CMD = 
+	INDENT_CMD =
 else
 	ifeq (GNU,$(firstword $(INDENT_VERSION)))
 		INDENT_STRING = Indenting code with $(INDENT_VERSION)
@@ -106,7 +106,7 @@ else
 	else
 		# if it is not GNU indent then do not run
 		INDENT_STRING = $(INDENT_PATH) is not the GNU version
-		INDENT_CMD = 
+		INDENT_CMD =
 	endif
 endif
 
@@ -117,15 +117,15 @@ BIN = ../bin
 
 ifeq (D,$(firstword $(MAKECMDGOALS)))
 # use pg when you want to use gprof the profiler
-# to use profiler make with arguments "make D python" 
-# this can be altered to whatever is best	
+# to use profiler make with arguments "make D python"
+# this can be altered to whatever is best
 	CFLAGS = -g -pg -Wall $(EXTRA_FLAGS) -I$(INCLUDE) $(MPI_FLAG)
-	FFLAGS = -g -pg   
+	FFLAGS = -g -pg
 	PRINT_VAR = DEBUGGING, -g -pg -Wall flags
 else
 # Use this for large runs
 	CFLAGS = -O3 -Wall $(EXTRA_FLAGS) -I$(INCLUDE) $(MPI_FLAG)
-	FFLAGS =         
+	FFLAGS =
 	PRINT_VAR = LARGE RUNS, -03 -Wall flags
 endif
 
@@ -134,10 +134,10 @@ endif
 # next line for debugging when concerned about memory problems and duma installed in python directory
 # LDFLAGS= -L$(LIB)  -lm -lkpar  -lgsl -lgslcblas ../duma_2_5_3/libduma.a -lpthread
 # next line if you want to use kpar as a library, rather than as source below
-# LDFLAGS= -L$(LIB)  -lm -lkpar -lcfitsio -lgsl -lgslcblas 
-LDFLAGS= -L$(LIB) -lm -lgsl -lgslcblas 
+# LDFLAGS= -L$(LIB)  -lm -lkpar -lcfitsio -lgsl -lgslcblas
+LDFLAGS= -L$(LIB) -lm -lgsl -lgslcblas
 
-#Note that version should be a single string without spaces. 
+#Note that version should be a single string without spaces.
 VERSION = 82d
 
 
@@ -179,8 +179,8 @@ python_objects = bb.o get_atomicdata.o photon2d.o photon_gen.o parse.o init.o \
 		xlog.o lineio.o rdpar.o direct_ion.o pi_rates.o matrix_ion.o para_update.o \
 		setup.o setup_domains.o setup_disk.o photo_gen_matom.o macro_gov.o windsave2table_sub.o \
 		import.o import_spherical.o import_cylindrical.o import_rtheta.o \
-		reverb.o paths.o setup2.o run.o brem.o search_light.o synonyms.o 
-		
+		reverb.o paths.o setup2.o run.o brem.o search_light.o synonyms.o
+
 
 
 # For reasons that are unclear to me.  get_models.c cannot be included in the sources
@@ -200,20 +200,20 @@ python_source= bb.c get_atomicdata.c python.c photon2d.c photon_gen.c parse.c \
 		direct_ion.c pi_rates.c matrix_ion.c para_update.c setup.c setup_domains.c \
 		setup_disk.c photo_gen_matom.c macro_gov.c windsave2table_sub.c \
 		import.c import_spherical.c import_cylindrical.c import_rtheta.c\
-		reverb.c paths.c setup2.c run.c brem.c search_light.c synonyms.c 
+		reverb.c paths.c setup2.c run.c brem.c search_light.c synonyms.c
 
 #
-# kpar_source is now declared seaprately from python_source so that the file log.h 
+# kpar_source is now declared seaprately from python_source so that the file log.h
 # can be made using cproto
 kpar_source = lineio.c rdpar.c xlog.c synonyms.c
 
-additional_py_wind_source = py_wind_sub.c py_wind_ion.c py_wind_write.c py_wind_macro.c py_wind.c 
+additional_py_wind_source = py_wind_sub.c py_wind_ion.c py_wind_write.c py_wind_macro.c py_wind.c
 
-prototypes: 
+prototypes:
 	cp templates.h templates.h.old
-	cproto -I$(INCLUDE) $(python_source) ${additional_py_wind_source} > foo.h  
+	cproto -I$(INCLUDE) $(python_source) ${additional_py_wind_source} > foo.h
 	cp foo.h templates.h
-	cproto -I$(INCLUDE) $(kpar_source) > log.h 
+	cproto -I$(INCLUDE) $(kpar_source) > log.h
 
 python: startup  python.o $(python_objects)
 	$(CC)  ${CFLAGS} python.o $(python_objects) $(kpar_objects) $(LDFLAGS) -o python
@@ -221,7 +221,7 @@ python: startup  python.o $(python_objects)
 		mv $@ $(BIN)/py$(VERSION)
 
 #This line is jsut so you can use make D python for debugging
-D:	
+D:
 	@echo 'Debugging Mode'
 
 py_wind_objects = py_wind.o get_atomicdata.o py_wind_sub.o windsave.o py_wind_ion.o \
@@ -246,7 +246,7 @@ py_wind: startup $(py_wind_objects)
 	mv $@ $(BIN)/py_wind$(VERSION)
 
 
-summarize_atomic: summarize_atomic.o get_atomicdata.o xlog.o rdpar.o synonyms.o  
+summarize_atomic: summarize_atomic.o get_atomicdata.o xlog.o rdpar.o synonyms.o
 	$(CC) $(CFLAGS) summarize_atomic.o get_atomicdata.o xlog.o rdpar.o  synonyms.o  -o summarize_atomic
 	mv $@ $(BIN)
 
@@ -262,23 +262,23 @@ table_objects = windsave2table.o windsave2table_sub.o get_atomicdata.o py_wind_s
 		cylind_var.o bilinear.o gridwind.o py_wind_macro.o partition.o auger_ionization.o\
 		spectral_estimators.o shell_wind.o compton.o torus.o zeta.o dielectronic.o \
         	variable_temperature.o bb.o rdpar.o xlog.o direct_ion.o diag.o matrix_ion.o \
-		pi_rates.o photo_gen_matom.o macro_gov.o reverb.o paths.o time.o synonyms.o cooling.o   
+		pi_rates.o photo_gen_matom.o macro_gov.o reverb.o paths.o time.o synonyms.o cooling.o
 
 
 
-windsave2table: $(table_objects) 
+windsave2table: $(table_objects)
 	$(CC) $(CFLAGS) $(table_objects) $(LDFLAGS) -o windsave2table
 	cp $@ $(BIN)
 	mv $@ $(BIN)/windsave2table$(VERSION)
 
-py_smooth: py_smooth.o 
+py_smooth: py_smooth.o
 	$(CC) $(CFLAGS) py_smooth.o  $(LDFLAGS)  -o py_smooth
 		mv $@ $(BIN)
 
-test_bb: bb.o test_bb.o cdf.o recipes.o bilinear.o time.o 
+test_bb: bb.o test_bb.o cdf.o recipes.o bilinear.o time.o
 	$(CC)  ${CFLAGS} bb.o cdf.o test_bb.o  recipes.o bilinear.o time.o $(LDFLAGS) -o test_bb
-	
-test_pow: test_pow.o cdf.o recipes.o bilinear.o time.o 
+
+test_pow: test_pow.o cdf.o recipes.o bilinear.o time.o
 	$(CC)  ${CFLAGS} cdf.o test_pow.o  recipes.o bilinear.o time.o $(LDFLAGS) -o test_pow
 
 test_matrix: test_matrix.o $(python_objects)
@@ -289,14 +289,14 @@ test_dielectronic: test_dielectronic.o $(python_objects)
 	$(CC) ${CFLAGS} test_dielectronic.o $(python_objects) $(LDFLAGS) -o test_dielectronic
 		mv $@ $(BIN)
 
-t_bilinear:  t_bilinear.o bilinear.o  
+t_bilinear:  t_bilinear.o bilinear.o
 	$(CC) $(CFLAGS) t_bilinear.o  bilinear.o  $(LDFLAGS)  -o t_bilinear
 
 test: test.o
 	$(CC) $(CFLAGS) test.o  $(LDFLAGS) -o test
 
-	
-plot_roche: plot_roche.o roche.o vvector.o phot_util.o recipes.o 
+
+plot_roche: plot_roche.o roche.o vvector.o phot_util.o recipes.o
 	${CC} ${CFLAGS} plot_roche.o roche.o vvector.o phot_util.o recipes.o  \
 		$(LDFLAGS) -o plot_roche
 		mv $@ $(BIN)/plot_roche
@@ -313,7 +313,7 @@ py_grid: bb.o get_atomicdata.o py_grid.o photon2d.o photon_gen.o \
 		sv.o ionization.o  ispy.o   levels.o gradv.o reposition.o \
 		yso.o cylindrical.o rtheta.o \
 		matom.o estimators.o wind_sum.o \
-		density.o bands.o detail.o 
+		density.o bands.o detail.o
 	$(CC)  ${CFLAGS} py_grid.o get_atomicdata.o photon2d.o photon_gen.o \
 		bb.o\
 		saha.o spectra.o wind2d.o wind.o  vvector.o debug.o recipes.o \
@@ -352,4 +352,4 @@ saha_inv: saha_inv.o get_atomicdata.c
 
 
 clean :
-	rm -f *.o  *~ 
+	rm -f *.o  *~

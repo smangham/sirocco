@@ -87,9 +87,9 @@ teff (t, x)
     q = (1.e0 - pow (x, -0.5e0)) / (x * x * x);
     q = t * pow (q, 0.25e0);
 
-    if (geo.absorb_reflect ==  BACK_RAD_ABSORB_AND_HEAT && geo.wcycle > 0) /* Absorb photons and increase t so that heat is radiated
-                                                                           but only do this if there has been at least one
-                                                                           ionization cycle */
+    if (geo.absorb_reflect == BACK_RAD_ABSORB_AND_HEAT && geo.wcycle > 0)       /* Absorb photons and increase t so that heat is radiated
+                                                                                   but only do this if there has been at least one
+                                                                                   ionization cycle */
     {
       r = x * geo.rstar;        // 04aug -- Requires fix if disk does not extend to rstar
       kkk = 1;                  // photon cannot hit the disk at r<qdisk.r[0]
@@ -102,7 +102,7 @@ teff (t, x)
       q = pow (q * q * q * q + (theat / STEFAN_BOLTZMANN), 0.25);
 
     }
-    else if (geo.disk_tprofile ==  DISK_TPROFILE_YSO)       // Analytic approximation for disk heating by star; implemented for YSOs
+    else if (geo.disk_tprofile == DISK_TPROFILE_YSO)    // Analytic approximation for disk heating by star; implemented for YSOs
     {
       disk_heating_factor = pow (geo.tstar / t, 4.0);
       disk_heating_factor *= (asin (1. / x) - (pow ((1. - (1. / (x * x))), 0.5) / x));
@@ -634,5 +634,3 @@ read_non_standard_disk_profile (tprofile)
 
   return (0);
 }
-
-

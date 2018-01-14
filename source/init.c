@@ -37,35 +37,35 @@ init_log_and_windsave (restart_stat)
   FILE *fopen (), *qptr;
 
   if (restart_stat == 0)
-    {				// Then we are simply running from a new model
-      xsignal_rm (files.root);	// Any old signal file
+  {                             // Then we are simply running from a new model
+    xsignal_rm (files.root);    // Any old signal file
+    xsignal (files.root, "%-20s %s \n", "START", files.root);
+    Log_init (files.diag);
+  }
+  else
+  {
+    /* Note that alghough we chekc that we dan open the windsave file, it is not read here.   */
+
+    strcpy (files.windsave, files.root);
+    strcat (files.windsave, ".wind_save");
+    qptr = fopen (files.windsave, "r");
+
+    if (qptr != NULL)
+    {
+      /* Then the file does exist and we can restart */
+      fclose (qptr);
+      xsignal (files.root, "%-20s %s\n", "RESTART", files.root);
+      Log_append (files.diag);
+    }
+    else
+    {
+      /* It does not exist and so we start from scratch */
+      restart_stat = 0;
+      xsignal_rm (files.root);  // Any old signal file
       xsignal (files.root, "%-20s %s \n", "START", files.root);
       Log_init (files.diag);
     }
-  else
-    {
-      /* Note that alghough we chekc that we dan open the windsave file, it is not read here.   */
-
-      strcpy (files.windsave, files.root);
-      strcat (files.windsave, ".wind_save");
-      qptr = fopen (files.windsave, "r");
-
-      if (qptr != NULL)
-	{
-	  /* Then the file does exist and we can restart */
-	  fclose (qptr);
-	  xsignal (files.root, "%-20s %s\n", "RESTART", files.root);
-	  Log_append (files.diag);
-	}
-      else
-	{
-	  /* It does not exist and so we start from scratch */
-	  restart_stat = 0;
-	  xsignal_rm (files.root);	// Any old signal file
-	  xsignal (files.root, "%-20s %s \n", "START", files.root);
-	  Log_init (files.diag);
-	}
-    }
+  }
 
   return (0);
 }
@@ -127,17 +127,17 @@ setup_dfudge ()
   delta = geo.rmax - geo.rmin;
 
   if (delta < 1.e8)
-    {
-      dfudge = (geo.rmax - geo.rmin) / 1000.0;
-    }
+  {
+    dfudge = (geo.rmax - geo.rmin) / 1000.0;
+  }
   else if (delta < 1e15)
-    {
-      dfudge = 1e5;
-    }
+  {
+    dfudge = 1e5;
+  }
   else
-    {
-      dfudge = geo.rmax / 1.e10;
-    }
+  {
+    dfudge = geo.rmax / 1.e10;
+  }
 
   Log ("DFUDGE set to %e based on geo.rmax\n", dfudge);
 
@@ -184,33 +184,31 @@ setup_windcone ()
   int ndom;
 
   for (ndom = 0; ndom < geo.ndomain; ndom++)
+  {
+
+    if (zdom[ndom].wind_thetamin > 0.0)
     {
-
-      if (zdom[ndom].wind_thetamin > 0.0)
-	{
-	  zdom[ndom].windcone[0].dzdr = 1. / tan (zdom[ndom].wind_thetamin);
-	  zdom[ndom].windcone[0].z =
-	    (-zdom[ndom].wind_rho_min / tan (zdom[ndom].wind_thetamin));
-	}
-      else
-	{
-	  zdom[ndom].windcone[0].dzdr = VERY_BIG;
-	  zdom[ndom].windcone[0].z = -VERY_BIG;;
-	}
-
-
-      if (zdom[ndom].wind_thetamax > 0.0)
-	{
-	  zdom[ndom].windcone[1].dzdr = 1. / tan (zdom[ndom].wind_thetamax);
-	  zdom[ndom].windcone[1].z =
-	    (-zdom[ndom].wind_rho_max / tan (zdom[ndom].wind_thetamax));
-	}
-      else
-	{
-	  zdom[ndom].windcone[1].dzdr = VERY_BIG;
-	  zdom[ndom].windcone[1].z = -VERY_BIG;;
-	}
+      zdom[ndom].windcone[0].dzdr = 1. / tan (zdom[ndom].wind_thetamin);
+      zdom[ndom].windcone[0].z = (-zdom[ndom].wind_rho_min / tan (zdom[ndom].wind_thetamin));
     }
+    else
+    {
+      zdom[ndom].windcone[0].dzdr = VERY_BIG;
+      zdom[ndom].windcone[0].z = -VERY_BIG;;
+    }
+
+
+    if (zdom[ndom].wind_thetamax > 0.0)
+    {
+      zdom[ndom].windcone[1].dzdr = 1. / tan (zdom[ndom].wind_thetamax);
+      zdom[ndom].windcone[1].z = (-zdom[ndom].wind_rho_max / tan (zdom[ndom].wind_thetamax));
+    }
+    else
+    {
+      zdom[ndom].windcone[1].dzdr = VERY_BIG;
+      zdom[ndom].windcone[1].z = -VERY_BIG;;
+    }
+  }
   return (0);
 }
 
@@ -249,34 +247,31 @@ setup_created_files ()
 {
   int opar_stat;
 
-  opar_stat = 0;		/* 59a - ksl - 08aug - Initialize opar_stat to indicate that if we do not open a rdpar file, 
-				   the assumption is that we are reading from the command line */
+  opar_stat = 0;                /* 59a - ksl - 08aug - Initialize opar_stat to indicate that if we do not open a rdpar file, 
+                                   the assumption is that we are reading from the command line */
 
 
-  if (strncmp (files.root, "stdin", 5) == 0
-      || strncmp (files.root, "rdpar", 5) == 0 || files.root[0] == ' '
-      || strlen (files.root) == 0)
-    {
-      strcpy (files.root, "mod");
-      Log
-	("Proceeding in interactive mode\n Output files will have rootname mod\n");
-    }
+  if (strncmp (files.root, "stdin", 5) == 0 || strncmp (files.root, "rdpar", 5) == 0 || files.root[0] == ' ' || strlen (files.root) == 0)
+  {
+    strcpy (files.root, "mod");
+    Log ("Proceeding in interactive mode\n Output files will have rootname mod\n");
+  }
 
   else
+  {
+    strcpy (files.input, files.root);
+    strcat (files.input, ".pf");
+
+    if ((opar_stat = opar (files.input)) == 2)
     {
-      strcpy (files.input, files.root);
-      strcat (files.input, ".pf");
-
-      if ((opar_stat = opar (files.input)) == 2)
-	{
-	  Log ("Reading data from file %s\n", files.input);
-	}
-      else
-	{
-	  Log ("Creating a new parameter file %s\n", files.input);
-	}
-
+      Log ("Reading data from file %s\n", files.input);
     }
+    else
+    {
+      Log ("Creating a new parameter file %s\n", files.input);
+    }
+
+  }
 
 
   /* Now create the names of all the files which will be written.  Note that some files
@@ -284,10 +279,10 @@ setup_created_files ()
      This is intended so that files which you really want to keep have unique names, while
      those which are for short-term diagnostics are overwritten.  ksl 97aug. */
 
-  strcpy (basename, files.root);	//56d -- ksl --Added so filenames could be created by routines as necessary
+  strcpy (basename, files.root);        //56d -- ksl --Added so filenames could be created by routines as necessary
 
-  strcpy (files.wspec, files.root);	//generated photons
-  strcpy (files.lwspec, files.root);	//generated photon in log space
+  strcpy (files.wspec, files.root);     //generated photons
+  strcpy (files.lwspec, files.root);    //generated photon in log space
 
   strcpy (files.wspec_wind, files.root);
   strcpy (files.lwspec_wind, files.root);
@@ -335,8 +330,3 @@ setup_created_files ()
 
   return (opar_stat);
 }
-
-
-
-
-

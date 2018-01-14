@@ -375,9 +375,10 @@ cylind_volumes (ndom, w)
       /* JM 1711 -- only try to assign the cell if it has not already been assigned */
       if (w[n].inwind == W_NOT_ASSIGNED)
       {
-        if (one_dom->wind_type == IMPORT) {
-          Error("Shouldn't be redefining inwind in cylind_volumes with imported model.\n");
-          exit(0);
+        if (one_dom->wind_type == IMPORT)
+        {
+          Error ("Shouldn't be redefining inwind in cylind_volumes with imported model.\n");
+          exit (0);
         }
 
         n_inwind = cylind_is_cell_in_wind (n);
@@ -441,11 +442,13 @@ cylind_volumes (ndom, w)
       /* JM 1711 -- the following two if statements are for if the inwind values are
          already assigned, for example by an imported model */
       /* need to zero volumes for cells not in the wind */
-      else if (w[n].inwind == W_NOT_INWIND) {
+      else if (w[n].inwind == W_NOT_INWIND)
+      {
         w[n].vol = 0.0;
       }
 
-      else if (w[n].inwind == W_ALL_INWIND) {
+      else if (w[n].inwind == W_ALL_INWIND)
+      {
         w[n].vol = cell_volume;
       }
     }

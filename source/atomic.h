@@ -265,7 +265,7 @@ int nline_min, nline_max, nline_delt;   /* Used to select a range of lines in a 
                                            lines come into play for resonant scattering along a line of sight, and in
                                            calculating band_limit luminosities.  The limits are established by the
                                            routine limit_lines.
-                                           */
+                                         */
 
 
         /* coll_stren is the collision strength interpolation data extracted from Chianti */

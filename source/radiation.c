@@ -125,7 +125,7 @@ radiation (p, ds)
   double frac_z, frac_comp;     /* nsh 1108 added frac_comp - the heating in the cell due to compton heating */
   double frac_ind_comp;         /* nsh 1205 added frac_ind_comp - the heating due to induced compton heating */
   double frac_auger;
-  double frac_tot_abs,frac_auger_abs,z_abs;
+  double frac_tot_abs, frac_auger_abs, z_abs;
   double kappa_ion[NIONS];
   double frac_ion[NIONS];
   double density, ft, tau, tau2;
@@ -188,7 +188,7 @@ radiation (p, ds)
   frac_tot = frac_z = 0;        /* 59a - ksl - Moved this line out of loop to avoid warning, but notes 
                                    indicate this is all diagnostic and might be removed */
   frac_auger = 0;
-  frac_tot_abs=frac_auger_abs=0.0;
+  frac_tot_abs = frac_auger_abs = 0.0;
 
   /* JM 1405 -- Check which of the frequencies is larger.  */
 
@@ -285,9 +285,9 @@ radiation (p, ds)
             if (geo.ioniz_or_extract)   // 57h -- ksl -- 060715
             {                   // Calculate during ionization cycles only
 
-              frac_tot += z = x * (freq_xs - ft) / freq_xs; //This is the heating effect - i.e. the absorbed photon energy less the binding energy of the lost electron
-              frac_tot_abs += z_abs = x; //This is the absorbed energy fraction
-			  
+              frac_tot += z = x * (freq_xs - ft) / freq_xs;     //This is the heating effect - i.e. the absorbed photon energy less the binding energy of the lost electron
+              frac_tot_abs += z_abs = x;        //This is the absorbed energy fraction
+
               if (nion > 3)
               {
                 frac_z += z;
@@ -301,8 +301,8 @@ radiation (p, ds)
 
 
         }
-      }                         
-      
+      }
+
       /* NSH loop over all inner shell cross sections as well! But only for VFKY ions - topbase has those edges in */
 
       if (freq > inner_freq_min)
@@ -346,8 +346,8 @@ radiation (p, ds)
                   if (geo.ioniz_or_extract && x_top_ptr->n_elec_yield != -1)    // 57h -- ksl -- 060715 Calculate during ionization cycles only
                   {
                     frac_auger += z = x * (inner_elec_yield[x_top_ptr->n_elec_yield].Ea / EV2ERGS) / (freq_xs * HEV);
-	                frac_auger_abs += z_abs = x; //This is the absorbed energy fraction
-					
+                    frac_auger_abs += z_abs = x;        //This is the absorbed energy fraction
+
                     if (nion > 3)
                     {
                       frac_z += z;
@@ -477,18 +477,18 @@ radiation (p, ds)
 
   if (kappa_tot > 0)
   {
-	  
+
     //If statement added 01mar18 ksl to correct problem of zero divide
     //  in odd situations where no continuum opacity
     z = (energy_abs) / kappa_tot;
     xplasma->heat_ff += z * frac_ff;
     xplasma->heat_tot += z * frac_ff;
-	xplasma->abs_tot += z * frac_ff;   /* The energy absorbed from the photon field in this cell */
-	
+    xplasma->abs_tot += z * frac_ff;    /* The energy absorbed from the photon field in this cell */
+
     xplasma->heat_comp += z * frac_comp;        /* NSH 1108 Calculate the heating in the cell due to compton heating */
     xplasma->heat_tot += z * frac_comp; /* NSH 1108 Add the compton heating to the total heating for the cell */
-	xplasma->abs_tot += z * frac_comp;   /* The energy absorbed from the photon field in this cell */
-	xplasma->abs_tot += z * frac_ind_comp;   /* The energy absorbed from the photon field in this cell */
+    xplasma->abs_tot += z * frac_comp;  /* The energy absorbed from the photon field in this cell */
+    xplasma->abs_tot += z * frac_ind_comp;      /* The energy absorbed from the photon field in this cell */
 
     xplasma->heat_tot += z * frac_ind_comp;     /* NSH 1205 Calculate the heating in the celldue to induced compton heating */
     xplasma->heat_ind_comp += z * frac_ind_comp;        /* NSH 1205 Increment the induced compton heating counter for the cell */
@@ -500,10 +500,10 @@ radiation (p, ds)
        * unpredictable and serious errors.
        */
     {
-		xplasma->abs_photo += z * frac_tot_abs;  //Here we store the energy absorbed from the photon flux - different from the heating by the binding energy
-		xplasma->abs_auger += z * frac_auger_abs; //same for auger
-		xplasma->abs_tot += z * frac_tot_abs;   /* The energy absorbed from the photon field in this cell */
-		xplasma->abs_tot += z * frac_auger_abs;   /* The energy absorbed from the photon field in this cell */
+      xplasma->abs_photo += z * frac_tot_abs;   //Here we store the energy absorbed from the photon flux - different from the heating by the binding energy
+      xplasma->abs_auger += z * frac_auger_abs; //same for auger
+      xplasma->abs_tot += z * frac_tot_abs;     /* The energy absorbed from the photon field in this cell */
+      xplasma->abs_tot += z * frac_auger_abs;   /* The energy absorbed from the photon field in this cell */
 
       xplasma->heat_photo += z * frac_tot;
       xplasma->heat_z += z * frac_z;

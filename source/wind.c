@@ -134,34 +134,35 @@ where_in_wind (x, ndomain)
        and the "inwind" variable must instead be calculated by querying the
        grid covered by this domain with where_in_grid */
 
-    if (one_dom->wind_type == IMPORT) 
+    if (one_dom->wind_type == IMPORT)
     {
-        one_dom = &zdom[ndom];
+      one_dom = &zdom[ndom];
 
-        n = where_in_grid (ndom, x);
-        if (n >= 0) {
-          ireturn = wmain[n].inwind;
-          *ndomain = ndom;
-          break;
-        }
+      n = where_in_grid (ndom, x);
+      if (n >= 0)
+      {
+        ireturn = wmain[n].inwind;
+        *ndomain = ndom;
+        break;
+      }
     }
 
-    else 
+    else
     {
       /* First check to see if photon is inside or outside wind */
 
       if (rad < one_dom->rmin)
       {
-        continue;                 /*x is inside the wind  radially */
+        continue;               /*x is inside the wind  radially */
       }
       if (rad > one_dom->rmax)
       {
-        continue;                 /*the position is beyond the wind radially */
+        continue;               /*the position is beyond the wind radially */
       }
 
       if (z > one_dom->zmax)
       {
-        continue;                 /*the position is beyond the wind radially */
+        continue;               /*the position is beyond the wind radially */
       }
 
 
@@ -177,7 +178,7 @@ where_in_wind (x, ndomain)
       /* NSH 130401 - The check below was taking a long time if geo.wind_thetamax was very close to pi/2.
          check inserted to simply return INWIND if geo.wind_thetamax is within machine precision of pi/2. */
 
-      if (fabs (one_dom->wind_thetamax - PI / 2.0) > 1e-6)        /* Only perform the next check if thetamax is not equal to pi/2 */
+      if (fabs (one_dom->wind_thetamax - PI / 2.0) > 1e-6)      /* Only perform the next check if thetamax is not equal to pi/2 */
       {
         if (rho > (rho_max = one_dom->wind_rho_max + z * tan (one_dom->wind_thetamax)))
         {
@@ -311,7 +312,7 @@ model_velocity (ndom, x, v)
   }
   else if (zdom[ndom].wind_type == HYDRO)
   {
-    speed = hydro_velocity (ndom,x, v);
+    speed = hydro_velocity (ndom, x, v);
   }
   else if (zdom[ndom].wind_type == CORONA)
   {
@@ -333,13 +334,13 @@ model_velocity (ndom, x, v)
   {
     speed = stellar_velocity (ndom, x, v);
   }
-  else if  (zdom[ndom].wind_type == IMPORT)
+  else if (zdom[ndom].wind_type == IMPORT)
   {
-      speed=import_velocity(ndom,x,v);
+    speed = import_velocity (ndom, x, v);
   }
   else
   {
-    Error ("wind: Unknown windtype %d for doman %d\n", zdom[ndom].wind_type,ndom);
+    Error ("wind: Unknown windtype %d for doman %d\n", zdom[ndom].wind_type, ndom);
     exit (0);
   }
 
@@ -451,7 +452,7 @@ model_rho (ndom, x)
   }
   else if (zdom[ndom].wind_type == IMPORT)
   {
-    rho = import_rho(ndom,x);
+    rho = import_rho (ndom, x);
   }
   else
   {

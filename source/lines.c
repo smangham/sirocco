@@ -82,7 +82,7 @@ total_line_emission (one, f1, f2)
    * version of the lines 
    */
 
-  limit_lines (f1, f2);  
+  limit_lines (f1, f2);
 
   lum = lum_lines (one, nline_min, nline_max);
 
@@ -820,10 +820,10 @@ upsilon (n_coll, u0)
   double upsilon;               //The actual collision strength
 
   /* first we compute x. This is the "reduced temperature" from
-     Burgess & Tully 1992. */ 
+     Burgess & Tully 1992. */
   if (coll_stren[n_coll].type == 1 || coll_stren[n_coll].type == 4)
   {
-    x = 1. - (log (coll_stren[n_coll].scaling_param) / log (u0 + coll_stren[n_coll].scaling_param) );
+    x = 1. - (log (coll_stren[n_coll].scaling_param) / log (u0 + coll_stren[n_coll].scaling_param));
   }
   else if (coll_stren[n_coll].type == 2 || coll_stren[n_coll].type == 3)
   {
@@ -837,10 +837,10 @@ upsilon (n_coll, u0)
 
 
   /* we now compute y from the interpolation formulae 
-     y is the reduced upsilong from Burgess & Tully 1992. */     
+     y is the reduced upsilong from Burgess & Tully 1992. */
   linterp (x, coll_stren[n_coll].sct, coll_stren[n_coll].scups, coll_stren[n_coll].n_points, &y, 0);
 
-  /*  now we extract upsilon from y  */  
+  /*  now we extract upsilon from y  */
 
   if (coll_stren[n_coll].type == 1)
   {

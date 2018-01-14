@@ -36,15 +36,12 @@ History:
 struct
 {
   int ndim, mdim, ncell;
-  int i[NDIM_MAX * NDIM_MAX], j[NDIM_MAX * NDIM_MAX],
-    inwind[NDIM_MAX * NDIM_MAX];
+  int i[NDIM_MAX * NDIM_MAX], j[NDIM_MAX * NDIM_MAX], inwind[NDIM_MAX * NDIM_MAX];
   double x[NDIM_MAX * NDIM_MAX], z[NDIM_MAX * NDIM_MAX];
-  double v_x[NDIM_MAX * NDIM_MAX], v_y[NDIM_MAX * NDIM_MAX],
-    v_z[NDIM_MAX * NDIM_MAX];
+  double v_x[NDIM_MAX * NDIM_MAX], v_y[NDIM_MAX * NDIM_MAX], v_z[NDIM_MAX * NDIM_MAX];
   double rho[NDIM_MAX * NDIM_MAX], t[NDIM_MAX * NDIM_MAX];
 
-  double wind_x[NDIM_MAX], wind_z[NDIM_MAX], wind_midx[NDIM_MAX],
-    wind_midz[NDIM_MAX];
+  double wind_x[NDIM_MAX], wind_z[NDIM_MAX], wind_midx[NDIM_MAX], wind_midz[NDIM_MAX];
 } xx_cyl;
 
 
@@ -105,46 +102,44 @@ import_cylindrical (ndom, filename)
   Log ("Reading a model in cylindrical coordinates %s\n", filename);
 
   if ((fptr = fopen (filename, "r")) == NULL)
-    {
-      Error ("import_cylindrical: No such file\n");
-      exit (0);
-    }
+  {
+    Error ("import_cylindrical: No such file\n");
+    exit (0);
+  }
 
 
   ncell = 0;
   while (fgets (line, 512, fptr) != NULL)
+  {
+    n = sscanf (line, " %d %d %d %le %le %le %le %le %le %le", &icell, &jcell, &inwind, &q1, &q2, &q3, &q4, &q5, &q6, &q7);
+    if (n < 4)
     {
-      n =
-	sscanf (line, " %d %d %d %le %le %le %le %le %le %le", &icell, &jcell,
-		&inwind, &q1, &q2, &q3, &q4, &q5, &q6, &q7);
-      if (n < 4)
-	{
-	  printf ("Error. Ignore %s \n", line);
-	  continue;
-	}
-      else
-	{
-	  xx_cyl.i[ncell] = icell;
-	  xx_cyl.j[ncell] = jcell;
-	  xx_cyl.inwind[ncell] = inwind;
-	  xx_cyl.x[ncell] = q1;
-	  xx_cyl.z[ncell] = q2;
-	  xx_cyl.v_x[ncell] = q3;
-	  xx_cyl.v_y[ncell] = q4;
-	  xx_cyl.v_z[ncell] = q5;
-	  xx_cyl.rho[ncell] = q6;
-	  if (n > 10)
-	    {
-	      xx_cyl.t[ncell] = q7;
-	    }
-	  else
-	    {
-	      xx_cyl.t[ncell] = 10000.;
-	    }
-	  ncell++;
-
-	}
+      printf ("Error. Ignore %s \n", line);
+      continue;
     }
+    else
+    {
+      xx_cyl.i[ncell] = icell;
+      xx_cyl.j[ncell] = jcell;
+      xx_cyl.inwind[ncell] = inwind;
+      xx_cyl.x[ncell] = q1;
+      xx_cyl.z[ncell] = q2;
+      xx_cyl.v_x[ncell] = q3;
+      xx_cyl.v_y[ncell] = q4;
+      xx_cyl.v_z[ncell] = q5;
+      xx_cyl.rho[ncell] = q6;
+      if (n > 10)
+      {
+        xx_cyl.t[ncell] = q7;
+      }
+      else
+      {
+        xx_cyl.t[ncell] = 10000.;
+      }
+      ncell++;
+
+    }
+  }
 
 
 /* Having read in the data define some initial variables concerning the model. We cannot create
@@ -159,18 +154,18 @@ import_cylindrical (ndom, filename)
 
   jz = jx = 0;
   for (n = 0; n < xx_cyl.ncell; n++)
+  {
+    if (xx_cyl.i[n] == 0)
     {
-      if (xx_cyl.i[n] == 0)
-	{
-	  xx_cyl.wind_z[jz] = xx_cyl.z[n];
-	  jz++;
-	}
-      if (xx_cyl.j[n] == 0)
-	{
-	  xx_cyl.wind_x[jx] = xx_cyl.x[n];
-	  jx++;
-	}
+      xx_cyl.wind_z[jz] = xx_cyl.z[n];
+      jz++;
     }
+    if (xx_cyl.j[n] == 0)
+    {
+      xx_cyl.wind_x[jx] = xx_cyl.x[n];
+      jx++;
+    }
+  }
 
 
   /* Now fill in wind_midx and midz. Given how we construct
@@ -178,28 +173,30 @@ import_cylindrical (ndom, filename)
    * is not entirely obvious that this is needed, given the
    * assumption that we do not need extra buffer cells */
 
-  for (n=0;n<jz-1;n++){
-      xx_cyl.wind_midz[n]=0.5*(xx_cyl.wind_z[n]+xx_cyl.wind_z[n+1]);
+  for (n = 0; n < jz - 1; n++)
+  {
+    xx_cyl.wind_midz[n] = 0.5 * (xx_cyl.wind_z[n] + xx_cyl.wind_z[n + 1]);
   }
 
 //OLD  delta=(xx_cyl.wind_z[jz-1]-xx_cyl.wind_z[jz-2]);
 //OLD  xx_cyl.wind_midz[jz]=xx_cyl.wind_z[jz-1]+0.5*delta;
 
-  delta=(xx_cyl.wind_z[n-1]-xx_cyl.wind_z[n-2]);
-  xx_cyl.wind_midz[n]=xx_cyl.wind_z[n-1]+0.5*delta;
+  delta = (xx_cyl.wind_z[n - 1] - xx_cyl.wind_z[n - 2]);
+  xx_cyl.wind_midz[n] = xx_cyl.wind_z[n - 1] + 0.5 * delta;
 
 
 
-  for (n=0;n<jx-1;n++){
-      xx_cyl.wind_midx[n]=0.5*(xx_cyl.wind_x[n]+xx_cyl.wind_x[n+1]);
+  for (n = 0; n < jx - 1; n++)
+  {
+    xx_cyl.wind_midx[n] = 0.5 * (xx_cyl.wind_x[n] + xx_cyl.wind_x[n + 1]);
   }
 
 //OLD  delta=(xx_cyl.wind_x[n-1]-xx_cyl.wind_x[n-2]);
 //OLD  xx_cyl.wind_midx[jx]=xx_cyl.wind_x[jx-1]+0.5*delta;
 
 
-  delta=(xx_cyl.wind_x[n-1]-xx_cyl.wind_x[n-2]);
-  xx_cyl.wind_midx[n]=xx_cyl.wind_x[n-1]+0.5*delta;
+  delta = (xx_cyl.wind_x[n - 1] - xx_cyl.wind_x[n - 2]);
+  xx_cyl.wind_midx[n] = xx_cyl.wind_x[n - 1] + 0.5 * delta;
 
 
   /* Although the initialization of most of zdom should be postponed
@@ -209,7 +206,7 @@ import_cylindrical (ndom, filename)
 
   zdom[ndom].ndim = xx_cyl.ndim;
   zdom[ndom].mdim = xx_cyl.mdim;
-  zdom[ndom].ndim2=zdom[ndom].ndim * zdom[ndom].mdim;
+  zdom[ndom].ndim2 = zdom[ndom].ndim * zdom[ndom].mdim;
 
 
   return (0);
@@ -233,8 +230,7 @@ cylindrical_make_grid_import (w, ndom)
   double r, rmin, rmax, rho_min, rho_max, zmax;
   double x[3];
 
-  Log ("XX Dimensions of read in model: %d %d\n", zdom[ndom].ndim,
-       zdom[ndom].mdim);
+  Log ("XX Dimensions of read in model: %d %d\n", zdom[ndom].ndim, zdom[ndom].mdim);
 
 /*  This is an attempt to make the grid directly.  
  *
@@ -242,29 +238,29 @@ cylindrical_make_grid_import (w, ndom)
  *  in
  *  */
   for (n = 0; n < xx_cyl.ncell; n++)
-    {
-      wind_ij_to_n (ndom, xx_cyl.i[n], xx_cyl.j[n], &nn);
-      w[nn].x[0] = xx_cyl.x[n];
-      w[nn].x[1] = 0;
-      w[nn].x[2] = xx_cyl.z[n];
-      w[nn].v[0] = xx_cyl.v_x[n];
-      w[nn].v[1] = xx_cyl.v_y[n];
-      w[nn].v[2] = xx_cyl.v_z[n];
-      w[nn].inwind = xx_cyl.inwind[n];
+  {
+    wind_ij_to_n (ndom, xx_cyl.i[n], xx_cyl.j[n], &nn);
+    w[nn].x[0] = xx_cyl.x[n];
+    w[nn].x[1] = 0;
+    w[nn].x[2] = xx_cyl.z[n];
+    w[nn].v[0] = xx_cyl.v_x[n];
+    w[nn].v[1] = xx_cyl.v_y[n];
+    w[nn].v[2] = xx_cyl.v_z[n];
+    w[nn].inwind = xx_cyl.inwind[n];
 
-      w[nn].xcen[0] = xx_cyl.wind_midx[xx_cyl.i[n]];
-      w[nn].xcen[1] = 0;
-      w[nn].xcen[2] = xx_cyl.wind_midz[xx_cyl.j[n]];
+    w[nn].xcen[0] = xx_cyl.wind_midx[xx_cyl.i[n]];
+    w[nn].xcen[1] = 0;
+    w[nn].xcen[2] = xx_cyl.wind_midz[xx_cyl.j[n]];
 
-      /* JM 1711 -- copy across the inwind variable to the wind pointer */
-      w[nn].inwind = xx_cyl.inwind[n];
+    /* JM 1711 -- copy across the inwind variable to the wind pointer */
+    w[nn].inwind = xx_cyl.inwind[n];
 
-      /* JM 1711 -- you're either in, or you're out. No part in wind cells allowed! 
-         there is a question here about which choice (of not in wind or all in 
-         wind) is most appropriate */
-      if (w[nn].inwind == W_PART_INWIND)
-        w[nn].inwind = W_NOT_INWIND;
-    }
+    /* JM 1711 -- you're either in, or you're out. No part in wind cells allowed! 
+       there is a question here about which choice (of not in wind or all in 
+       wind) is most appropriate */
+    if (w[nn].inwind == W_PART_INWIND)
+      w[nn].inwind = W_NOT_INWIND;
+  }
 
 // ksl - Next few lines do not do anything
 //OLD  /* We now need to fill in the w[],cen */
@@ -274,21 +270,21 @@ cylindrical_make_grid_import (w, ndom)
 //OLD      wind_ij_to_n (ndom, xx_cyl.i[n], xx_cyl.j[n], &nn);
 //OLD
 //OLD    }
-  
+
 
   /* Now add information used in zdom */
 
   for (n = 0; n < zdom[ndom].ndim; n++)
-    {
-      zdom[ndom].wind_x[n] = xx_cyl.wind_x[n];
-    }
+  {
+    zdom[ndom].wind_x[n] = xx_cyl.wind_x[n];
+  }
 
 
 
   for (n = 0; n < zdom[ndom].mdim; n++)
-    {
-      zdom[ndom].wind_z[n] = xx_cyl.wind_z[n];
-    }
+  {
+    zdom[ndom].wind_z[n] = xx_cyl.wind_z[n];
+  }
 
 
   /* Now set up wind boundaries so they are harmless.  
@@ -303,40 +299,40 @@ cylindrical_make_grid_import (w, ndom)
   rmin = rho_min = VERY_BIG;
   for (n = 0; n < xx_cyl.ncell; n++)
 
+  {
+    x[0] = xx_cyl.x[n];
+    x[1] = 0;
+    x[2] = xx_cyl.z[n];
+
+    r = length (x);
+
+    if (xx_cyl.inwind[n] >= 0)
     {
-      x[0] = xx_cyl.x[n];
-      x[1] = 0;
-      x[2] = xx_cyl.z[n];
-
-      r = length (x);
-
-      if (xx_cyl.inwind[n] >= 0)
-	{
-	  if (xx_cyl.x[n] > rho_max)
-	    {
-	      rho_max = xx_cyl.x[n];
-	    }
-	  if (xx_cyl.z[n] > zmax)
-	    {
-	      zmax = xx_cyl.z[n];
-	    }
-	  if (r > rmax)
-	    {
-	      rmax = r;
-	    }
-	}
-      else
-	{
-	  if (rho_min > xx_cyl.x[n])
-	    {
-	      rho_min = xx_cyl.x[n];
-	    }
-	  if (rmin > r)
-	    {
-	      rmin = r;
-	    }
-	}
+      if (xx_cyl.x[n] > rho_max)
+      {
+        rho_max = xx_cyl.x[n];
+      }
+      if (xx_cyl.z[n] > zmax)
+      {
+        zmax = xx_cyl.z[n];
+      }
+      if (r > rmax)
+      {
+        rmax = r;
+      }
     }
+    else
+    {
+      if (rho_min > xx_cyl.x[n])
+      {
+        rho_min = xx_cyl.x[n];
+      }
+      if (rmin > r)
+      {
+        rmin = r;
+      }
+    }
+  }
 
 
 
@@ -381,11 +377,11 @@ velocity_cylindrical (ndom, x, v)
   double speed;
   coord_fraction (ndom, 0, x, nnn, frac, &nelem);
   for (j = 0; j < 3; j++)
-    {
-      vv[j] = 0;
-      for (nn = 0; nn < nelem; nn++)
-	vv[j] += wmain[zdom[ndom].nstart + nnn[nn]].v[j] * frac[nn];
-    }
+  {
+    vv[j] = 0;
+    for (nn = 0; nn < nelem; nn++)
+      vv[j] += wmain[zdom[ndom].nstart + nnn[nn]].v[j] * frac[nn];
+  }
 
   speed = length (vv);
 
@@ -429,14 +425,14 @@ rho_cylindrical (ndom, x)
 
   i = 0;
   while (z > xx_cyl.wind_z[i] && i < xx_cyl.mdim - 1)
-    {
-      i++;
-    }
+  {
+    i++;
+  }
   j = 0;
   while (r > xx_cyl.wind_x[j] && j < xx_cyl.ndim - 1)
-    {
-      j++;
-    }
+  {
+    j++;
+  }
 
   n = j * xx_cyl.mdim + i;
 

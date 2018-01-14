@@ -81,14 +81,14 @@ get_stellar_wind_params (ndom)
   rddoub ("stellar.wind.acceleration_exponent", &zdom[ndom].cl_beta);   /* Accleration scale exponent */
 
   /* Assign the generic parameters for the wind the generic parameters of the wind */
-  geo.rmin = zdom[ndom].rmin;    // 71 ksl - Not modified this so that we did not waste cells
+  geo.rmin = zdom[ndom].rmin;   // 71 ksl - Not modified this so that we did not waste cells
   //zdom[ndom].rmax = geo.rmax;  // This was already assigned, by the line wind.radmax ksl 170530 (see also #305)
   zdom[ndom].wind_thetamin = 0.0;
   zdom[ndom].wind_thetamax = 90. / RADIAN;
 
   /* define the the variables that determine the gridding */
   zdom[ndom].wind_rho_min = 0;
-  zdom[ndom].wind_rho_max = zdom[ndom].rho_max=zdom[ndom].rmax;
+  zdom[ndom].wind_rho_max = zdom[ndom].rho_max = zdom[ndom].rmax;
   zdom[ndom].zmax = zdom[ndom].rmax;
 
 

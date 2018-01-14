@@ -101,9 +101,9 @@ partition_functions (xplasma, mode)
     weight = 1;
   }
   else if (mode == NEBULARMODE_LTE_GROUND)      /*NSH 120912 This is a test mode, used to set partition functions 
-                                                  to ground state only. This is achieved by setting W to 0. At this point, 
-                                                  the temperature is a moot point, so lest go with t_e, since this is only 
-                                                  going to be called if we are doing a power law calculation */
+                                                   to ground state only. This is achieved by setting W to 0. At this point, 
+                                                   the temperature is a moot point, so lest go with t_e, since this is only 
+                                                   going to be called if we are doing a power law calculation */
   {
     t = xplasma->t_e;
     weight = 0;

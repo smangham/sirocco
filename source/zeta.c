@@ -111,7 +111,7 @@ compute_zeta (temp, nion, mode)
 
 #define MIN_FUDGE  1.e-10
 #define MAX_FUDGE  10.
-#define TMIN    2000.  /* Thia TMIN is specific to CK's ground fraction tables */
+#define TMIN    2000.           /* Thia TMIN is specific to CK's ground fraction tables */
 
   zeta = 0.0;                   /* NSH 130605 to remove o3 compile error */
 

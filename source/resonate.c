@@ -227,7 +227,7 @@ then the photon frequency will be less. */
 
   if (fabs (dfreq) < EPSILON)
   {
-    Error ("calculate_ds: v same at both sides of cell %d\n", one->nwind); 
+    Error ("calculate_ds: v same at both sides of cell %d\n", one->nwind);
     x = -1;
     return (smax);              // This is not really the best thing to do, but it avoids disaster below
 
@@ -373,7 +373,7 @@ process. */
            * extraction cycles.  Could you check. It shouldn't be necessary.  ???
            */
 
-          if (geo.rt_mode == RT_MODE_MACRO) //Macro Atom case (SS)
+          if (geo.rt_mode == RT_MODE_MACRO)     //Macro Atom case (SS)
           {
 
             /*
@@ -1172,7 +1172,7 @@ scatter (p, nres, nnscat)
      deactivation process is always the same as the activation process and so
      nothing needs to be done. */
 
-  if (geo.rt_mode == RT_MODE_MACRO)         //check if macro atom method in use
+  if (geo.rt_mode == RT_MODE_MACRO)     //check if macro atom method in use
   {
 
 
@@ -1356,7 +1356,7 @@ scatter (p, nres, nnscat)
 
   }
 
-  else if (*nres == -2 || *nres > NLINES || geo.scatter_mode == SCATTER_MODE_ISOTROPIC )
+  else if (*nres == -2 || *nres > NLINES || geo.scatter_mode == SCATTER_MODE_ISOTROPIC)
   {
     /*  It was either an electron scatter, bf emission or ff emission so the  distribution is isotropic, 
        or it was a line photon but we want isotropic scattering anyway.  */
@@ -1365,7 +1365,7 @@ scatter (p, nres, nnscat)
   }
 
   else if (geo.scatter_mode == SCATTER_MODE_ANISOTROPIC)
-  {                             
+  {
     randwind (p, z_prime, wmain[n].lmn);
     stuff_v (z_prime, p->lmn);
 

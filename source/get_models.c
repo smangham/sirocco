@@ -593,12 +593,12 @@ even, and so for those cases we want to make sure to calculate the ratio of qs d
 
 
   /* End of section to reweight the spectra. we can now copy fluxes to structure */
-  qptr=fopen("MODEL.txt","w");
+  qptr = fopen ("MODEL.txt", "w");
 
   for (j = 0; j < nwaves; j++)
   {
     comp[spectype].xmod.f[j] = flux[j];
-    fprintf(qptr,"%f %e\n",comp[spectype].xmod.w[j],flux[j]);
+    fprintf (qptr, "%f %e\n", comp[spectype].xmod.w[j], flux[j]);
   }
   for (j = 0; j < comp[spectype].npars; j++)
   {

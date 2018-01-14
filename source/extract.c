@@ -302,11 +302,11 @@ used by reweightwind.  02may ksl
 */
 
     if (geo.scatter_mode == SCATTER_MODE_ANISOTROPIC)
-    {                          
+    {
       reweightwind (pp);
     }
 
-    else if (geo.scatter_mode == SCATTER_MODE_THERMAL)     
+    else if (geo.scatter_mode == SCATTER_MODE_THERMAL)
     {
 
       dvds = dvwind_ds (pp);
@@ -345,7 +345,7 @@ the same resonance again */
     istat = translate (w, pp, 20., &tau, &nres);
     icell++;
 
-    istat = walls (pp, &pstart,normal);
+    istat = walls (pp, &pstart, normal);
     if (istat == -1)
     {
       Error ("Extract_one: Abnormal return from translate\n");

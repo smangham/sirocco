@@ -194,8 +194,8 @@ fb_topbase_partial (freq)
     partial *= (freq - fthresh) / freq;
   else if (fbfr == FB_RATE)
     partial /= (H * freq);
-  
-  
+
+
 
   return (partial);
 }
@@ -316,7 +316,7 @@ integ_fb (t, f1, f2, nion, fb_choice, mode)
     exit (0);
   }
 
-  else if (mode == INNER_SHELL)           // inner shell
+  else if (mode == INNER_SHELL) // inner shell
   {
     if (fb_choice == FB_FULL)
     {
@@ -417,7 +417,7 @@ total_fb (one, t, f1, f2, fb_choice, mode)
   xplasma = &plasmamain[nplasma];
 
   if (t < 100. || f2 < f1)
-      t=100.;   /* Set the temperature to 100 K so that if there are free electrons emission by this process continues */ 
+    t = 100.;                   /* Set the temperature to 100 K so that if there are free electrons emission by this process continues */
 
 // Initialize the free_bound structures if that is necessary
   if (mode == OUTER_SHELL)
@@ -438,21 +438,23 @@ total_fb (one, t, f1, f2, fb_choice, mode)
     {
       if (mode == OUTER_SHELL)
       {
-		  if (fb_choice == FB_FULL) // we are calculating a luminosity
-		  {
-             total += xplasma->lum_rr_ion[nion] = xplasma->vol * xplasma->ne * xplasma->density[nion + 1] * integ_fb (t, f1, f2, nion, fb_choice, mode);
-		  	 if (ion[nion].z > 3)
-                  xplasma->lum_rr_metals += xplasma->lum_rr_ion[nion];
-	      }
-	      else  // we are calculating a cooling rate
-	      {
-             total += xplasma->cool_rr_ion[nion] = xplasma->vol * xplasma->ne * xplasma->density[nion + 1] * integ_fb (t, f1, f2, nion, fb_choice, mode);
-		  	 if (ion[nion].z > 3)
-                  xplasma->cool_rr_metals += xplasma->cool_rr_ion[nion];
-		  
-	      } 
+        if (fb_choice == FB_FULL)       // we are calculating a luminosity
+        {
+          total += xplasma->lum_rr_ion[nion] =
+            xplasma->vol * xplasma->ne * xplasma->density[nion + 1] * integ_fb (t, f1, f2, nion, fb_choice, mode);
+          if (ion[nion].z > 3)
+            xplasma->lum_rr_metals += xplasma->lum_rr_ion[nion];
+        }
+        else                    // we are calculating a cooling rate
+        {
+          total += xplasma->cool_rr_ion[nion] =
+            xplasma->vol * xplasma->ne * xplasma->density[nion + 1] * integ_fb (t, f1, f2, nion, fb_choice, mode);
+          if (ion[nion].z > 3)
+            xplasma->cool_rr_metals += xplasma->cool_rr_ion[nion];
+
+        }
       }
-      else if (mode == INNER_SHELL)  // at present we do not compute a luminosity from DR
+      else if (mode == INNER_SHELL)     // at present we do not compute a luminosity from DR
         total += xplasma->cool_dr_ion[nion] =
           xplasma->vol * xplasma->ne * xplasma->density[nion + 1] * integ_fb (t, f1, f2, nion, fb_choice, mode);
 
@@ -519,7 +521,7 @@ total_fb (one, t, f1, f2, fb_choice, mode)
 
 double fb_x[NCDF], fb_y[NCDF];
 double fb_jumps[NLEVELS];       // There is at most one jump per level
-double xfb_jumps[NLEVELS];     // This is just a dummy array that parallels fb_jumpts
+double xfb_jumps[NLEVELS];      // This is just a dummy array that parallels fb_jumpts
 int fb_njumps = (-1);
 
 WindPtr ww_fb;
@@ -532,7 +534,7 @@ one_fb (one, f1, f2)
      double f1, f2;             /* freqmin and freqmax */
 {
   double freq, tt, delta;
-  int n,nn,nnn;
+  int n, nn, nnn;
   double fthresh, dfreq;
   int nplasma;
   PlasmaPtr xplasma;
@@ -541,7 +543,7 @@ one_fb (one, f1, f2)
   nplasma = one->nplasma;
   xplasma = &plasmamain[nplasma];
   xphot = &photstoremain[nplasma];
-  
+
 
   if (f2 < f1)
   {
@@ -593,23 +595,24 @@ use that instead if possible --  57h */
        * cdf.c when more than one jump was intended
        */
 
-	  if (fb_njumps > 1) //We only need to sort and compress if we have more than one jump
-	  {
-      fb_njumps=sort_and_compress(fb_jumps,xfb_jumps,fb_njumps);
-      for (n=0;n<fb_njumps;n++){
-          fb_jumps[n]=xfb_jumps[n];
-	  }
+      if (fb_njumps > 1)        //We only need to sort and compress if we have more than one jump
+      {
+        fb_njumps = sort_and_compress (fb_jumps, xfb_jumps, fb_njumps);
+        for (n = 0; n < fb_njumps; n++)
+        {
+          fb_jumps[n] = xfb_jumps[n];
+        }
       }
 
 
     }
-	
-	
-//	f2=1e16;
-//	f1=1e15;
-//	xplasma->t_e=5000;
-	
-	
+
+
+//      f2=1e16;
+//      f1=1e15;
+//      xplasma->t_e=5000;
+
+
 
     //!BUG SSMay04
     //It doesn't seem to work unless this is zero? (SS May04)
@@ -617,61 +620,61 @@ use that instead if possible --  57h */
 
     /* Note -- Need to fix this to get jumps properly, that is the
        frequencies need to allow for the jumps !! ??? */
-	
-	/*NSH 1707 - modified the loop below to ensure we have points just below and above any jumps */
-	
-  nnn=0;   //Zero the index for elements in the flux array
-	nn=0;  //Zero the index for elements in the jump array
-	  n=0;  //Zero the counting element for equally spaced frequencies
-    dfreq = (f2 - f1) / (ARRAY_PDF-1); //This is the frequency spacing for the equally spaced elements
-    while (n < (ARRAY_PDF) && nnn < NCDF)   //We keep going until n=ARRAY_PDF-1, which will give the maximum required frequency
-    {
-		freq=f1 + dfreq * n;  //The frequency of the array element we would make in the normal run of things
-		if (freq > fb_jumps[nn] && nn < fb_njumps) //The element we were going to make has a frequency abouve the jump
-		{
-			fb_x[nnn]=fb_jumps[nn]*(1.-DELTA_V/(2.*C));  //We make one frequency point DELTA_V cm/s below the jump
-			fb_y[nnn]=fb (xplasma, xplasma->t_e, fb_x[nnn], nions, FB_FULL); //And the flux for that point
-			nnn=nnn+1;			//increase the index of the created array
-			fb_x[nnn]=fb_jumps[nn]*(1.+DELTA_V/(2*C));  //And one frequency point just above the jump
-			fb_y[nnn]=fb (xplasma, xplasma->t_e, fb_x[nnn], nions, FB_FULL); //And the flux for that point
-			nn=nn+1;    //We heave dealt with this jump - on to the next one
-			nnn=nnn+1;  //And we will be filling the next array element next time
-		}
-		else  //We haven't hit a jump
-		{
-			if (freq > fb_x[nnn-1])  //Deal with the unusual case where the upper point in our 'jump' pair is above the next regular point
-				{
-      			fb_x[nnn] = freq;   //Set the next array element frequency
-      			fb_y[nnn] = fb (xplasma, xplasma->t_e, fb_x[nnn], nions, FB_FULL); //And the flux
-				n=n+1;  //Increment the regular grid counter
-	  	  		nnn=nnn+1; //Increment the generated array counter
-  				}
-  	  		else //We dont need to make a new point, the upper frequency pair of the last jump did the trick
-  		  		{
-	  			n=n+1;  //We only need to increment our regualr grid counter
-  		  		}
- 	 	}
-    }
-	
-	//Ensure the last point lines up exatly with f2
-	
-	fb_x[nnn-1]=f2;
-	fb_y[nnn-1]=fb (xplasma, xplasma->t_e, f2, nions, FB_FULL);
-	
 
-	if (nnn > NCDF)
-	{
-		Error ("one _fb: Overflow of working array\n");
-		exit (0);
-	}
- 
-		
-	/* At this point, the variable nnn stores the number of points */
-	
-//	for (n=0;n<nnn;n++)
-//		printf ("FB_TEST te=%e freq %e emittance %e out\n",xplasma->t_e,fb_x[n],fb_y[n]);
-	
-//	exit(0);
+    /*NSH 1707 - modified the loop below to ensure we have points just below and above any jumps */
+
+    nnn = 0;                    //Zero the index for elements in the flux array
+    nn = 0;                     //Zero the index for elements in the jump array
+    n = 0;                      //Zero the counting element for equally spaced frequencies
+    dfreq = (f2 - f1) / (ARRAY_PDF - 1);        //This is the frequency spacing for the equally spaced elements
+    while (n < (ARRAY_PDF) && nnn < NCDF)       //We keep going until n=ARRAY_PDF-1, which will give the maximum required frequency
+    {
+      freq = f1 + dfreq * n;    //The frequency of the array element we would make in the normal run of things
+      if (freq > fb_jumps[nn] && nn < fb_njumps)        //The element we were going to make has a frequency abouve the jump
+      {
+        fb_x[nnn] = fb_jumps[nn] * (1. - DELTA_V / (2. * C));   //We make one frequency point DELTA_V cm/s below the jump
+        fb_y[nnn] = fb (xplasma, xplasma->t_e, fb_x[nnn], nions, FB_FULL);      //And the flux for that point
+        nnn = nnn + 1;          //increase the index of the created array
+        fb_x[nnn] = fb_jumps[nn] * (1. + DELTA_V / (2 * C));    //And one frequency point just above the jump
+        fb_y[nnn] = fb (xplasma, xplasma->t_e, fb_x[nnn], nions, FB_FULL);      //And the flux for that point
+        nn = nn + 1;            //We heave dealt with this jump - on to the next one
+        nnn = nnn + 1;          //And we will be filling the next array element next time
+      }
+      else                      //We haven't hit a jump
+      {
+        if (freq > fb_x[nnn - 1])       //Deal with the unusual case where the upper point in our 'jump' pair is above the next regular point
+        {
+          fb_x[nnn] = freq;     //Set the next array element frequency
+          fb_y[nnn] = fb (xplasma, xplasma->t_e, fb_x[nnn], nions, FB_FULL);    //And the flux
+          n = n + 1;            //Increment the regular grid counter
+          nnn = nnn + 1;        //Increment the generated array counter
+        }
+        else                    //We dont need to make a new point, the upper frequency pair of the last jump did the trick
+        {
+          n = n + 1;            //We only need to increment our regualr grid counter
+        }
+      }
+    }
+
+    //Ensure the last point lines up exatly with f2
+
+    fb_x[nnn - 1] = f2;
+    fb_y[nnn - 1] = fb (xplasma, xplasma->t_e, f2, nions, FB_FULL);
+
+
+    if (nnn > NCDF)
+    {
+      Error ("one _fb: Overflow of working array\n");
+      exit (0);
+    }
+
+
+    /* At this point, the variable nnn stores the number of points */
+
+//      for (n=0;n<nnn;n++)
+//              printf ("FB_TEST te=%e freq %e emittance %e out\n",xplasma->t_e,fb_x[n],fb_y[n]);
+
+//      exit(0);
 
     if (cdf_gen_from_array (&cdf_fb, fb_x, fb_y, nnn, f1, f2) != 0)
     {
@@ -692,8 +695,9 @@ generate photons */
 
 /* First generate the photon we need */
   freq = cdf_get_rand (&cdf_fb);
-  if (freq<f1 || freq > f2) {
-      Error("one_fb:  freq %e  freqmin %e freqmax %e out of range\n",freq,f1,f2);
+  if (freq < f1 || freq > f2)
+  {
+    Error ("one_fb:  freq %e  freqmin %e freqmax %e out of range\n", freq, f1, f2);
   }
 
 /* Now create and store for future use a set of additonal photons */
@@ -701,9 +705,10 @@ generate photons */
   for (n = 0; n < NSTORE; n++)
   {
     xphot->freq[n] = cdf_get_rand (&cdf_fb);
-  if (xphot->freq[n]<f1 || xphot->freq[n] > f2) {
-      Error("one_fb:  freq %e  freqmin %e freqmax %e out of range\n",xphot->freq[n],f1,f2);
-  }
+    if (xphot->freq[n] < f1 || xphot->freq[n] > f2)
+    {
+      Error ("one_fb:  freq %e  freqmin %e freqmax %e out of range\n", xphot->freq[n], f1, f2);
+    }
 
   }
   xphot->n = 0;
@@ -768,9 +773,9 @@ num_recomb (xplasma, t_e, mode)
     {
       if (xplasma->density[i] > DENSITY_PHOT_MIN)
       {
-        if (mode == OUTER_SHELL)          //outer shell
+        if (mode == OUTER_SHELL)        //outer shell
           xplasma->recomb[i] = xplasma->ne * xplasma->density[i + 1] * integ_fb (t_e, 0.0, VERY_BIG, i, FB_RATE, mode);
-        else if (mode == INNER_SHELL)     //innershell
+        else if (mode == INNER_SHELL)   //innershell
           xplasma->inner_recomb[i] = xplasma->ne * xplasma->density[i + 1] * integ_fb (t_e, 0.0, VERY_BIG, i, FB_RATE, mode);
 
       }
@@ -896,8 +901,8 @@ fb (xplasma, t, freq, ion_choice, fb_choice)
 
     /* x is the emissivity from this ion. Add it to the total */
 
-    fnu += xplasma->density[nion+1] * x; //NSH 17Jul - this was a bug - used to be nion, should be nion+1, the ion doing the recombining
-}
+    fnu += xplasma->density[nion + 1] * x;      //NSH 17Jul - this was a bug - used to be nion, should be nion+1, the ion doing the recombining
+  }
 
   fnu *= xplasma->ne;           // Correct from specific emissivity to the total fb emissivity
 
@@ -1108,25 +1113,25 @@ get_fb (t, nion, narray, fb_choice, mode)
      double t;
      int nion;
      int narray;
-	 int fb_choice;
+     int fb_choice;
      int mode;
 {
   int linterp ();
   double x;
   if (mode == OUTER_SHELL)
   {
-	  if (fb_choice == FB_REDUCED)
-    linterp (t, fb_t, &freebound[narray].cool[nion][0], NTEMPS, &x, 0);        //Interpolate in linear space
-	  else if (fb_choice == FB_FULL)
-    linterp (t, fb_t, &freebound[narray].lum[nion][0], NTEMPS, &x, 0);        //Interpolate in linear space
-	  else
-	  {
-		  Error ("Get_fb - unexpected mode %i", mode);
-		  exit(0);
-		}
+    if (fb_choice == FB_REDUCED)
+      linterp (t, fb_t, &freebound[narray].cool[nion][0], NTEMPS, &x, 0);       //Interpolate in linear space
+    else if (fb_choice == FB_FULL)
+      linterp (t, fb_t, &freebound[narray].lum[nion][0], NTEMPS, &x, 0);        //Interpolate in linear space
+    else
+    {
+      Error ("Get_fb - unexpected mode %i", mode);
+      exit (0);
+    }
   }
   else if (mode == INNER_SHELL)
-    linterp (t, fb_t, &freebound[narray].cool_inner[nion][0], NTEMPS, &x, 0);  //Interpolate in linear space
+    linterp (t, fb_t, &freebound[narray].cool_inner[nion][0], NTEMPS, &x, 0);   //Interpolate in linear space
 
   else
   {
@@ -1237,7 +1242,7 @@ xinteg_fb (t, f1, f2, nion, fb_choice)
 
     /* Adding an if statement here so that photoionization that's part of a macro atom is 
        not included here (these will be dealt with elsewhere). (SS, Apr04) */
-    if (fb_xtop->macro_info == 0 || geo.macro_simple == 1 || geo.rt_mode == RT_MODE_2LEVEL)  //Macro atom check. (SS)
+    if (fb_xtop->macro_info == 0 || geo.macro_simple == 1 || geo.rt_mode == RT_MODE_2LEVEL)     //Macro atom check. (SS)
     {
       fthresh = fb_xtop->freq[0];
       fmax = fb_xtop->freq[fb_xtop->np - 1];    // Argues that this should be part of structure
@@ -1340,7 +1345,7 @@ xinteg_inner_fb (t, f1, f2, nion, fb_choice)
 
       /* Adding an if statement here so that photoionization that's part of a macro atom is 
          not included here (these will be dealt with elsewhere). (SS, Apr04) */
-      if (fb_xtop->macro_info == 0 || geo.macro_simple == 1 || geo.rt_mode == RT_MODE_2LEVEL)        //Macro atom check. (SS)
+      if (fb_xtop->macro_info == 0 || geo.macro_simple == 1 || geo.rt_mode == RT_MODE_2LEVEL)   //Macro atom check. (SS)
       {
         fthresh = fb_xtop->freq[0];
         fmax = fb_xtop->freq[fb_xtop->np - 1];  // Argues that this should be part of structure
@@ -1541,7 +1546,7 @@ gs_rrate (nion, T)
     //NSH force code to always use milne for a test REMOVE ME!!!
     //if (ion[nion].bad_gs_rr_t_flag == 100 && ion[nion].bad_gs_rr_r_flag == 100)       //We have tabulated gs data
   {
-	  for (i = 0; i < BAD_GS_RR_PARAMS; i++)
+    for (i = 0; i < BAD_GS_RR_PARAMS; i++)
     {
       rates[i] = bad_gs_rr[ion[nion].nxbadgsrr].rates[i];
       temps[i] = bad_gs_rr[ion[nion].nxbadgsrr].temps[i];
@@ -1636,26 +1641,26 @@ sort_and_compress (array_in, array_out, npts)
 
   values = calloc (sizeof (double), npts);
   for (n = 0; n < npts; n++)
-    {
-      values[n] = array_in[n];
-    }
+  {
+    values[n] = array_in[n];
+  }
 
   /* Sort the array in place */
   qsort (values, npts, sizeof (double), compare_doubles);
-  
 
-  array_out[0]=values[0]; //Copy the first jump into the output array  
-  
+
+  array_out[0] = values[0];     //Copy the first jump into the output array  
+
   nfinal = 1;
-  for (n = 1; n < npts; n++) //Loop over the remaining jumps in the array
+  for (n = 1; n < npts; n++)    //Loop over the remaining jumps in the array
+  {
+    if (values[n] > array_out[nfinal - 1])      //In the next point in the array is larger than the last one (i.e. not equal)
     {
-      if (values[n] > array_out[nfinal - 1])  //In the next point in the array is larger than the last one (i.e. not equal)
-	{
-	  array_out[nfinal] = values[n]; //Put the next point into the array
-	  nfinal += 1;  //Increment the size of the array
-	}
+      array_out[nfinal] = values[n];    //Put the next point into the array
+      nfinal += 1;              //Increment the size of the array
     }
-	
+  }
+
 
 
   return (nfinal);
@@ -1669,9 +1674,9 @@ sort_and_compress (array_in, array_out, npts)
 int
 compare_doubles (const void *a, const void *b)
 {
-  if (*(double*)a > *(double*)b)
+  if (*(double *) a > *(double *) b)
     return 1;
-  else if (*(double*)a < *(double*)b)
+  else if (*(double *) a < *(double *) b)
     return -1;
   else
     return 0;

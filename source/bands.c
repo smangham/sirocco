@@ -121,7 +121,7 @@ bands_init (imode, band)
 
   freqmin = C / 12000e-8;       /*20000 A */
 
-  tmax = 30000.;  /* This sets a floor on freqmax */
+  tmax = 30000.;                /* This sets a floor on freqmax */
 
   if (geo.twind_init > tmax)
     tmax = geo.twind_init;

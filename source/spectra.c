@@ -731,18 +731,22 @@ spectrum_summary (filename, mode, nspecmin, nspecmax, select_spectype, renorm, l
   get_time (string);
   fprintf (fptr, "# Date	%s\n#  \n", string);
 
-  if (select_spectype==SPECTYPE_RAW) {
-      fprintf (fptr, "\n# Units: L_nu spectrum (erg/s/Hz)\n\n");
+  if (select_spectype == SPECTYPE_RAW)
+  {
+    fprintf (fptr, "\n# Units: L_nu spectrum (erg/s/Hz)\n\n");
   }
-  else if (select_spectype==SPECTYPE_FLAMBDA) {  
-      fprintf (fptr, "\n# Units: flambda spectrum (erg/s/cm^-2/A) at %.1f parsecs\n\n", D_SOURCE);
+  else if (select_spectype == SPECTYPE_FLAMBDA)
+  {
+    fprintf (fptr, "\n# Units: flambda spectrum (erg/s/cm^-2/A) at %.1f parsecs\n\n", D_SOURCE);
   }
-  else if (select_spectype==SPECTYPE_FNU) {
-      fprintf (fptr, "\n# Units: Lnu spectrum (erg/s/Hz) at %.1f parsecs\n\n", D_SOURCE);  
+  else if (select_spectype == SPECTYPE_FNU)
+  {
+    fprintf (fptr, "\n# Units: Lnu spectrum (erg/s/Hz) at %.1f parsecs\n\n", D_SOURCE);
   }
-  else {
-      Error("spectrum_summary: Unknown select_spectype %d\n",select_spectype);
-      exit(0);
+  else
+  {
+    Error ("spectrum_summary: Unknown select_spectype %d\n", select_spectype);
+    exit (0);
   }
 
 

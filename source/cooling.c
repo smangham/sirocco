@@ -40,35 +40,34 @@ cooling (xxxplasma, t)
      double t;
 {
 
-	xxxplasma->t_e = t;
-	
+  xxxplasma->t_e = t;
+
 
 
 
 
   if (geo.adiabatic)
+  {
+    if (wmain[xxxplasma->nwind].div_v >= 0.0)
     {
-      if (wmain[xxxplasma->nwind].div_v >= 0.0)
-	{
-	  /* This is the case where we have adiabatic cooling - we want to retain the old behaviour, 
-	     so we use the 'test' temperature to compute it. If div_v is less than zero, we don't do
-	     anything here, and so the existing value of adiabatic cooling is used - this was computed 
-	     in wind_updates2d before the call to ion_abundances. */
-	  xxxplasma->cool_adiabatic =
-	    adiabatic_cooling (&wmain[xxxplasma->nwind], t);
-	}
+      /* This is the case where we have adiabatic cooling - we want to retain the old behaviour, 
+         so we use the 'test' temperature to compute it. If div_v is less than zero, we don't do
+         anything here, and so the existing value of adiabatic cooling is used - this was computed 
+         in wind_updates2d before the call to ion_abundances. */
+      xxxplasma->cool_adiabatic = adiabatic_cooling (&wmain[xxxplasma->nwind], t);
     }
+  }
 
   else
-    {
-      xxxplasma->cool_adiabatic = 0.0;
-    }
+  {
+    xxxplasma->cool_adiabatic = 0.0;
+  }
 
 
   /*81c - nsh - we now treat DR cooling as a recombinational process - still unsure as to how to treat emission, so at the moment
      it remains here */
-	
-  xxxplasma->cool_dr = total_fb (&wmain[xxxplasma->nwind], t, 0, VERY_BIG, FB_REDUCED, INNER_SHELL);  
+
+  xxxplasma->cool_dr = total_fb (&wmain[xxxplasma->nwind], t, 0, VERY_BIG, FB_REDUCED, INNER_SHELL);
 
   /* 78b - nsh adding this line in next to calculate direct ionization cooling without generating photons */
 
@@ -82,8 +81,7 @@ cooling (xxxplasma, t)
 
   xxxplasma->cool_tot =
     xxxplasma->cool_adiabatic + xxxplasma->cool_dr + xxxplasma->cool_di +
-    xxxplasma->cool_comp + xtotal_emission (&wmain[xxxplasma->nwind], 0.,
-					  VERY_BIG);
+    xxxplasma->cool_comp + xtotal_emission (&wmain[xxxplasma->nwind], 0., VERY_BIG);
 
   return (xxxplasma->cool_tot);
 }
@@ -137,7 +135,7 @@ xtotal_emission (one, f1, f2)
   double cooling;
   PlasmaPtr xplasma;
 
-  cooling=0.0;
+  cooling = 0.0;
   nplasma = one->nplasma;
   xplasma = &plasmamain[nplasma];
 
@@ -145,13 +143,13 @@ xtotal_emission (one, f1, f2)
 
   if (f2 < f1)
   {
-    xplasma->cool_tot = xplasma->lum_lines = xplasma->lum_ff = xplasma->cool_rr = 0;      //NSH 1108 Zero the new cool_comp variable NSH 1101 - removed
+    xplasma->cool_tot = xplasma->lum_lines = xplasma->lum_ff = xplasma->cool_rr = 0;    //NSH 1108 Zero the new cool_comp variable NSH 1101 - removed
   }
   else
   {
-    if (geo.rt_mode == RT_MODE_MACRO)       //Switch for macro atoms (SS)
+    if (geo.rt_mode == RT_MODE_MACRO)   //Switch for macro atoms (SS)
     {
-      xplasma->cool_rr = total_fb_matoms (xplasma, t_e, f1, f2) + total_fb (one, t_e, f1, f2, FB_REDUCED, OUTER_SHELL);        //outer shellrecombinations
+      xplasma->cool_rr = total_fb_matoms (xplasma, t_e, f1, f2) + total_fb (one, t_e, f1, f2, FB_REDUCED, OUTER_SHELL); //outer shellrecombinations
       //The first term here is the fb cooling due to macro ions and the second gives
       //the fb cooling due to simple ions.
       //total_fb has been modified to exclude recombinations treated using macro atoms.
@@ -171,13 +169,13 @@ xtotal_emission (one, f1, f2)
     }
     else                        //default (non-macro atoms) (SS)
     {
-		/*The line cooling is equal to the line emission */
+      /*The line cooling is equal to the line emission */
       cooling = xplasma->lum_lines = total_line_emission (one, f1, f2);
-	  /* The free free cooling is equal to the free free emission */
+      /* The free free cooling is equal to the free free emission */
       cooling += xplasma->lum_ff = total_free (one, t_e, f1, f2);
-	  /*The free bound cooling is equal to the recomb rate x the electron energy - the boinding energy - this is computed 
-	  with the FB_REDUCED switch */
-      cooling += xplasma->cool_rr = total_fb (one, t_e, f1, f2, FB_REDUCED, OUTER_SHELL);     //outer shell recombinations
+      /*The free bound cooling is equal to the recomb rate x the electron energy - the boinding energy - this is computed 
+         with the FB_REDUCED switch */
+      cooling += xplasma->cool_rr = total_fb (one, t_e, f1, f2, FB_REDUCED, OUTER_SHELL);       //outer shell recombinations
 
 
     }
@@ -303,7 +301,7 @@ double
 wind_cooling (f1, f2)
      double f1, f2;             /* freqmin and freqmax */
 {
-  double cool, lum_lines, cool_rr, lum_ff, cool_comp, cool_dr, cool_di, cool_adiab, heat_adiab;       //1108 NSH Added a new variable for compton cooling 1408 NSH and for DI cooling
+  double cool, lum_lines, cool_rr, lum_ff, cool_comp, cool_dr, cool_di, cool_adiab, heat_adiab; //1108 NSH Added a new variable for compton cooling 1408 NSH and for DI cooling
   //1109 NSH Added a new variable for dielectronic cooling
   //1307 NSH Added a new variable to split out negtive adiabatic cooling (i.e. heating).
   int n;
@@ -311,21 +309,21 @@ wind_cooling (f1, f2)
   int nplasma;
 
 
-  cool = lum_lines = cool_rr = lum_ff = cool_comp = cool_dr = cool_di = cool_adiab = heat_adiab = 0;  //1108 NSH Zero the new counter 1109 including DR counter 1408 and the DI counter
+  cool = lum_lines = cool_rr = lum_ff = cool_comp = cool_dr = cool_di = cool_adiab = heat_adiab = 0;    //1108 NSH Zero the new counter 1109 including DR counter 1408 and the DI counter
   for (n = 0; n < NDIM2; n++)
   {
 
     if (wmain[n].vol > 0.0)
     {
       nplasma = wmain[n].nplasma;
-      cool += x = cooling (&plasmamain[nplasma],plasmamain[nplasma].t_e);  //1708 - changed this call - now computes cooling rather than luminosity - also we popultate a local
-	  //array called cool, rather than the xplasma array - this was overrwting the xplasma array with incorrect data. 
+      cool += x = cooling (&plasmamain[nplasma], plasmamain[nplasma].t_e);      //1708 - changed this call - now computes cooling rather than luminosity - also we popultate a local
+      //array called cool, rather than the xplasma array - this was overrwting the xplasma array with incorrect data. 
       lum_lines += plasmamain[nplasma].lum_lines;
       cool_rr += plasmamain[nplasma].cool_rr;
       lum_ff += plasmamain[nplasma].lum_ff;
-      cool_comp += plasmamain[nplasma].cool_comp; //1108 NSH Increment the new counter by the compton luminosity for that cell.
-      cool_dr += plasmamain[nplasma].cool_dr;     //1109 NSH Increment the new counter by the DR luminosity for the cell.
-      cool_di += plasmamain[nplasma].cool_di;     //1408 NSH Increment the new counter by the DI luminosity for the cell.
+      cool_comp += plasmamain[nplasma].cool_comp;       //1108 NSH Increment the new counter by the compton luminosity for that cell.
+      cool_dr += plasmamain[nplasma].cool_dr;   //1109 NSH Increment the new counter by the DR luminosity for the cell.
+      cool_di += plasmamain[nplasma].cool_di;   //1408 NSH Increment the new counter by the DI luminosity for the cell.
 
       if (geo.adiabatic)        //130722 NSH - slight change to allow for adiabatic heating effect - now logged in a new global variable for reporting.
       {
@@ -362,14 +360,13 @@ wind_cooling (f1, f2)
   geo.lum_lines = lum_lines;
   geo.cool_rr = cool_rr;
   geo.lum_ff = lum_ff;
-  geo.cool_comp = cool_comp;      //1108 NSH The total compton luminosity of the wind is stored in the geo structure
-  geo.cool_dr = cool_dr;          //1109 NSH the total DR luminosity of the wind is stored in the geo structure
-  geo.cool_di = cool_di;          //1408 NSH the total DI luminosity of the wind is stored in the geo structure
+  geo.cool_comp = cool_comp;    //1108 NSH The total compton luminosity of the wind is stored in the geo structure
+  geo.cool_dr = cool_dr;        //1109 NSH the total DR luminosity of the wind is stored in the geo structure
+  geo.cool_di = cool_di;        //1408 NSH the total DI luminosity of the wind is stored in the geo structure
   geo.cool_adiabatic = cool_adiab;
   geo.heat_adiabatic = heat_adiab;
-  
+
 //  cool = cool+ cool_comp+cool_dr+cool_di+cool_adiab; //1708 NSH we no longer need to add these things on - its done in cooli ng
 
   return (cool);
 }
-

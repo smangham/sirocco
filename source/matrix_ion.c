@@ -195,7 +195,7 @@ matrix_ion_populations (xplasma, mode)
   }
   else if (mode == NEBULARMODE_MATRIX_SPECTRALMODEL)
   {
-    partition_functions (xplasma, NEBULARMODE_LTE_GROUND);   // Set to ground state 
+    partition_functions (xplasma, NEBULARMODE_LTE_GROUND);      // Set to ground state 
   }
 
   /* Next we need to obtain an initial guess for the electron density. In the past this has been done by calculating the
@@ -379,10 +379,10 @@ matrix_ion_populations (xplasma, mode)
   }
 
 
-  partition_functions (xplasma, NEBULARMODE_LTE_GROUND);     /* WARNING fudge XXX NSH 11/5/14 - this is as a test. We really need a better implementation
-                                           of partition functions and levels for a power law illuminating spectrum. We found that
-                                           if we didnt make this call, we would end up with undefined levels - which did really
-                                           crazy things */
+  partition_functions (xplasma, NEBULARMODE_LTE_GROUND);        /* WARNING fudge XXX NSH 11/5/14 - this is as a test. We really need a better implementation
+                                                                   of partition functions and levels for a power law illuminating spectrum. We found that
+                                                                   if we didnt make this call, we would end up with undefined levels - which did really
+                                                                   crazy things */
 
 
 

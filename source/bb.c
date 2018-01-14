@@ -189,9 +189,9 @@ double lo_freq_alphamin, lo_freq_alphamax, hi_freq_alphamin, hi_freq_alphamax;  
 ensure important parts of the CDF have points */
 double bb_set[] = {
 
-	  10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0,
-	  19., 20., 21., 22., 23., 24., 25., 26., 27., 28., 29.
-	};
+  10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0,
+  19., 20., 21., 22., 23., 24., 25., 26., 27., 28., 29.
+};
 
 
 int error_bb_hi = 0;
@@ -207,8 +207,8 @@ planck (t, freqmin, freqmax)
   double get_rand_pow ();
   int cdf_gen_from_func (), cdf_to_file (), echeck;
   int cdf_limit ();
-  
-  
+
+
 
 
   /*First time through create the array containing the proper boundaries for the integral of the BB function,
@@ -242,7 +242,7 @@ reset.  A careful review of them is warranted.
 
   if (t != old_t || freqmin != old_freqmin || freqmax != old_freqmax)
   {
-	  
+
     alphamin = H * freqmin / (BOLTZMANN * t);
     alphamax = H * freqmax / (BOLTZMANN * t);
 
@@ -251,13 +251,13 @@ reset.  A careful review of them is warranted.
     old_freqmax = freqmax;
 
     cdf_bb_ylo = cdf_bb_yhi = 1.0;
-    if (alphamin < ALPHABIG)  //check to make sure we get a sensible number - planck_d(ALPHAMAX is too small to sensibly integrate)
+    if (alphamin < ALPHABIG)    //check to make sure we get a sensible number - planck_d(ALPHAMAX is too small to sensibly integrate)
     {
       cdf_bb_ylo = qromb (planck_d, 0, alphamin, 1e-8) / cdf_bb_tot;    //position in the full cdf of current low frequency boundary
       if (cdf_bb_ylo > 1.0)
         cdf_bb_ylo = 1.0;
     }
-    if (alphamax < ALPHABIG)  //again, check to see that the integral will be sensible 
+    if (alphamax < ALPHABIG)    //again, check to see that the integral will be sensible 
     {
       cdf_bb_yhi = qromb (planck_d, 0, alphamax, 1e-8) / cdf_bb_tot;    //position in the full cdf of currnet hi frequency boundary
       if (cdf_bb_yhi > 1.0)
@@ -270,13 +270,13 @@ reset.  A careful review of them is warranted.
     if (lo_freq_alphamax > ALPHAMIN)    //If the upper alpha for this band is above the loew frequency approximation lower limit
       lo_freq_alphamax = ALPHAMIN;      //Set the maximum alpha we will use the low frequency approximation to the default value
 
-    hi_freq_alphamax = alphamax;         //Set the maximum frequency to use the high frequency approximation to to the upper band limit
-    hi_freq_alphamin = alphamin;         //Set to a default value
-    if (hi_freq_alphamin < ALPHAMAX)     //If the lower band limit is less than the high frequency limit
-      hi_freq_alphamin = ALPHAMAX;       //Se the minimum alpha value to use the high frequency limit to the default value
+    hi_freq_alphamax = alphamax;        //Set the maximum frequency to use the high frequency approximation to to the upper band limit
+    hi_freq_alphamin = alphamin;        //Set to a default value
+    if (hi_freq_alphamin < ALPHAMAX)    //If the lower band limit is less than the high frequency limit
+      hi_freq_alphamin = ALPHAMAX;      //Se the minimum alpha value to use the high frequency limit to the default value
 
 
-    if (alphamin < ALPHAMAX && alphamax > ALPHAMIN) //Since alphamin is always below alphamax, this is saying we are within the 'normal' bb range.
+    if (alphamin < ALPHAMAX && alphamax > ALPHAMIN)     //Since alphamin is always below alphamax, this is saying we are within the 'normal' bb range.
     {
       cdf_limit (&cdf_bb, alphamin, alphamax);
     }
@@ -290,12 +290,12 @@ reset.  A careful review of them is warranted.
 
 
 
-  y = rand () / (MAXRAND);   //We get a random number between 0 and 1
+  y = rand () / (MAXRAND);      //We get a random number between 0 and 1
 
   y = cdf_bb_ylo * (1. - y) + cdf_bb_yhi * y;   // y is now in an allowed place in the cdf
-  
 
-	  
+
+
 
 /* There are 3 cases to worry about
 	The case where everything is in the low frequency limit
@@ -304,17 +304,17 @@ reset.  A careful review of them is warranted.
 	in the normal regime
 */
 
-  if (y <= cdf_bb_lo || alphamax < ALPHAMIN) //we are in the low frequency limit
+  if (y <= cdf_bb_lo || alphamax < ALPHAMIN)    //we are in the low frequency limit
   {
     alpha = get_rand_pow (lo_freq_alphamin, lo_freq_alphamax, 2.);
   }
-  else if (y >= cdf_bb_hi || alphamin > ALPHAMAX) //We are in the high frequency limit
+  else if (y >= cdf_bb_hi || alphamin > ALPHAMAX)       //We are in the high frequency limit
   {
     alpha = get_rand_exp (hi_freq_alphamin, hi_freq_alphamax);
   }
-  else 
+  else
   {
-    alpha = cdf_get_rand_limit (&cdf_bb); //We are in the region where we use the BB function
+    alpha = cdf_get_rand_limit (&cdf_bb);       //We are in the region where we use the BB function
   }
 
   freq = BOLTZMANN * t / H * alpha;
@@ -622,22 +622,22 @@ emittance_bb (freqmin, freqmax, t)
 
   alphamin = H * freqmin / (BOLTZMANN * t);
   alphamax = H * freqmax / (BOLTZMANN * t);
-  
-  
-  
-  
-  if (alphamin > ALPHAMIN && alphamax < ALPHAMAX) //We are within the tabulated range
+
+
+
+
+  if (alphamin > ALPHAMIN && alphamax < ALPHAMAX)       //We are within the tabulated range
   {
     return (q1 * t * t * t * t * integ_planck_d (alphamin, alphamax));
   }
-  else if (alphamax > ALPHABIG) 
+  else if (alphamax > ALPHABIG)
   {
-	  if (alphamin > ALPHABIG) //The whole band is above the point where we can sensibly integrate the BB function
-	  	return(0);
-	  else   //only the upper part of the band is above ALPHABIG
-	      return (q1 * t * t * t * t * qromb (planck_d, alphamin, ALPHABIG, 1e-7));
+    if (alphamin > ALPHABIG)    //The whole band is above the point where we can sensibly integrate the BB function
+      return (0);
+    else                        //only the upper part of the band is above ALPHABIG
+      return (q1 * t * t * t * t * qromb (planck_d, alphamin, ALPHABIG, 1e-7));
   }
-  else //We are outside the tabulated range and must integrate
+  else                          //We are outside the tabulated range and must integrate
   {
     return (q1 * t * t * t * t * qromb (planck_d, alphamin, alphamax, 1e-7));
   }

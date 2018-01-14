@@ -306,7 +306,7 @@ line_summary (w, rootname, ochoice)
   int nplasma;
 
   iline = 0;
-  lambda=0;
+  lambda = 0;
   i_matom_search = 0;
   rdint ("line (0=C-IV, 1=Hα, 2=Hβ, 3=Matom", &iline);
   switch (iline)
@@ -623,7 +623,8 @@ partial_measure_summary (w, element, istate, rootname, ochoice)
 }
 
 
-int collision_summary (w, rootname, ochoice)
+int
+collision_summary (w, rootname, ochoice)
      WindPtr w;
      char rootname[];
      int ochoice;
@@ -637,22 +638,24 @@ int collision_summary (w, rootname, ochoice)
 
   /* Input from user to request temperature */
   rddoub ("electron temperature for calculation:", &t_e);
-  int_te = (int) t_e; // for file label.
+  int_te = (int) t_e;           // for file label.
 
-  if (ochoice) {
+  if (ochoice)
+  {
     /* open filename root.coll.dat */
     strcpy (filename, rootname);
     sprintf (suffix, ".t%d.coll.dat", int_te);
     strcat (filename, suffix);
     fptr = fopen (filename, "w");
 
-    Log("\nWriting collision strengths to file %s...\n\n", filename);
+    Log ("\nWriting collision strengths to file %s...\n\n", filename);
 
     fprintf (fptr, "# Collision strengths at electron temperature %.1fK\n", t_e);
     fprintf (fptr, "# For atomic data file %s\n", geo.atomic_filename);
     fprintf (fptr, "line wavelength z istate levu levl q12 q21 a21 macro_info\n");
   }
-  else {
+  else
+  {
     Log ("Collision strengths at electron temperature %.1fK\n", t_e);
     Log ("line wavelength z istate levu levl q12 q21 a21 macro_info\n");
   }
@@ -662,27 +665,28 @@ int collision_summary (w, rootname, ochoice)
   while (nline < nlines)
   {
     wavelength = C / lin_ptr[nline]->freq / ANGSTROM;
-    
-    qup = q12(lin_ptr[nline], t_e);
-    qdown = q21(lin_ptr[nline], t_e);
+
+    qup = q12 (lin_ptr[nline], t_e);
+    qdown = q21 (lin_ptr[nline], t_e);
     A = a21 (lin_ptr[nline]);
 
-    if (ochoice) {
-      fprintf(fptr, "%d %8.4e %d %d %d %d %8.4e %8.4e %8.4e %d\n",
-               nline, wavelength, lin_ptr[nline]->z, 
-               lin_ptr[nline]->istate, lin_ptr[nline]->levu, lin_ptr[nline]->levl,
-               qup, qdown, A, lin_ptr[nline]->macro_info);
+    if (ochoice)
+    {
+      fprintf (fptr, "%d %8.4e %d %d %d %d %8.4e %8.4e %8.4e %d\n",
+               nline, wavelength, lin_ptr[nline]->z,
+               lin_ptr[nline]->istate, lin_ptr[nline]->levu, lin_ptr[nline]->levl, qup, qdown, A, lin_ptr[nline]->macro_info);
     }
-    else {
-      Log("%d %8.4e %d %d %d %d %8.4e %8.4e %8.4e %d\n",
-              nline, wavelength, lin_ptr[nline]->z, 
-              lin_ptr[nline]->istate, lin_ptr[nline]->levu, lin_ptr[nline]->levl,
-              qup, qdown, A, lin_ptr[nline]->macro_info);
+    else
+    {
+      Log ("%d %8.4e %d %d %d %d %8.4e %8.4e %8.4e %d\n",
+           nline, wavelength, lin_ptr[nline]->z,
+           lin_ptr[nline]->istate, lin_ptr[nline]->levu, lin_ptr[nline]->levl, qup, qdown, A, lin_ptr[nline]->macro_info);
     }
     nline++;
   }
 
-  if (ochoice) fclose (fptr);
+  if (ochoice)
+    fclose (fptr);
 
   return (0);
 }

@@ -148,9 +148,9 @@ in units of WD radii */
 
   zdom[ndom].rmin = zdom[ndom].wind_rho_min;
   /* JM 1710 -- removed for issue #305 
-  //zdom[ndom].rmax = 10. * zdom[ndom].kn_r_scale;        // Set rmax to something reasoable. 
-  */
-  
+     //zdom[ndom].rmax = 10. * zdom[ndom].kn_r_scale;        // Set rmax to something reasoable. 
+   */
+
   /* The change in the boundary of the wind (as corner of disk -- see above) 
      means that wind_rho_max nees to be redefined so that it is used correctly
      to compute the boundary of the wind elsewhere. */

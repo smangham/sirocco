@@ -216,7 +216,7 @@ populate_bands (f1, f2, ioniz_or_final, iwind, band)
       band->flux[n] = 0.0;
 
     if (band->flux[n] == 0.0)
-      band->min_fraction[n] = 0;        
+      band->min_fraction[n] = 0;
   }
 
 /* So now we can distribute the photons among the different bands */
@@ -396,9 +396,10 @@ iwind = -1 	Don't generate any wind photons at all
   Log
     ("!! xdefine_phot: wind  ff %8.2e       fb %8.2e   lines %8.2e  for freq %8.2e %8.2e\n", geo.lum_ff, geo.lum_rr, geo.lum_lines, f1, f2);
   Log
-    ("!! xdefine_phot: star  tstar  %8.2e   %8.2e   lum_star %8.2e %8.2e  %8.2e \n", geo.tstar, geo.tstar_init, geo.lum_star, geo.lum_star_init, geo.lum_star_back);
-  Log
-    ("!! xdefine_phot: disk                               lum_disk %8.2e %8.2e  %8.2e \n", geo.lum_disk, geo.lum_disk_init, geo.lum_disk_back);
+    ("!! xdefine_phot: star  tstar  %8.2e   %8.2e   lum_star %8.2e %8.2e  %8.2e \n", geo.tstar, geo.tstar_init, geo.lum_star,
+     geo.lum_star_init, geo.lum_star_back);
+  Log ("!! xdefine_phot: disk                               lum_disk %8.2e %8.2e  %8.2e \n", geo.lum_disk, geo.lum_disk_init,
+       geo.lum_disk_back);
 
 
 
@@ -691,18 +692,19 @@ star_init (freqmin, freqmax, ioniz_or_final, f)
      int ioniz_or_final;
 {
 //  double lumstar;
-  double r,tstar, log_g;
+  double r, tstar, log_g;
   double emit, emittance_bb (), emittance_continuum ();
   int spectype;
 
 /* 57g -- 07jul -- fixed error calculating gravity of star that has been here forever -- ksl */
   log_g = geo.gstar = log10 (G * geo.mstar / (geo.rstar * geo.rstar));
-  r=geo.rstar;
+  r = geo.rstar;
 
-  tstar=geo.tstar=geo.tstar_init; 
-  if (geo.absorb_reflect==BACK_RAD_ABSORB_AND_HEAT && geo.lum_star_back > 0){
-      geo.lum_star=geo.lum_star_init+geo.lum_star_back;
-      tstar=geo.tstar=pow(geo.lum_star/(4 * PI * STEFAN_BOLTZMANN * r * r),0.25);
+  tstar = geo.tstar = geo.tstar_init;
+  if (geo.absorb_reflect == BACK_RAD_ABSORB_AND_HEAT && geo.lum_star_back > 0)
+  {
+    geo.lum_star = geo.lum_star_init + geo.lum_star_back;
+    tstar = geo.tstar = pow (geo.lum_star / (4 * PI * STEFAN_BOLTZMANN * r * r), 0.25);
   }
 
 
@@ -724,7 +726,7 @@ star_init (freqmin, freqmax, ioniz_or_final, f)
   *f *= (4. * PI * r * r);
 
 
-  return(0);
+  return (0);
 
 }
 
@@ -830,7 +832,7 @@ photo_gen_star (p, r, t, weight, f1, f2, spectype, istart, nphot)
   }
   return (0);
 }
-        
+
 
 /* THE NEXT FEW ROUTINES PERTAIN ONLY TO THE DISK */
 /***********************************************************
@@ -927,7 +929,7 @@ disk_init (rmin, rmax, m, mdot, freqmin, freqmax, ioniz_or_final, ftot)
     t = teff (tref, (r + 0.5 * dr) / rmin);
     ltot += t * t * t * t * (2. * r + dr);
   }
-  geo.lum_disk_init=ltot *= 2. * STEFAN_BOLTZMANN * PI * dr;
+  geo.lum_disk_init = ltot *= 2. * STEFAN_BOLTZMANN * PI * dr;
 
 
 
@@ -1421,5 +1423,3 @@ photon_checks (p, freqmin, freqmax, comment)
 
   return (0);
 }
-
-

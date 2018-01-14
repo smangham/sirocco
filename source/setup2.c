@@ -459,17 +459,17 @@ init_observers ()
   if (geo.select_spectype == 1)
   {
     Log ("OK, generating flambda at 100pc\n");
-    geo.select_spectype=SPECTYPE_FLAMBDA;
+    geo.select_spectype = SPECTYPE_FLAMBDA;
   }
   else if (geo.select_spectype == 2)
   {
     Log ("OK, generating fnu at 100 pc\n");
-    geo.select_spectype=SPECTYPE_FNU;
+    geo.select_spectype = SPECTYPE_FNU;
   }
   else
   {
     Log ("OK, basic Monte Carlo spectrum\n");
-    geo.select_spectype=SPECTYPE_RAW;
+    geo.select_spectype = SPECTYPE_RAW;
   }
 
   return (0);
@@ -577,13 +577,14 @@ init_ionization ()
   // XXX  I is unclear to me why all of this dwon to the next XXX is not moved to a single subroutine.  It all
   // pertains to how the radiatiate tranfer is carreid out
 
-  rdint ("Wind_ionization(0=on.the.spot,1=LTE(tr),2=fixed,3=recalc_bb,4=LTE(t_e),6=pairwise_bb,7=pairwise_pow,8=matrix_bb,9=matrix_pow)", &geo.ioniz_mode);
+  rdint ("Wind_ionization(0=on.the.spot,1=LTE(tr),2=fixed,3=recalc_bb,4=LTE(t_e),6=pairwise_bb,7=pairwise_pow,8=matrix_bb,9=matrix_pow)",
+         &geo.ioniz_mode);
 
   if (geo.ioniz_mode == IONMODE_FIXED)
   {
     rdstr ("Fixed.concentrations.filename", &geo.fixed_con_file[0]);
   }
-  if (geo.ioniz_mode == 5 || geo.ioniz_mode > 9)   
+  if (geo.ioniz_mode == 5 || geo.ioniz_mode > 9)
   {
     Log ("The allowed ionization modes are 0, 1, 2, 3, 4, 6, 7, 8 and 9\n");
     Error ("Unknown ionization mode %d\n", geo.ioniz_mode);
@@ -612,8 +613,7 @@ init_ionization ()
                                    user to turn off mechanisms that affect the thermal balance. Adiabatic is the only one implemented
                                    to start off with. */
 
-  rdint ("Surface.reflection.or.absorption(0=no.rerad,1=high.albedo,2=thermalized.rerad)",
-                  &geo.absorb_reflect);
+  rdint ("Surface.reflection.or.absorption(0=no.rerad,1=high.albedo,2=thermalized.rerad)", &geo.absorb_reflect);
 
   rdint ("Thermal_balance_options(0=everything.on,1=no.adiabatic)", &thermal_opt);
 

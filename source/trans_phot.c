@@ -64,7 +64,7 @@ int trans_phot (WindPtr w, PhotPtr p, int iextract      /* 0 means do not extrac
   int nphot;
   struct photon pp, pextract;
   int nnscat;
-  int absorb_reflect;               /* this is a variable used to store geo.absorb_reflect during exxtract */
+  int absorb_reflect;           /* this is a variable used to store geo.absorb_reflect during exxtract */
   int nerr;
   double p_norm, tau_norm;
 
@@ -91,7 +91,7 @@ int trans_phot (WindPtr w, PhotPtr p, int iextract      /* 0 means do not extrac
     if (nphot % 50000 == 0)
       Log ("Photon %7d of %7d or %6.3f per cent \n", nphot, NPHOT, nphot * 100. / NPHOT);
 
-    Log_flush ();               
+    Log_flush ();
 
     /* 74a_ksl Check that the weights are real */
 
@@ -204,13 +204,14 @@ int trans_phot (WindPtr w, PhotPtr p, int iextract      /* 0 means do not extrac
   }
 
   /* This is the end of the loop over all of the photons; after this the routine returns */
-  
+
   // 130624 ksl Line added to complete watchdog timer,
   Log ("\n\n");
 
   /* sometimes photons scatter near the edge of the wind and get pushed out by DFUDGE. We record these */
   if (n_lost_to_dfudge > 0)
-    Error ("trans_phot: %ld photons were lost due to DFUDGE (=%8.4e) pushing them outside of the wind after scatter\n", n_lost_to_dfudge, DFUDGE);
+    Error ("trans_phot: %ld photons were lost due to DFUDGE (=%8.4e) pushing them outside of the wind after scatter\n", n_lost_to_dfudge,
+           DFUDGE);
 
   n_lost_to_dfudge = 0;         // reset the counter
 
@@ -294,7 +295,7 @@ trans_phot_single (WindPtr w, PhotPtr p, int iextract)
        not yet eliminated it from translate. ?? 02jan ksl */
 
     icell++;
-    istat = walls (&pp, p,normal);
+    istat = walls (&pp, p, normal);
     // pp is where the photon is going, p is where it was
 
     if (modes.ispy)
@@ -316,21 +317,24 @@ trans_phot_single (WindPtr w, PhotPtr p, int iextract)
 
     if (istat == P_HIT_STAR)
     {                           /* It hit the star */
-      geo.lum_star_back+=pp.w;
-      if (geo.absorb_reflect==BACK_RAD_SCATTER){
-          randvcos(pp.lmn,normal);
-          stuff_phot (&pp, p);
-          tau_scat = -log (1. - (rand () + 0.5) / MAXRAND);
-          istat = pp.istat = P_INWIND;      // if we got here, the photon stays in the wind- make sure istat doesn't say scattered still! 
-          tau = 0;
-          if (iextract) {
-              stuff_phot (&pp, &pextract);
-              extract (w, &pextract, PTYPE_STAR);     // Treat as wind photon for purpose of extraction
-          }
+      geo.lum_star_back += pp.w;
+      if (geo.absorb_reflect == BACK_RAD_SCATTER)
+      {
+        randvcos (pp.lmn, normal);
+        stuff_phot (&pp, p);
+        tau_scat = -log (1. - (rand () + 0.5) / MAXRAND);
+        istat = pp.istat = P_INWIND;    // if we got here, the photon stays in the wind- make sure istat doesn't say scattered still! 
+        tau = 0;
+        if (iextract)
+        {
+          stuff_phot (&pp, &pextract);
+          extract (w, &pextract, PTYPE_STAR);   // Treat as wind photon for purpose of extraction
+        }
       }
-      else {  /*This is the end of the line for this photon */
-          stuff_phot (&pp, p);
-          break;
+      else
+      {                         /*This is the end of the line for this photon */
+        stuff_phot (&pp, p);
+        break;
       }
     }
 
@@ -348,23 +352,26 @@ trans_phot_single (WindPtr w, PhotPtr p, int iextract)
         kkk++;
       kkk--;                    // So that the heating refers to the heating between kkk and kkk+1
       qdisk.nhit[kkk]++;
-      geo.lum_disk_back=qdisk.heat[kkk] += pp.w;  // 60a - ksl - Added to be able to calculate illum of disk
+      geo.lum_disk_back = qdisk.heat[kkk] += pp.w;      // 60a - ksl - Added to be able to calculate illum of disk
       qdisk.ave_freq[kkk] += pp.w * pp.freq;
 
-      if (geo.absorb_reflect==BACK_RAD_SCATTER){
-          randvcos(pp.lmn,normal);
-          stuff_phot (&pp, p);
-          tau_scat = -log (1. - (rand () + 0.5) / MAXRAND);
-          istat = pp.istat = P_INWIND;      // if we got here, the photon stays in the wind- make sure istat doesn't say scattered still! 
-          tau = 0;
-          if (iextract) {
-              stuff_phot (&pp, &pextract);
-              extract (w, &pextract, PTYPE_DISK);     // Treat as wind photon for purpose of extraction
-          }
+      if (geo.absorb_reflect == BACK_RAD_SCATTER)
+      {
+        randvcos (pp.lmn, normal);
+        stuff_phot (&pp, p);
+        tau_scat = -log (1. - (rand () + 0.5) / MAXRAND);
+        istat = pp.istat = P_INWIND;    // if we got here, the photon stays in the wind- make sure istat doesn't say scattered still! 
+        tau = 0;
+        if (iextract)
+        {
+          stuff_phot (&pp, &pextract);
+          extract (w, &pextract, PTYPE_DISK);   // Treat as wind photon for purpose of extraction
+        }
       }
-      else {  /*This is the end of the line for this photon */
-          stuff_phot (&pp, p);
-          break;
+      else
+      {                         /*This is the end of the line for this photon */
+        stuff_phot (&pp, p);
+        break;
       }
     }
 
@@ -459,7 +466,7 @@ trans_phot_single (WindPtr w, PhotPtr p, int iextract)
          'spectral cycles'. If photons activate macro-atoms they are destroyed, but we counter this by generating photons
          from deactivating macro-atoms with the already calculated emissivities. */
 
-      if (geo.matom_radiation == 1 && geo.rt_mode == RT_MODE_MACRO  && pp.w < weight_min)
+      if (geo.matom_radiation == 1 && geo.rt_mode == RT_MODE_MACRO && pp.w < weight_min)
         /* Flag for the spectrum calculations in a macro atom calculation SS */
       {
         istat = pp.istat = P_ABSORB;
@@ -487,7 +494,7 @@ trans_phot_single (WindPtr w, PhotPtr p, int iextract)
 
         plasmamain[wmain[n].nplasma].scatters[line[nres].nion] += pp.w;
 
-        if (geo.rt_mode == RT_MODE_2LEVEL)   // only do next line for non-macro atom case
+        if (geo.rt_mode == RT_MODE_2LEVEL)      // only do next line for non-macro atom case
         {
           line_heat (&plasmamain[wmain[n].nplasma], &pp, nres);
         }
@@ -571,7 +578,7 @@ trans_phot_single (WindPtr w, PhotPtr p, int iextract)
          after scattering. Note that walls updates the istat in pp as well.
          This may not be necessary but I think to account for every eventuality 
          it should be done */
-      istat = walls (&pp, p,normal);
+      istat = walls (&pp, p, normal);
 
       /* This *does not* update istat if the photon scatters outside of the wind-
          I guess P_INWIND is really in wind or empty space but not escaped.
