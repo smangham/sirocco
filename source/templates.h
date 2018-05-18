@@ -134,7 +134,6 @@ int setup_created_files(void);
 /* wind_updates2d.c */
 int wind_update(WindPtr (w));
 int wind_rad_init(void);
-int wind_ip(void);
 /* windsave.c */
 int wind_save(char filename[]);
 int wind_read(char filename[]);
@@ -405,8 +404,6 @@ int xsignal(char *root, char *format, ...);
 int xsignal_rm(char *root);
 int set_max_time(char *root, double t);
 int check_time(char *root);
-/* auger_ionization.c */
-int auger_ionization(PlasmaPtr xplasma);
 /* agn.c */
 double agn_init(double r, double lum, double alpha, double freqmin, double freqmax, int ioniz_or_final, double *f);
 double emittance_pow(double freqmin, double freqmax, double alpha);
@@ -556,6 +553,12 @@ double get_rand_brem(double freqmin, double freqmax);
 int check_synonyms(char new_question[], char old_question[]);
 /* setup_reverb.c */
 int get_meta_params(void);
+/* vtk.c */
+int vtk_point_index(int i, int j, int k, int i_top, DomainPtr dom, int resolution);
+int vtk_sphere_point_index(int i, int j, int k, int resolution);
+int output_vtk(WindPtr wind, int ndom, int cycle, int property_count, void (*property_pointers[])(WindPtr, FILE *), char *property_names[]);
+/* vtk_ions.c */
+void vtk_temperature_e(WindPtr w, FILE *fptr);
 /* py_wind_sub.c */
 int zoom(int direction);
 int overview(WindPtr w, char rootname[]);

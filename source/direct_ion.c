@@ -336,22 +336,11 @@ q_recomb_dere (cont_ptr, electron_temperature)
     root_etemp = sqrt (electron_temperature);
     coeff = 2.07e-16 / (root_etemp * root_etemp * root_etemp);
 
-<<<<<<< HEAD
-    /* the original way of getting mutilplicity doesn't work for non-matoms,
-       because uplevel isn't identified */
-    //coeff *= config[cont_ptr->nlev].g / config[cont_ptr->uplev].g;
-
-    /* JM/NSH XXX -- This is the multiplicity of the ground states.
-       Should be of order 1 so it may be better to just leave it out,
-       since the collisional ionization cross section is doubtless
-       averaged over upper states... */
-=======
     /* We now multiply by the ratio of the multiplicity of the ground states.
       Dere's data comes from a vast range of sources, some PI cross sections
 	  include excited states, others dont. We will make the approximation
 	  of using juast the ground state multiplicities. If there is an error
 	  introduced here it will be small */
->>>>>>> upstream/dev
     coeff *= ion[nion].g / ion[nion + 1].g;
 
     coeff *= exp (u0);

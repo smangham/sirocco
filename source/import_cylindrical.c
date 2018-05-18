@@ -387,13 +387,8 @@ cylindrical_make_grid_import (w, ndom)
  *
  * @param [in] int  ndom   The domain of the imported model
  * @param [in] double *  x   A position
-<<<<<<< HEAD
- * @param [in out] double *  v   The velocity at x
- * @return     The speed at x
-=======
  * @param [out] double *  v   The velocity at x
  * @return     The speed at x
->>>>>>> upstream/dev
  *
  * @details
  * This routine interpolates on the values read in for the
@@ -439,7 +434,7 @@ velocity_cylindrical (ndom, x, v)
 
 
 
-<<<<<<< HEAD
+
 
 /* Fill in plasma ptrs with densities.
  *

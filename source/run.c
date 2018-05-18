@@ -4,8 +4,8 @@
  * @author ksl
  * @date   May, 2018
  *
- * @brief  the driving routines to carry out calculation of 
- * the ionization of the plasma and also to extract detailed 
+ * @brief  the driving routines to carry out calculation of
+ * the ionization of the plasma and also to extract detailed
  * spectra after the inputs have been collected.
  *
  * @bug The name of this file is not really acurate.  The routines
@@ -32,13 +32,13 @@
 
 
 /**********************************************************/
-/** 
- * @brief      run the ionization cycles for a 
+/**
+ * @brief      run the ionization cycles for a
  * python model
  *
  * @param [in] int  restart_stat   0 if the is run is beginning from
  * scratch,  non-zero if this was a restart
- * @return     Always returns 0 
+ * @return     Always returns 0
  *
  * @details
  * This is the main routine for running the ionization
@@ -94,7 +94,7 @@ calculate_ionization (restart_stat)
     xsignal (files.root, "%-20s No ionization needed: wcycles(%d)==wcyeles(%d)\n", "COMMENT", geo.wcycle, geo.wcycles);
   else
   {
-    geo.pcycle = 0;             /* Set the spectrum cycles executed to 0, because 
+    geo.pcycle = 0;             /* Set the spectrum cycles executed to 0, because
                                    we are going to modify the wind and hence any
                                    previously calculated spectra must be recreated
                                  */
@@ -137,8 +137,8 @@ calculate_ionization (restart_stat)
 
     /* Create the photons that need to be transported through the wind
      *
-     * NPHOT is the number of photon bundles which will equal the luminosity; 
-     * 0 => for ionization calculation 
+     * NPHOT is the number of photon bundles which will equal the luminosity;
+     * 0 => for ionization calculation
      */
 
 
@@ -219,7 +219,7 @@ calculate_ionization (restart_stat)
 
 
 
-    /* At this point we should communicate all the useful infomation 
+    /* At this point we should communicate all the useful infomation
        that has been accummulated on differenet MPI tasks */
 
 #ifdef MPI_ON
@@ -271,23 +271,30 @@ calculate_ionization (restart_stat)
     {
 #endif
 
-/* The variables for spectrum_sumamry are the filename, the attribute for the file write, the minimum and maximum spectra to write out, 
+/* The variables for spectrum_sumamry are the filename, the attribute for the file write, the minimum and maximum spectra to write out,
  * the type of spectrum (RAW meaning internal luminosity units, the amount by which to renormalize (1 means use the existing
  * values, loglin (0=linear, 1=log for the wavelength scale), all photons or just wind photons
  */
 
-      spectrum_summary (files.wspec,       0, 6, SPECTYPE_RAW, 1., 0, 0);  /* .spec_tot */ 
+      spectrum_summary (files.wspec,       0, 6, SPECTYPE_RAW, 1., 0, 0);  /* .spec_tot */
       spectrum_summary (files.lwspec,      0, 6, SPECTYPE_RAW, 1., 1, 0);  /* .log_spec_tot */
       spectrum_summary (files.wspec_wind,  0, 6, SPECTYPE_RAW, 1., 0, 1);  /* .spec_tot_wind  */
       spectrum_summary (files.lwspec_wind, 0, 6, SPECTYPE_RAW, 1., 1, 1);  /* .log_spec_tot_wind */
       phot_gen_sum (files.phot, "w");   /* Save info about the way photons are created and absorbed
                                            by the disk */
+
+      /* Save the various wind properties to a vtk file */
+      char *property_names[] = {"temp_e"};
+      void (*property_pointers[])(WindPtr, FILE*) = {vtk_temperature_e};
+
+      output_vtk(wmain, 0, geo.wcycle, 1, property_pointers, property_names);
+
 #ifdef MPI_ON
     }
     MPI_Barrier (MPI_COMM_WORLD);
 #endif
 
-    /* Save everything after each cycle and prepare for the next cycle 
+    /* Save everything after each cycle and prepare for the next cycle
        JM1304: moved geo.wcycle++ after xsignal to record cycles correctly. First cycle is cycle 0. */
     /* NSH1306 - moved geo.wcycle++ back, but moved the log and xsignal statements */
 
@@ -349,11 +356,11 @@ calculate_ionization (restart_stat)
 
 
 /**********************************************************/
-/** 
+/**
  * @brief      generates the detailed spectra
  *
  * @param [in, out] int  restart_stat   0 if the is run is beginning from
- * scratch, non-zero if this was a restart 
+ * scratch, non-zero if this was a restart
  * @return     Always returns EXIT_SUCCESS
  *
  * @details
@@ -396,7 +403,7 @@ make_spectra (restart_stat)
 #endif
 
   /* Perform the initilizations required to handle macro-atoms during the detailed
-     calculation of the spectrum.  
+     calculation of the spectrum.
 
      Next lines turns off macro atom estimators and other portions of the code that are
      unnecessary during spectrum cycles.  */
@@ -406,7 +413,7 @@ make_spectra (restart_stat)
 /* Next steps to speed up extraction stage */
   if (!modes.keep_photoabs)
   {
-    DENSITY_PHOT_MIN = -1.0;    // Do not calculated photoabsorption in detailed spectrum 
+    DENSITY_PHOT_MIN = -1.0;    // Do not calculated photoabsorption in detailed spectrum
   }
 
   /*Switch on k-packet/macro atom emissivities  SS June 04 */
@@ -452,7 +459,7 @@ make_spectra (restart_stat)
 
   else
   {
-    /* Then we are restarting a run with more spectral cycles, but we 
+    /* Then we are restarting a run with more spectral cycles, but we
        have already completed some. The memory for the spectral arrays
        should already have been allocated, and the spectrum was initialised
        on the original run, so we just need to renormalise the saved spectrum */
@@ -481,9 +488,9 @@ make_spectra (restart_stat)
     else
       iwind = 0;                /* Create wind photons but do not force reinitialization */
 
-    /* Create the initial photon bundles which need to be trannsported through the wind 
+    /* Create the initial photon bundles which need to be trannsported through the wind
 
-       For the detailed spectra, NPHOT*pcycles is the number of photon bundles which will equal the luminosity, 
+       For the detailed spectra, NPHOT*pcycles is the number of photon bundles which will equal the luminosity,
        1 implies that detailed spectra, as opposed to the ionization of the wind is being calculated
 
        JM 130306 must convert NPHOT and pcycles to double precision variable nphot_to_define
@@ -577,7 +584,7 @@ make_spectra (restart_stat)
 /* Finally done */
 
 #ifdef MPI_ON
-  sprintf (dummy, "End of program, Thread %d only", rank_global);       // added so we make clear these are just errors for thread ngit status    
+  sprintf (dummy, "End of program, Thread %d only", rank_global);       // added so we make clear these are just errors for thread ngit status
   error_summary (dummy);        // Summarize the errors that were recorded by the program
   Log ("Run py_error.py for full error report.\n");
 #else
