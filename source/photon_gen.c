@@ -373,9 +373,10 @@ iwind = -1 	Don't generate any wind photons at all
   Log
     ("!! xdefine_phot: wind  ff %8.2e       fb %8.2e   lines %8.2e  for freq %8.2e %8.2e\n", geo.lum_ff, geo.lum_rr, geo.lum_lines, f1, f2);
   Log
-    ("!! xdefine_phot: star  tstar  %8.2e   %8.2e   lum_star %8.2e %8.2e  %8.2e \n", geo.tstar, geo.tstar_init, geo.lum_star, geo.lum_star_init, geo.lum_star_back);
-  Log
-    ("!! xdefine_phot: disk                               lum_disk %8.2e %8.2e  %8.2e \n", geo.lum_disk, geo.lum_disk_init, geo.lum_disk_back);
+    ("!! xdefine_phot: star  tstar  %8.2e   %8.2e   lum_star %8.2e %8.2e  %8.2e \n", geo.tstar, geo.tstar_init, geo.lum_star,
+     geo.lum_star_init, geo.lum_star_back);
+  Log ("!! xdefine_phot: disk                               lum_disk %8.2e %8.2e  %8.2e \n", geo.lum_disk, geo.lum_disk_init,
+       geo.lum_disk_back);
 
 
 
@@ -649,19 +650,20 @@ star_init (freqmin, freqmax, ioniz_or_final, f)
      double freqmin, freqmax, *f;
      int ioniz_or_final;
 {
-  double r,tstar, log_g;
+  double r, tstar, log_g;
   double emit, emittance_bb (), emittance_continuum ();
   int spectype;
 
   log_g = geo.gstar = log10 (G * geo.mstar / (geo.rstar * geo.rstar));
-  r=geo.rstar;
+  r = geo.rstar;
 
-  tstar=geo.tstar=geo.tstar_init;
-  geo.lum_star=geo.lum_star_init;
+  tstar = geo.tstar = geo.tstar_init;
+  geo.lum_star = geo.lum_star_init;
 
-  if (geo.absorb_reflect==BACK_RAD_ABSORB_AND_HEAT && geo.lum_star_back > 0){
-      geo.lum_star=geo.lum_star+geo.lum_star_back;
-      tstar=geo.tstar=pow(geo.lum_star/(4 * PI * STEFAN_BOLTZMANN * r * r),0.25);
+  if (geo.absorb_reflect == BACK_RAD_ABSORB_AND_HEAT && geo.lum_star_back > 0)
+  {
+    geo.lum_star = geo.lum_star + geo.lum_star_back;
+    tstar = geo.tstar = pow (geo.lum_star / (4 * PI * STEFAN_BOLTZMANN * r * r), 0.25);
   }
 
 
@@ -683,7 +685,7 @@ star_init (freqmin, freqmax, ioniz_or_final, f)
   *f *= (4. * PI * r * r);
 
 
-  return(0);
+  return (0);
 
 }
 
@@ -759,7 +761,7 @@ photo_gen_star (p, r, t, weight, f1, f2, spectype, istart, nphot)
     else if (spectype == SPECTYPE_UNIFORM)
     {                           /* Kurucz spectrum */
       /*Produce a uniform distribution of frequencies */
-      p[i].freq = random_number(freqmin,freqmax); //Generate a random frequency - this will exclude freqmin,freqmax.
+      p[i].freq = random_number (freqmin, freqmax);     //Generate a random frequency - this will exclude freqmin,freqmax.
 
     }
     else
@@ -868,7 +870,7 @@ disk_init (rmin, rmax, m, mdot, freqmin, freqmax, ioniz_or_final, ftot)
     t = teff (tref, (r + 0.5 * dr) / rmin);
     ltot += t * t * t * t * (2. * r + dr);
   }
-  geo.lum_disk_init=ltot *= 2. * STEFAN_BOLTZMANN * PI * dr;
+  geo.lum_disk_init = ltot *= 2. * STEFAN_BOLTZMANN * PI * dr;
 
 
 
@@ -1060,7 +1062,7 @@ photo_gen_disk (p, weight, f1, f2, spectype, istart, nphot)
  * generate photon.  04march -- ksl
  */
 
-    nring = random_number(0.0,1.0) * (NRINGS - 1);
+    nring = random_number (0.0, 1.0) * (NRINGS - 1);
 
 
     if ((nring < 0) || (nring > NRINGS - 2))
@@ -1075,12 +1077,12 @@ photo_gen_disk (p, weight, f1, f2, spectype, istart, nphot)
  * should account for the area.  But haven't fixed this yet ?? 04Dec
  */
 
-    r = disk.r[nring] + (disk.r[nring + 1] - disk.r[nring]) * random_number(0.0,1.0);
+    r = disk.r[nring] + (disk.r[nring + 1] - disk.r[nring]) * random_number (0.0, 1.0);
 
     /* Generate a photon in the plane of the disk a distance r */
 
 
-    phi = 2. * PI * random_number(0.0,1.0);
+    phi = 2. * PI * random_number (0.0, 1.0);
 
     p[i].x[0] = r * cos (phi);
     p[i].x[1] = r * sin (phi);
@@ -1109,7 +1111,7 @@ photo_gen_disk (p, weight, f1, f2, spectype, istart, nphot)
 
     }
 
-    if (random_number(-0.5,0.5) > 0.0) //Get a uniform random number brtween -0.5 and 0.5- use sign to toss a coin.
+    if (random_number (-0.5, 0.5) > 0.0)        //Get a uniform random number brtween -0.5 and 0.5- use sign to toss a coin.
     {                           /* Then the photon emerges in the upper hemisphere */
       p[i].x[2] = (z + EPSILON);
     }
@@ -1132,7 +1134,7 @@ photo_gen_disk (p, weight, f1, f2, spectype, istart, nphot)
     else if (spectype == SPECTYPE_UNIFORM)
     {                           //Produce a uniform distribution of frequencies
 
-      p[i].freq = random_number(freqmin,freqmax); //Get a random frequency between fmin and fmax (exluding the ends)
+      p[i].freq = random_number (freqmin, freqmax);     //Get a random frequency between fmin and fmax (exluding the ends)
     }
 
     else

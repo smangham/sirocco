@@ -206,7 +206,7 @@ randwind (p, lmn, north)
 
   /* Now get the azimuthal direction for the scattered photon */
 
-  phi = 2. * PI * random_number(0.0,1.0);
+  phi = 2. * PI * random_number (0.0, 1.0);
 
   xlmn[1] = q * cos (phi);
   xlmn[2] = q * sin (phi);
@@ -654,7 +654,7 @@ randwind_thermal_trapping (p, nnscat)
 
     /* generate random number, normalised by p_norm with a 1.2 for 20%
        safety net (as dvds_max is worked out with a sample of directions) */
-    ztest = random_number(0.0,1.0) * p_norm;
+    ztest = random_number (0.0, 1.0) * p_norm;
 
     dvds = dvwind_ds (p);
     tau = sobolev (one, p->x, -1.0, lin_ptr[p->nres], dvds);

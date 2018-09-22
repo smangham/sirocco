@@ -95,10 +95,7 @@ int RESOLUTION = 100;
  * ###Notes### Written by SWM 5/18.
 *****************************************************************/
 int
-output_vtk (WindPtr wind, int ndom, int cycle,
-            int property_count,
-            void (*property_pointers[])(WindPtr, FILE*),
-            char *property_names[])
+output_vtk (WindPtr wind, int ndom, int cycle, int property_count, void (*property_pointers[])(WindPtr, FILE *), char *property_names[])
 {
   FILE *fopen (), *fptr;
   char c_file[LINELENGTH];
@@ -109,7 +106,7 @@ output_vtk (WindPtr wind, int ndom, int cycle,
   int resolution = RESOLUTION;
 
   //Get output filename
-  sprintf (c_file, "%s.%d.dom%d.wind_paths.vtk", files.root, cycle, ndom);
+  sprintf (c_file, "%s.dom%d.%d.vtk", files.root, ndom, cycle);
 
   if ((fptr = fopen (c_file, "w")) == NULL)
   {                             //If this file can't be opened, error out
@@ -206,8 +203,7 @@ output_vtk (WindPtr wind, int ndom, int cycle,
                    vtk_sphere_point_index (i, j + 1, k, resolution),
                    vtk_sphere_point_index (i + 1, j, k, resolution),
                    vtk_sphere_point_index (i + 1, j, k + 1, resolution),
-                   vtk_sphere_point_index (i + 1, j + 1, k + 1, resolution),
-                   vtk_sphere_point_index (i + 1, j + 1, k, resolution));
+                   vtk_sphere_point_index (i + 1, j + 1, k + 1, resolution), vtk_sphere_point_index (i + 1, j + 1, k, resolution));
         }
       }
     }
@@ -227,8 +223,7 @@ output_vtk (WindPtr wind, int ndom, int cycle,
                    vtk_point_index (i, j + 1, k, 1, dom, resolution),
                    vtk_point_index (i + 1, j, k, 1, dom, resolution),
                    vtk_point_index (i + 1, j, k + 1, 1, dom, resolution),
-                   vtk_point_index (i + 1, j + 1, k + 1, 1, dom, resolution),
-                   vtk_point_index (i + 1, j + 1, k, 1, dom, resolution));
+                   vtk_point_index (i + 1, j + 1, k + 1, 1, dom, resolution), vtk_point_index (i + 1, j + 1, k, 1, dom, resolution));
           fprintf (fptr, "8 %d %d %d %d %d %d %d %d\n",
                    vtk_point_index (i, j, k, 0, dom, resolution),
                    vtk_point_index (i, j, k + 1, 0, dom, resolution),
@@ -236,8 +231,7 @@ output_vtk (WindPtr wind, int ndom, int cycle,
                    vtk_point_index (i, j + 1, k, 0, dom, resolution),
                    vtk_point_index (i + 1, j, k, 0, dom, resolution),
                    vtk_point_index (i + 1, j, k + 1, 0, dom, resolution),
-                   vtk_point_index (i + 1, j + 1, k + 1, 0, dom, resolution),
-                   vtk_point_index (i + 1, j + 1, k, 0, dom, resolution));
+                   vtk_point_index (i + 1, j + 1, k + 1, 0, dom, resolution), vtk_point_index (i + 1, j + 1, k, 0, dom, resolution));
         }
       }
     }
@@ -266,7 +260,7 @@ output_vtk (WindPtr wind, int ndom, int cycle,
         {
           for (k = 0; k < resolution; k++)
           {
-            property_pointers[i_property](&wind[n], fptr);
+            property_pointers[i_property] (&wind[n], fptr);
           }
         }
       }
@@ -280,8 +274,8 @@ output_vtk (WindPtr wind, int ndom, int cycle,
           wind_ij_to_n (ndom, i, j, &n);
           for (k = 0; k < resolution; k++)
           {
-            property_pointers[i_property](&wind[n], fptr);
-            property_pointers[i_property](&wind[n], fptr);
+            property_pointers[i_property] (&wind[n], fptr);
+            property_pointers[i_property] (&wind[n], fptr);
           }
         }
       }

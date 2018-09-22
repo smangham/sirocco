@@ -577,7 +577,7 @@ calloc_dyn_plasma (nelem)
  *  used for extrapolations.
  */
 
-  for (n = 0; n < nelem + 1; n++)       
+  for (n = 0; n < nelem + 1; n++)
   {
     if ((plasmamain[n].density = calloc (sizeof (double), nions)) == NULL)
     {

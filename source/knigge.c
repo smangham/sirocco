@@ -81,7 +81,7 @@ get_knigge_wind_params (ndom)
                                                                            approximate */
   zdom[ndom].kn_v_zero = 1.0;   /* Parameter which
                                    can use to muliply the initial velocity of wind so that it
-                                   is greater or less than the sound speed. This is not part of the standard KWD model*/
+                                   is greater or less than the sound speed. This is not part of the standard KWD model */
   zdom[ndom].wind_rho_min = 1;  /* Innner and outer edges of the wind in stellar radii. These
                                    parameters were added to allow one to duplicate the YSO
                                    paper */
@@ -281,13 +281,13 @@ is an input to the code. */
 /* 578 -- 06oct -- ksl -- The next lines are modified to allow one to create a SV style
 velocity law if kn_v_infinity is less than 0 */
 
-  if (one_dom->kn_v_infinity > 0.0)  // The normal case
+  if (one_dom->kn_v_infinity > 0.0)     // The normal case
   {
     zzz = ldist / (ldist + one_dom->kn_r_scale);
     zzz = pow (zzz, one_dom->kn_alpha); // In Knigge's notation this is actually beta
     vl = vzero + (one_dom->kn_v_infinity * v_escape - vzero) * zzz;
   }
-  else  // the SV options
+  else                          // the SV options
   {
     zzz = pow (ldist / one_dom->kn_r_scale, one_dom->kn_alpha);
     vl = vzero + ((-one_dom->kn_v_infinity) * v_escape - vzero) * zzz / (1. + zzz);

@@ -137,7 +137,7 @@ bands_init (imode, band)
 
   freqmin = C / 12000e-8;       /*20000 A */
 
-  tmax = 30000.;  /* This sets a floor on freqmax */
+  tmax = 30000.;                /* This sets a floor on freqmax */
 
   if (geo.twind_init > tmax)
     tmax = geo.twind_init;
@@ -544,8 +544,8 @@ bands_init (imode, band)
 //OLD 
 //OLD Synopsis:
 //OLD 
-//OLD 	This is the routine where the frequency
-//OLD 	boundaries for course spectra are established
+//OLD   This is the routine where the frequency
+//OLD   boundaries for course spectra are established
 //OLD 
 //OLD 
 //OLD 
@@ -560,17 +560,17 @@ bands_init (imode, band)
 //OLD 
 //OLD 
 //OLD Notes:
-//OLD 	1112 - At present everything is hardwired
+//OLD   1112 - At present everything is hardwired
 //OLD 
 //OLD 
 //OLD 
 //OLD History:
-//OLD 	1112	ksl	Moved from main routine here
-//OLD 	111227	ksl	Smalle modifications to reflect my moving the main
-//OLD 			variables into the geo.structure so that they
-//OLD 			could be read by py_oind
-//OLD 	111227	ksl	First attempt to limit the frequency intervals to
-//OLD 			regions where photons are being generated
+//OLD   1112    ksl     Moved from main routine here
+//OLD   111227  ksl     Smalle modifications to reflect my moving the main
+//OLD                   variables into the geo.structure so that they
+//OLD                   could be read by py_oind
+//OLD   111227  ksl     First attempt to limit the frequency intervals to
+//OLD                   regions where photons are being generated
 //OLD **************************************************************/
 
 

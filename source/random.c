@@ -32,7 +32,7 @@
 
  */
 
-gsl_rng * rng;  // pointer to a global random number generator
+gsl_rng *rng;                   // pointer to a global random number generator
 
 
 int
@@ -43,11 +43,11 @@ randvec (a, r)
   double costheta, sintheta, phi, sinphi, cosphi;
 
 //  phi = 2. * PI * (rand () / MAXRAND); //DONE
-  phi = 2. * PI *random_number(0.0,1.0);
+  phi = 2. * PI * random_number (0.0, 1.0);
   sinphi = sin (phi);
   cosphi = cos (phi);
 //  costheta = 2. * (rand () / MAXRAND) - 1.; //DONE - this makes a number from -1 to 1
-  costheta = random_number(-1.0,1.0);
+  costheta = random_number (-1.0, 1.0);
   sintheta = sqrt (1. - costheta * costheta);
   a[0] = r * cosphi * sintheta;
   a[1] = r * sinphi * sintheta;
@@ -114,7 +114,7 @@ randvcos (lmn, north)
 // The is the correct approach to generating a uniform azimuthal distribution
 
 //  phi = 2. * PI * (rand () / MAXRAND); //DONE
-  phi = 2. * PI * random_number(0.0,1.0);
+  phi = 2. * PI * random_number (0.0, 1.0);
   l = q * cos (phi);
   m = q * sin (phi);
 
@@ -184,12 +184,12 @@ vcos (x)
 
 
 int
-	init_rand(seed)
-		int seed;
+init_rand (seed)
+     int seed;
 {
-    rng = gsl_rng_alloc(gsl_rng_mt19937); //Set the random number generator to the GSL Meursenne twirster
-	gsl_rng_set(rng, seed);
-	return(0);
+  rng = gsl_rng_alloc (gsl_rng_mt19937);        //Set the random number generator to the GSL Meursenne twirster
+  gsl_rng_set (rng, seed);
+  return (0);
 }
 
 
@@ -207,11 +207,11 @@ int
  * 2/18	-	Written by NSH
 ***********************************************************/
 
-			
-double random_number(double min, double max)
 
+double
+random_number (double min, double max)
 {
-	double num = gsl_rng_uniform_pos(rng);
-	double x = min + ((max - min) * num);
-	return(x);
-}		
+  double num = gsl_rng_uniform_pos (rng);
+  double x = min + ((max - min) * num);
+  return (x);
+}

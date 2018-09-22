@@ -149,8 +149,8 @@ calculate_ionization (restart_stat)
     /* Zero the arrays, and other variables that need to be zeroed after the photons are generated. */
 
 
-    geo.lum_star_back=0;
-    geo.lum_disk_back=0;
+    geo.lum_star_back = 0;
+    geo.lum_disk_back = 0;
 
 
     for (n = 0; n < NRINGS; n++)
@@ -276,18 +276,20 @@ calculate_ionization (restart_stat)
  * values, loglin (0=linear, 1=log for the wavelength scale), all photons or just wind photons
  */
 
-      spectrum_summary (files.wspec,       0, 6, SPECTYPE_RAW, 1., 0, 0);  /* .spec_tot */
-      spectrum_summary (files.lwspec,      0, 6, SPECTYPE_RAW, 1., 1, 0);  /* .log_spec_tot */
-      spectrum_summary (files.wspec_wind,  0, 6, SPECTYPE_RAW, 1., 0, 1);  /* .spec_tot_wind  */
-      spectrum_summary (files.lwspec_wind, 0, 6, SPECTYPE_RAW, 1., 1, 1);  /* .log_spec_tot_wind */
+      spectrum_summary (files.wspec, 0, 6, SPECTYPE_RAW, 1., 0, 0);     /* .spec_tot */
+      spectrum_summary (files.lwspec, 0, 6, SPECTYPE_RAW, 1., 1, 0);    /* .log_spec_tot */
+      spectrum_summary (files.wspec_wind, 0, 6, SPECTYPE_RAW, 1., 0, 1);        /* .spec_tot_wind  */
+      spectrum_summary (files.lwspec_wind, 0, 6, SPECTYPE_RAW, 1., 1, 1);       /* .log_spec_tot_wind */
       phot_gen_sum (files.phot, "w");   /* Save info about the way photons are created and absorbed
                                            by the disk */
 
       /* Save the various wind properties to a vtk file */
-      char *property_names[] = {"temp_e"};
-      void (*property_pointers[])(WindPtr, FILE*) = {vtk_temperature_e};
+      char *property_names[] = { "temp_e", "density_c4", "density_h1" };
+      void (*property_pointers[]) (WindPtr, FILE *) =
+      {
+      vtk_temperature_e, vtk_ion_c4, vtk_ion_h1};
 
-      output_vtk(wmain, 0, geo.wcycle, 1, property_pointers, property_names);
+      output_vtk (wmain, 0, geo.wcycle, 3, property_pointers, property_names);
 
 #ifdef MPI_ON
     }
@@ -324,9 +326,9 @@ calculate_ionization (restart_stat)
       }
       if (modes.make_tables)
       {
-          strcpy(dummy,"");
-          sprintf(dummy,"diag_%s/%s%02d",files.root,files.root,geo.wcycle);
-          do_windsave2table(dummy);
+        strcpy (dummy, "");
+        sprintf (dummy, "diag_%s/%s%02d", files.root, files.root, geo.wcycle);
+        do_windsave2table (dummy);
       }
 
 #ifdef MPI_ON
@@ -529,11 +531,11 @@ make_spectra (restart_stat)
     {
 #endif
 
-      spectrum_summary (files.spec,  0, nspectra - 1, geo.select_spectype, renorm, 0, 0);
+      spectrum_summary (files.spec, 0, nspectra - 1, geo.select_spectype, renorm, 0, 0);
       spectrum_summary (files.lspec, 0, nspectra - 1, geo.select_spectype, renorm, 1, 0);
 
       /* Next lines  produce spectra from photons in the wind only */
-      spectrum_summary (files.spec_wind,  0, nspectra - 1, geo.select_spectype, renorm, 0, 1);
+      spectrum_summary (files.spec_wind, 0, nspectra - 1, geo.select_spectype, renorm, 0, 1);
       spectrum_summary (files.lspec_wind, 0, nspectra - 1, geo.select_spectype, renorm, 1, 1);
 
 #ifdef MPI_ON

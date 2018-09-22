@@ -624,7 +624,7 @@ one_choice (choice, root, ochoice)
     grid_summary (wmain, root, ochoice);        //
     break;
   case '&':
-    collision_summary (wmain, root, ochoice);        //
+    collision_summary (wmain, root, ochoice);   //
     break;
 
   case 'q':                    /* quit */

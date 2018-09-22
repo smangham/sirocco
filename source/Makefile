@@ -87,8 +87,8 @@ GIT_COMMIT_HASH := $(shell expr `git rev-parse HEAD`)
 # Test if indent is installed. We use a different version on mac and linux.
 OS_TYPE := $(shell uname -s)
 ifeq ($(OS_TYPE), Darwin)
-	INDENT_PATH := $(shell which gnuindent)
-	INDENT_VERSION = $(shell gnuindent -version)
+	INDENT_PATH := $(shell which gindent)
+	INDENT_VERSION = $(shell gindent -version)
 else
 	INDENT_PATH := $(shell which indent)
 	INDENT_VERSION := $(shell indent -version)
