@@ -134,11 +134,19 @@ endif
 # next line for debugging when concerned about memory problems and duma installed in python directory
 # LDFLAGS= -L$(LIB)  -lm -lkpar  -lgsl -lgslcblas ../duma_2_5_3/libduma.a -lpthread
 # next line if you want to use kpar as a library, rather than as source below
+<<<<<<< HEAD
 # LDFLAGS= -L$(LIB)  -lm -lkpar -lcfitsio -lgsl -lgslcblas
 LDFLAGS= -L$(LIB) -lm -lgsl -lgslcblas
 
 #Note that version should be a single string without spaces.
 VERSION = 82g
+=======
+# LDFLAGS= -L$(LIB)  -lm -lkpar -lcfitsio -lgsl -lgslcblas 
+LDFLAGS= -L$(LIB) -lm -lcfitsio -lgsl -lgslcblas 
+
+#Note that version should be a single string without spaces. 
+VERSION = 81a
+>>>>>>> upstream/master
 
 
 CHOICE=1             // Compress plasma as much as possible
