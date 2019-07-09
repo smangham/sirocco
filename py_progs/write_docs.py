@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-'''
+"""
 
 Synopsis:
 
@@ -64,7 +64,7 @@ History:
         likely to be what I want.
 180126  ksl Modified for use with python
 
-'''
+"""
 
 import sys
 import os
@@ -73,22 +73,22 @@ from MarkupPy import markup
 
 
 def make_toplevel(dirname, names):
-    '''
+    """
     Create an html page to point to all
     of the individual help pages that have
     been made
-    '''
+    """
     # First get the name of the directory
     dirname = dirname.replace('/', ' ')
     dirname = dirname.strip()
     dirname = dirname.split()
-    dirname = dirname[len(dirname)-1]
+    dirname = dirname[len(dirname) - 1]
     print(dirname)
 
-    html_name = 'doc_'+dirname+'.html'
+    html_name = 'doc_' + dirname + '.html'
 
     # Start a page
-    page = markup.page( )
+    page = markup.page()
 
     page.init(title="Documentation for %s" % dirname)
 
@@ -99,24 +99,25 @@ def make_toplevel(dirname, names):
         item = markup.oneliner.a(name, href="./%s.html" % name)
         items.append(item)
 
-    page.ul(class_='mylist' )
-    page.li(items, class_='myitem' )
+    page.ul(class_='mylist')
+    page.li(items, class_='myitem')
     page.ul.close()
 
-    page.p('Warning: This page is rewritten every whenever write_docs.py is run on this directoryand so this page should not be edited')
+    page.p(
+        'Warning: This page is rewritten every whenever write_docs.py is run on this directoryand so this page should not be edited')
     g = open(html_name, 'w')
     g.write('%s' % page)
     g.close()
 
 
 def write_docs(dirname='../../py_progs'):
-    '''
+    """
     Locate all of the .py files in dirname and
     write out help in the current working directory
     using pydocs
-    '''
+    """
 
-    search_name = dirname+'/*.py'
+    search_name = dirname + '/*.py'
     names = glob.glob(search_name)
     print(names)
     g = open('DoDocs', 'w')
@@ -125,7 +126,7 @@ def write_docs(dirname='../../py_progs'):
 
     for name in names:
         words = name.split('/')
-        filename = words[len(words)-1]
+        filename = words[len(words) - 1]
         words = filename.split('.')
         root = words[0]
         roots.append(root)
