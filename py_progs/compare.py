@@ -22,14 +22,14 @@ import carlo
 
 
 def get_python_spec_angles(filename='py_ixvel/ixvel_00_00_00_00_00_00_00.spec'):
-	'''
+	"""
 	This routine simply finds the angles for which a specific python spectrum
 	has been calculated and returns them as a list
-	'''
+	"""
 	try:
 		specfile=open(filename,'r')
 	except  IOError:
-		print filename, " does not exist"
+		print(filename, " does not exist")
 		return w,f
 
 	angles=[]
@@ -64,7 +64,7 @@ def read_python_spec(filename,column):
 	try:
 		specfile=open(filename,'r')
 	except  IOError:
-		print filename, " does not exist"
+		print(filename, " does not exist")
 		return w,f
 	line=specfile.readline()
 	while line!='':
@@ -75,7 +75,7 @@ def read_python_spec(filename,column):
 			try:
 				f=f+[float(z[column+7])]
 			except IndexError:
-				print 'Spec %s does not exist in %s' % (column,filename)
+				print('Spec %s does not exist in %s' % (column,filename))
 				return w,f
 		else:
 			gotangle='no'
@@ -83,20 +83,20 @@ def read_python_spec(filename,column):
 				try:
 					angle=z[column+7]
 				except IndexError:
-					print 'Angle %s does not exist in %s' % (column,filename)
+					print('Angle %s does not exist in %s' % (column,filename))
 					return w,f
 				gotangle='yes'
 			elif z[1]=='Freq.':
 				try:
 					angle=z[column+8]
 				except IndexError:
-					print 'Angle %s does not exist in %s' % (column,filename)
+					print('Angle %s does not exist in %s' % (column,filename))
 					return w,f
 				gotangle='yes'
 			else:
-				print z
+				print(z)
 			if gotangle=='yes':
-				print 'The angle was',angle
+				print('The angle was', angle)
 		line=specfile.readline()
 	w=numpy.array(w)
 	f=numpy.array(f)
@@ -120,7 +120,7 @@ def read_data_spec(filename,col_wave=0,col_flux=1,col_err=2):
 	try:
 		specfile=open(filename,'r')
 	except  IOError:
-		print filename," does not exist"
+		print(filename," does not exist")
 		return wave,flux,error
 	line=specfile.readline()
 	while line != "":
@@ -141,9 +141,9 @@ def read_data_spec(filename,col_wave=0,col_flux=1,col_err=2):
 
 
 def reduce_xy(x,y,xmin,xmax):
-	'''
+	"""
 	Get the portions of the array that are within xmin and xmax
-	'''
+	"""
 	condition= (xmin < x) & (x < xmax)
 	xout=numpy.compress(condition,x)
 	yout=numpy.compress(condition,y)
@@ -177,7 +177,7 @@ def scale_model (wdat,fdat,wmod,fmod,wmin,wmax):
 
 
 def get_data_model (data,model,ang_no):
-	'''
+	"""
 	get_data_model just gets an observed
 	spectrum, data, and a model spectrum
 
@@ -188,11 +188,12 @@ def get_data_model (data,model,ang_no):
 
 	Note - It's not clear that this routine
 	is that useful.
+	"""
 
-	'''
 	w,f,e=read_data_spec(data)
 	wmod,fmod=read_python_spec(model,ang_no)
 	return w,f,wmod,fmod
+
 
 def plot_data_model(data,model,column,wmin,wmax):
 	"""
@@ -202,12 +203,11 @@ def plot_data_model(data,model,column,wmin,wmax):
 	wmin and wmax are rhe regions to be included int he plot
 	"""
 
-
 	w,f,wmod,fmod=get_data_model(data,model,column)
 
 	# Check that get_data_model succeeded
 	if len(f)==0 or len(fmod) == 0:
-		print 'data (%s) or mod (%s col  %d) were not found' % (data,model,column)
+		print('data (%s) or mod (%s col  %d) were not found' % (data,model,column))
 		return w,f,wmod,fmod
 
 	ww,ff=reduce_xy(w,f,wmin,wmax)
@@ -233,13 +233,13 @@ def plot_data_model(data,model,column,wmin,wmax):
 	return w,f,wmod,fmod
 
 def add_plot(w,f,wmod,fmod,wmin,wmax):
-	'''
+	"""
 	This is the generic routine that plots a panel of the spectrum
-	'''
+	"""
 
 	# Check that get_data_model succeeded
 	if len(f)==0 or len(fmod) == 0:
-		print 'data (%d) or mod (%d ) had zero length' % (len(f),len(fmod))
+		print('data (%d) or mod (%d ) had zero length' % (len(f),len(fmod)))
 		return
 
 	ww,ff=reduce_xy(w,f,wmin,wmax)
@@ -266,13 +266,13 @@ def add_plot(w,f,wmod,fmod,wmin,wmax):
 
 
 def xadd_plot(w,f,wmod,fmod,band):
-	'''
+	"""
 	This is the generic routine that plots a panel of the spectrum
-	'''
+	"""
 
 	# Check that get_data_model succeeded
 	if len(f)==0 or len(fmod) == 0:
-		print 'data (%d) or mod (%d ) had zero length' % (len(f),len(fmod))
+		print('data (%d) or mod (%d ) had zero length' % (len(f),len(fmod)))
 		return
 
 	wmin=band[0]
@@ -280,7 +280,6 @@ def xadd_plot(w,f,wmod,fmod,band):
 
 	ww,ff=reduce_xy(w,f,wmin,wmax)
 	wwmod,ffmod=reduce_xy(wmod,fmod,wmin,wmax)
-
 
 	fscale=scale_model (ww,ff,wwmod,ffmod,wmin,wmax)
 
@@ -296,7 +295,7 @@ def xadd_plot(w,f,wmod,fmod,band):
 	xreset[3]=3.*xmed
 	y,ylabel,yname=nice_flux_labels(xreset[3])
 	pylab.yticks(y,ylabel)
-	print "The yname was %s ",yname
+	print("The yname was %s ",yname)
 
 	if band[2]!='Complete':
 		wmid=0.5*(wmax+wmin)
@@ -309,11 +308,6 @@ def xadd_plot(w,f,wmod,fmod,band):
 
 	pylab.axis(xreset)
 	return yname
-
-
-
-
-
 
 
 def xplot(data,model,column,inst='hst'):
@@ -369,7 +363,7 @@ def xplot(data,model,column,inst='hst'):
 		band=hst_bands
 
 
-	print band
+	print(band)
 
 	# Get the data and the model
 	w,f,e=read_data_spec(data)
@@ -430,7 +424,7 @@ def get_grid(filename='sscyg_kgrid0902/Models.ls',outfile='none'):
 
 	f=open(filename,'r')
 
-	print 'get_grid ',outfile
+	print('get_grid ',outfile)
 	if outfile!='none':
 		g=open(outfile,'w')
 
@@ -466,10 +460,10 @@ def get_grid(filename='sscyg_kgrid0902/Models.ls',outfile='none'):
 
 
 def get_unique(mylist):
-	'''
+	"""
 	get_unique simply return the unique values in
 	a list
-	'''
+	"""
 	myset=set(mylist)
 	xlist=list(myset)
 	xlist.sort()
@@ -477,7 +471,7 @@ def get_unique(mylist):
 	return finallist
 
 def get_chosen_model(files,possible,choices):
-	'''
+	"""
 	get the name of a model that has the specific
 	values of mdot, etc. that were requested.
 
@@ -491,7 +485,7 @@ def get_chosen_model(files,possible,choices):
 			slightly modified routine
 	090302	ksl	Modified to locate which particular
 			spectrum as well
-	'''
+	"""
 	m=0;
 	chosen='none'
 	while m<len(files):
@@ -510,7 +504,7 @@ def get_chosen_model(files,possible,choices):
 			break
 		m=m+1
 
-	print 'get_chosen: ',chosen
+	print('get_chosen: ',chosen)
 
 	# Now the spectrum is given trivially, since we are using
 	# the number to indicate what spectrum we want
@@ -518,17 +512,17 @@ def get_chosen_model(files,possible,choices):
 	return chosen,choices[n]
 
 def get_chosen_models(files,possible,choices):
-	'''
+	"""
 	get_chosen_models returns a new list of files that have
 	been censored by choices
-	'''
+	"""
 
-	print 'files :', len(files),files[0]
-	print 'possible ',len(possible),possible[0]
-	print 'choices: ',len(choices), choices
+	print('files :', len(files),files[0])
+	print('possible ',len(possible),possible[0])
+	print('choices: ',len(choices), choices)
 
 	good_files=[]
-	m=0;
+	m=0
 	while m<len(files):
 		n=0
 		good='ok'
@@ -557,11 +551,12 @@ def get_chosen_models(files,possible,choices):
 			good_files=good_files+[files[m]]
 		# print m
 		m=m+1
-	print 'Found %d good files ' % len(good_files)
+	print('Found %d good files ' % len(good_files))
 	return good_files
 
+
 def look(modellist='sscyg_kgrid0902/Models.ls',outfile='none'):
-	'''
+	"""
 	look produces a list of the models and their parameters in
 	a format that one can select individual models.
 
@@ -576,7 +571,7 @@ def look(modellist='sscyg_kgrid0902/Models.ls',outfile='none'):
 			get_grid.  It's possible that get_grid should be
 			pulled out of this routine
 
-	'''
+	"""
 	# Read the model list file
 	columns,files=get_grid(modellist,outfile)
 
@@ -632,7 +627,7 @@ def look(modellist='sscyg_kgrid0902/Models.ls',outfile='none'):
 
 
 def censor(modellist='py_ixvel/Models.ls',outputfilename='test.ls'):
-	'''
+	"""
 	censor take a standard modellist and create a new modellist.
 
 	modellist is the original list
@@ -641,8 +636,7 @@ def censor(modellist='py_ixvel/Models.ls',outputfilename='test.ls'):
 	This uses raw input commands, e..g lists
 
 	090312 	ksl	Added
-
-	'''
+    """
 	wholestring,possible,files=look(modellist,outputfilename)
 	# The routine returns:
 	# 	wholestring  -- a formatted version of the unique values for each variable
@@ -650,14 +644,14 @@ def censor(modellist='py_ixvel/Models.ls',outputfilename='test.ls'):
 	# 	files -- the list of files with all the associated variables for that file
 
 	n=0
-	print 'Enter the integer vallues that you want as a python list'
+	print('Enter the integer vallues that you want as a python list')
 	choices=[]
 	while n<len(wholestring)-1:
-		print wholestring[n]
+		print(wholestring[n])
 		jj=len(wholestring[n].split())
 		string = "Choice (1 through %s) as python list, e,g [1,2]:  " % (jj-1)
 		zz=input(string)
-		print zz
+		print(zz)
 		if len(zz)==0:
 			zz=[-1]
 		choices=choices+[zz]
@@ -673,7 +667,7 @@ def censor(modellist='py_ixvel/Models.ls',outputfilename='test.ls'):
 		line=censored_list[i]
 		g.write('%30s' % line[0])
 		j=1
-		print line
+		print(line)
 		while j<len(line):
 			g.write('%9.3g' % line[j])
 			j=j+1
@@ -715,7 +709,7 @@ def explore(modellist='py_ixvel/models.ls',spectrum='ixvel_stis2',obs='hst',ions
 	while go_on=='yes':
 		n=0
 		while n<len(wholestring):
-			print wholestring[n]
+			print(wholestring[n])
 			jj=len(wholestring[n].split())
 			try:
 				i=int(get_input(("Choice (1 to %s)" % (jj-1)),str(choices[n])))
@@ -724,34 +718,31 @@ def explore(modellist='py_ixvel/models.ls',spectrum='ixvel_stis2',obs='hst',ions
 					xchoices[n]=possible[n][choices[n]]
 					n=n+1
 				except IndexError:
-					print 'choice %d out of range' % (i)
+					print('choice %d out of range' % (i))
 			except ValueError:
-				print 'Could not parse choice, try again!'
+				print('Could not parse choice, try again!')
 				continue
 
 
 
 
-		print ' Choices: ',choices
-		print 'Xchoices: ',xchoices
+		print(' Choices: ',choices)
+		print('Xchoices: ',xchoices)
 
 		modelname,ispec=get_chosen_model(files,possible,choices)
 
-		print spectrum,modelname,ispec
+		print(spectrum,modelname,ispec)
 
 
 		if modelname!='none':
 				xplot(spectrum,modelname,ispec,obs)
 		else:
-			print 'Model with these values not calculated'
+			print('Model with these values not calculated')
 
 		if ions!='no':
 			carlo.cno(modelname[0:modelname.rindex('.spec')])
 
 		go_on=get_input("Continue",go_on)
-
-
-
 
 
 def do_one(data,model,column,wmin=1525.,wmax=1575.,wvel=1550.):
@@ -824,180 +815,180 @@ def vel_lim(wave=1550.,max_v=3000,ntics=3):
 	return wmin,wmax,x,label
 
 def nice_flux_labels(ymax,nticks=5):
-	'''
-	Get some nicer places to put
-	the flux labels
-	'''
+    """
+    Get some nicer places to put
+    the flux labels
+    """
 
 
-	if ymax>1e-10:
-		scale=1e-10
-		scaleword='-10'
-	elif ymax>1e-11:
-		scale=1e-11
-		power='-11'
-	elif  ymax>1e-12:
-		scale=1e-12
-		power='-12'
-	elif  ymax>1e-13:
-		scale=1e-13
-		power='-13'
-	elif  ymax>1e-14:
-		scale=1e-14
-		power='-14'
-	else:
-		scale=1e-15
-		power='-15'
+    if ymax>1e-10:
+        scale=1e-10
+        scaleword='-10'
+    elif ymax>1e-11:
+        scale=1e-11
+        power='-11'
+    elif  ymax>1e-12:
+        scale=1e-12
+        power='-12'
+    elif  ymax>1e-13:
+        scale=1e-13
+        power='-13'
+    elif  ymax>1e-14:
+        scale=1e-14
+        power='-14'
+    else:
+        scale=1e-15
+        power='-15'
 
-	smax=ymax/scale  # This is a number between 1 and 10
-	print 'nice_flux', smax
+    smax=ymax/scale  # This is a number between 1 and 10
+    print('nice_flux', smax)
 
-	delta=3
-	while 3 > smax/delta:
-		delta=delta-0.1
+    delta=3
+    while 3 > smax/delta:
+        delta=delta-0.1
 
-	label=[]
-	y=[]
-	i=0
-	while i<4:
-		y=y+[(delta*scale*i)]
-		label=label+['%.1f' % (delta*i)]
-		i=i+1
-	return y,label,power
+    label=[]
+    y=[]
+    i=0
+    while i<4:
+        y=y+[(delta*scale*i)]
+        label=label+['%.1f' % (delta*i)]
+        i=i+1
+    return y,label,power
 
 
 
 def pyfit3_out(filename,inst='hst'):
-	'''
-	Plot the results of pyfit3 in a standard way.  The instrument
-	defines what standard wavelength ranges are involved
-	'''
+    '''
+    Plot the results of pyfit3 in a standard way.  The instrument
+    defines what standard wavelength ranges are involved
+    '''
 
-	wav,flux,err=read_data_spec(filename,0,1,2)
-	wav,mod,good=read_data_spec(filename,0,3,4)
+    wav,flux,err=read_data_spec(filename,0,1,2)
+    wav,mod,good=read_data_spec(filename,0,3,4)
 
-	hst_bands=          [[1175.64,'C III']]
-	hst_bands=hst_bands+[[1238.821,'N V']]
-	# 1393.7546  1402.7697
-	hst_bands=hst_bands+[[1393.754,'Si IV']]
-	hst_bands=hst_bands+[[1548.203,'C IV']]
-
-
-	# 1031.93 )triplet) 1037.62 (singlet)
-	hut_bands=          [[1031.93,'O VI']]
-	hut_bands=hut_bands+[[1238.821,'N V']]
-	# 1393.7546  1402.7697
-	hut_bands=hut_bands+[[1393.754,'Si IV']]
-	hut_bands=hut_bands+[[1548.203,'C IV']]
+    hst_bands=          [[1175.64,'C III']]
+    hst_bands=hst_bands+[[1238.821,'N V']]
+    # 1393.7546  1402.7697
+    hst_bands=hst_bands+[[1393.754,'Si IV']]
+    hst_bands=hst_bands+[[1548.203,'C IV']]
 
 
-
-
-	# SVI 933.378 (triplet) 944.523 singlet
-	fuse_bands=          [[933.378,'S VI']]
-	# CIII 977.0201
-	# NIII 991.577 991.511 are slighly off the ground state, but have highes progs
-	# NIII 989.799 is the ground state, but has a lower gf.
-	fuse_bands=fuse_bands+[[977.02,'CIII 977']]
-	fuse_bands=fuse_bands+[[1031.93,'O VI']]
-	fuse_bands=fuse_bands+[[1175.64,'C III 1175']]
+    # 1031.93 )triplet) 1037.62 (singlet)
+    hut_bands=          [[1031.93,'O VI']]
+    hut_bands=hut_bands+[[1238.821,'N V']]
+    # 1393.7546  1402.7697
+    hut_bands=hut_bands+[[1393.754,'Si IV']]
+    hut_bands=hut_bands+[[1548.203,'C IV']]
 
 
 
 
-	if inst=='hut':
-		mytitle='HUT'
-		bands=hut_bands
-		vel_width=9000
-	elif inst=='fuse':
-		mytitle='FUSE'
-		bands=fuse_bands
-		vel_width=9000
-	else:
-		mytitle='HST'
-		bands=hst_bands
-		vel_width=3000
-
-	pylab.figure(3)
-	pylab.clf()
-
-
-	i=0
-	while i<4:
-
-		subplotno=221+i
-
-		ax=pylab.subplot(subplotno)
-
-		# Read the specific spectrum for this file
-		wav,line,good=read_data_spec(filename,0,5+2*i,6+2*i)
-		# Get the wavelengths for this band
-		wmin,wmax,x,xlabel=vel_lim(bands[i][0],vel_width,3)
-
-		# Reduce all three spectra to the wavelength ranges to be plotted
-		ww,ff=reduce_xy(wav,flux,wmin,wmax)
-		wwmod,ffmod=reduce_xy(wav,mod,wmin,wmax)
-		wwbest,ffbest=reduce_xy(wav,line,wmin,wmax)
-
-		# plot the spectra
-		pylab.plot(wwmod,ffmod,'g')
-		# pylab.plot(wwmod,ffmod,':k',linewidth=3)
-		pylab.plot(ww,ff,'b')
-		pylab.plot(wwbest,ffbest,'r')
+    # SVI 933.378 (triplet) 944.523 singlet
+    fuse_bands=          [[933.378,'S VI']]
+    # CIII 977.0201
+    # NIII 991.577 991.511 are slighly off the ground state, but have highes progs
+    # NIII 989.799 is the ground state, but has a lower gf.
+    fuse_bands=fuse_bands+[[977.02,'CIII 977']]
+    fuse_bands=fuse_bands+[[1031.93,'O VI']]
+    fuse_bands=fuse_bands+[[1175.64,'C III 1175']]
 
 
 
-		# Now label it all
-		reset=pylab.axis()
-		xreset=list(reset)
-		xreset[0]=wmin
-		xreset[1]=wmax
-		xreset[2]=0
-		xreset[3]=2*numpy.median(ff)
-		pylab.axis(xreset)
-		pylab.xticks(x,xlabel)
-		y,ylabel,yname=nice_flux_labels(xreset[3])
-		pylab.yticks(y,ylabel)
-		# Add a label.  Note that .text is in coordinates of plt
-		xpos=wmin+(wmax-wmin)*0.1
-		ypos=0.8*xreset[3]
-		pylab.text(xpos,ypos,bands[i][1])
+
+    if inst=='hut':
+        mytitle='HUT'
+        bands=hut_bands
+        vel_width=9000
+    elif inst=='fuse':
+        mytitle='FUSE'
+        bands=fuse_bands
+        vel_width=9000
+    else:
+        mytitle='HST'
+        bands=hst_bands
+        vel_width=3000
+
+    pylab.figure(3)
+    pylab.clf()
 
 
-		i=i+1
+    i=0
+    while i<4:
 
-	string=r'Flux ($ 10^{%s} ergs \/ cm^{-2} s^{-1} \AA^{-1}$)' %yname
+        subplotno=221+i
+
+        ax=pylab.subplot(subplotno)
+
+        # Read the specific spectrum for this file
+        wav,line,good=read_data_spec(filename,0,5+2*i,6+2*i)
+        # Get the wavelengths for this band
+        wmin,wmax,x,xlabel=vel_lim(bands[i][0],vel_width,3)
+
+        # Reduce all three spectra to the wavelength ranges to be plotted
+        ww,ff=reduce_xy(wav,flux,wmin,wmax)
+        wwmod,ffmod=reduce_xy(wav,mod,wmin,wmax)
+        wwbest,ffbest=reduce_xy(wav,line,wmin,wmax)
+
+        # plot the spectra
+        pylab.plot(wwmod,ffmod,'g')
+        # pylab.plot(wwmod,ffmod,':k',linewidth=3)
+        pylab.plot(ww,ff,'b')
+        pylab.plot(wwbest,ffbest,'r')
 
 
 
-	# Finally add the global labels
-	pylab.figtext(0.5, 0.94,mytitle,horizontalalignment='center')
-	pylab.figtext(0.5, 0.0,r'Velocity ($km \/ s^{-1}$) ',horizontalalignment='center')
-	pylab.figtext(0.03,0.5,string,verticalalignment='center',rotation='vertical')
+        # Now label it all
+        reset=pylab.axis()
+        xreset=list(reset)
+        xreset[0]=wmin
+        xreset[1]=wmax
+        xreset[2]=0
+        xreset[3]=2*numpy.median(ff)
+        pylab.axis(xreset)
+        pylab.xticks(x,xlabel)
+        y,ylabel,yname=nice_flux_labels(xreset[3])
+        pylab.yticks(y,ylabel)
+        # Add a label.  Note that .text is in coordinates of plt
+        xpos=wmin+(wmax-wmin)*0.1
+        ypos=0.8*xreset[3]
+        pylab.text(xpos,ypos,bands[i][1])
+
+
+        i=i+1
+
+    string=r'Flux ($ 10^{%s} ergs \/ cm^{-2} s^{-1} \AA^{-1}$)' %yname
+
+
+
+    # Finally add the global labels
+    pylab.figtext(0.5, 0.94,mytitle,horizontalalignment='center')
+    pylab.figtext(0.5, 0.0,r'Velocity ($km \/ s^{-1}$) ',horizontalalignment='center')
+    pylab.figtext(0.03,0.5,string,verticalalignment='center',rotation='vertical')
 
 
 #	pylab.xticks(x,xlabel)
-	pylab.draw()
-	pylab.savefig(filename+'.jpg')
+    pylab.draw()
+    pylab.savefig(filename+'.jpg')
 
 
 
-print '''
+print('''
 The main routines are:
 
 compare.explore(modellist='py_ixvel/models.ls',spectrum='ixvel_stis2',obs='hst',ions='no')
-	allows one to explore models based on the variables that were used to generate the models
+    allows one to explore models based on the variables that were used to generate the models
 
 comapare.pyfit3_out(filename,inst='hst')
-	which produces a plot that shows the results of a pyfit3 run.
-	This is rougly equivalent to sm.pyfit3
+    which produces a plot that shows the results of a pyfit3 run.
+    This is rougly equivalent to sm.pyfit3
 
 compare.xplot(data,model,column,inst='hst')
-	compare observed spectrum to a specific model and numbered angle on an instrument
-	by instrument basis
+    compare observed spectrum to a specific model and numbered angle on an instrument
+    by instrument basis
 
 compare.censor(modellist,newlist)
-	produces a new list of files in a format for pyfit3 which have been censored to for
-	example be a specific mdot.
+    produces a new list of files in a format for pyfit3 which have been censored to for
+    example be a specific mdot.
 For more extensive information, use the help facility
-'''
+''')
