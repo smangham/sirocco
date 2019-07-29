@@ -10,6 +10,7 @@ Reverb
    are due to light travel time. For each final spectrum, all contributing
    photons are output to a '.delay_dump' file that can then be processed using
    our 'tfpy' Python (no relation) library.
+   :math:`\Psi(r^{2})/\Beta_\Alpha`
 
    :param none: Off
    :param photon: Each photon is assigned an initial path based on its distance from the
